@@ -279,10 +279,6 @@ If YES → proceed to Final Approval
 ```
 Driver sends Junior Member feedback to Senior Member (no summary, full reviews)
   ↓
-Driver checks for drift (compare to requirements)
-  ↓
-Driver includes drift alert if detected
-  ↓
 Senior Member reviews feedback
   ↓
 Senior Member may reject items as out-of-scope (with rationale)
@@ -293,10 +289,9 @@ Driver evaluates Senior response:
   - Quality score (1-5)
   - Completeness score (1-5)
   - Drift score (1-5)
+  - Check for circular changes
   ↓
 Junior Members re-review
-  ↓
-Driver checks for circular changes
   ↓
 Repeat until consensus OR stop condition
 ```
