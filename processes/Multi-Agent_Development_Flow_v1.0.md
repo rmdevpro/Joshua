@@ -277,13 +277,11 @@ If YES → proceed to Final Approval
 
 ### Phase 4: Iteration (if needed)
 ```
-Driver aggregates Junior Member feedback
+Driver sends Junior Member feedback to Senior Member (no summary, full reviews)
   ↓
 Driver checks for drift (compare to requirements)
   ↓
 Driver includes drift alert if detected
-  ↓
-Driver sends aggregated feedback to Senior Member
   ↓
 Senior Member reviews feedback
   ↓
