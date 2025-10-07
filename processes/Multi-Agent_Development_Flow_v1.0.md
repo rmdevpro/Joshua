@@ -184,72 +184,70 @@ A structured development process leveraging multiple AI agents with specialized 
 
 ### Phase 1: Generation
 ```
-Driver receives requirements
+Driver prepares inputs (outline, requirements, code, documents)
   ↓
-Driver validates requirements clarity
+Driver sends to Trio
   ↓
-Driver assigns to Trio
+Trio generates 3 independent drafts (parallel)
   ↓
-Trio generates 3 independent solutions (parallel)
-  ↓
-Driver rates Trio performance
+Driver reviews & rates (Quality, Completeness, Drift)
 ```
 
 **Success Criteria**:
-- All 3 implementations submitted
+- All 3 drafts submitted
 - Reasonable diversity in approaches
-- Requirements addressed by all 3
+- Inputs addressed by all 3
 
 **Driver Evaluation**:
-- Coverage: Do all 3 address requirements?
+- Coverage: Do all 3 address inputs?
 - Diversity: Are approaches sufficiently different?
 - Quality: Is baseline quality acceptable?
+
+**Note**: Inputs vary by deliverable type:
+- **Requirements doc**: Outline drafted with user
+- **Code implementation**: Existing requirements/specs
+- **README**: Existing code + requirements
+- **Architecture doc**: Outline drafted with user
+- **Refactoring**: Existing code + objectives
 
 ---
 
 ### Phase 2: Synthesis
 ```
-Driver assigns Senior Member as Synthesizer
+Driver sends to Senior Member
   ↓
-Senior Member reviews all 3 implementations
+Senior Member reviews all 3 drafts
   ↓
-Senior Member creates unified solution
+Senior Member creates unified solution + notes on disagreements
   ↓
-Driver checks for requirements drift
-  ↓
-Driver rates synthesis quality
+Driver reviews & rates (Quality, Completeness, Drift)
 ```
 
 **Success Criteria**:
-- Unified implementation created
+- Unified draft created
 - Best elements from all 3 incorporated
 - Consistent style and architecture
-- No requirements drift
+- No drift from inputs
 
 **Driver Evaluation**:
 - Completeness: All features present?
 - Quality: Improvement over individual outputs?
 - Consistency: Unified voice/style?
-- Drift: Still aligned with requirements?
+- Drift: Still aligned with inputs?
 
 ---
 
-### Phase 3: Review
+### Phase 3: Review (Initial)
 ```
-Driver assigns Junior Members as reviewers
+Driver sends to Junior Members
   ↓
 Junior Members review in parallel
   ↓
-Each provides detailed feedback
+Driver reviews & rates Junior performance
   ↓
-Driver evaluates each response:
-  - Quality score (1-5)
-  - Completeness score (1-5)
-  - Drift detection (1-5, flag if Red)
+Consensus? (2/2 approve)
   ↓
-Driver checks for consensus (both Junior Members approve?)
-  ↓
-If NO → proceed to Iteration
+If NO → proceed to Iteration Loop
 If YES → proceed to Final Approval
 ```
 
@@ -257,71 +255,59 @@ If YES → proceed to Final Approval
 - Both reviews completed
 - Specific, actionable feedback
 - Critical issues identified (if any)
-- Quality and Completeness scores adequate
 
 **Driver Evaluation** (per review response):
 1. **Quality Score**: Is feedback technically sound?
 2. **Completeness Score**: All areas covered?
-3. **Drift Check**: Review against original requirements
-   - Alert Senior Member if drift detected
-4. **Circular Change Check**: Compare to previous iterations
-   - Flag if same issue reappearing
-
-**Driver Actions Based on Evaluation**:
-- If Drift = Red: Alert Senior Member immediately
-- If Circular Change: Flag to Senior Member
-- If both approve: Move to final
-- If disagreement: Proceed to iteration with aggregated feedback
+3. **Drift Check**: Review against original inputs
+4. **Circular Change Check**: Compare to previous iterations (if applicable)
 
 ---
 
-### Phase 4: Iteration (if needed)
+### Phase 4: Iteration Loop (if needed)
 ```
-Driver sends Junior Member feedback to Senior Member (no summary, full reviews)
+[LOOP START]
+Driver sends to Senior Member
   ↓
-Senior Member reviews feedback
+Senior Member generates + notes on disagreements
   ↓
-Senior Member may reject items as out-of-scope (with rationale)
+Driver reviews & rates (Quality, Completeness, Drift)
   ↓
-Senior Member revises implementation
+Driver sends to Junior Members
   ↓
-Driver evaluates Senior response:
-  - Quality score (1-5)
-  - Completeness score (1-5)
-  - Drift score (1-5)
-  - Check for circular changes
+Junior Members review
   ↓
-Junior Members re-review
+Driver reviews & rates Junior performance
   ↓
-Repeat until consensus OR stop condition
+Consensus? (2/2 approve)
+  ↓
+If YES → EXIT LOOP to Final Approval
+If NO → Check loop count > 6?
+  ↓
+If loop count > 6 → STOP, consult user
+If loop count ≤ 6 → CONTINUE LOOP
+[LOOP END]
 ```
 
 **Success Criteria**:
 - Consensus reached (2/2 Junior Members approve)
 - All critical issues resolved
-- Requirements still met
+- Inputs still met
 - No circular changes
 
 **Stop Conditions**:
 - **SUCCESS**: Both Junior Members approve (2/2)
-- **MAX ITERATIONS**: 6 iterations reached → Driver stops & consults user
+- **MAX ITERATIONS**: Loop count > 6 → Driver stops & consults user
 - **CIRCULAR CHANGES**: 3rd occurrence → Driver stops & consults user
 - **PERSISTENT DRIFT**: Red for 2+ iterations → Driver stops & consults user
 - **BLOCKED**: Fundamental disagreement → Driver validates scope, then stops & consults user
-- **SENIOR IGNORING FEEDBACK**: Valid issues repeatedly unaddressed → Driver stops & consults user
 
 **Driver Evaluation** (per iteration):
 1. **Quality Score**: Is revised work improving?
 2. **Completeness Score**: Are issues being resolved?
-3. **Drift Score**: Still aligned with requirements?
+3. **Drift Score**: Still aligned with inputs?
 4. **Circular Change Check**: Any regressions or repeated issues?
-5. **Scope Validation**: Are rejections valid per requirements?
-
-**Driver Actions**:
-- After evaluation, include drift alert in next Senior Member prompt if needed
-- Flag circular changes explicitly to Senior Member
-- Validate any out-of-scope rejections against requirements
-- STOP and consult user if stop conditions met
+5. **Scope Validation**: Are Senior rejections valid per inputs?
 
 ---
 
@@ -331,18 +317,11 @@ Both Junior Members approve (2/2)
   ↓
 Senior Member implicitly approves (their work)
   ↓
-Driver performs final validation:
-  - Quality score (1-5)
-  - Completeness score (1-5)
-  - Drift score (1-5)
+Driver final validation & Post-Mortem Report
   ↓
-Driver generates Post-Mortem Report
+User reviews and approves
   ↓
-Driver presents report to user
-  ↓
-User reviews and provides feedback
-  ↓
-Deployment (if approved)
+Finished code or document
 ```
 
 **Success Criteria**:
@@ -355,13 +334,13 @@ Deployment (if approved)
 
 **Driver Final Evaluation**:
 1. **Quality Score**: Professional standards met?
-2. **Completeness Score**: All requirements satisfied?
+2. **Completeness Score**: All inputs satisfied?
 3. **Drift Score**: Perfect alignment maintained?
 4. **Overall Efficiency**: Iterations vs. value delivered
 5. **Team Performance**: Individual and collective ratings
 
 **Driver Deliverables**:
-1. Final implementation/document
+1. Finished code or document
 2. Comprehensive post-mortem report
 3. Process improvement recommendations
 4. Documentation gap identification
