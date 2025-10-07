@@ -1,0 +1,18 @@
+{
+  "correlation_id": "f20ada9d",
+  "timestamp": "20251006_160536",
+  "prompt": "<redacted - 71 chars>",
+  "prompt_length": 71,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "failed",
+      "error": "Unknown model: claude-opus-4-20250514"
+    }
+  ]
+}

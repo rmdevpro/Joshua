@@ -1,0 +1,51 @@
+{
+  "correlation_id": "769e0f4f",
+  "timestamp": "20251006_172949",
+  "prompt": "<redacted - 862 chars>",
+  "prompt_length": 862,
+  "files": [
+    "/app/allowed_files/IDE_Paper_00_Outline_for_Council.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 13078,
+    "total_lines": 302
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_172949_769e0f4f/gemini-2.5-pro.md",
+      "duration": 100.09,
+      "tokens": {
+        "prompt": 3053,
+        "completion": 6984
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_172949_769e0f4f/gpt-5.md",
+      "duration": 230.41,
+      "tokens": {
+        "prompt": 3047,
+        "completion": 11336
+      }
+    },
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_172949_769e0f4f/claude-opus-4-20250514.md",
+      "duration": 284.93,
+      "tokens": {
+        "prompt": 3561,
+        "completion": 11205
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+services:
+  dewey-blue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dewey-mcp-blue:latest
+    container_name: dewey-mcp-blue
+    restart: unless-stopped
+    environment:
+      # Godot Logging Integration (Option 4: Write/Read Separation)
+      GODOT_URL: ws://godot-mcp:9060
+      LOGGING_ENABLED: "true"
+
+      # Database configuration
+      DEWEY_DB_HOST: ${DEWEY_DB_HOST:-irina}
+      DEWEY_DB_PORT: ${DEWEY_DB_PORT:-5432}
+      DEWEY_DB_NAME: ${DEWEY_DB_NAME:-winni}
+      DEWEY_DB_USER: ${DEWEY_DB_USER:-dewey}
+      DEWEY_DB_PASSWORD: ${DEWEY_DB_PASSWORD}
+      DEWEY_MCP_HOST: 0.0.0.0
+      DEWEY_MCP_PORT: 9020
+      DEWEY_LOG_LEVEL: ${DEWEY_LOG_LEVEL:-INFO}
+      LOG_RETENTION_DAYS: ${LOG_RETENTION_DAYS:-7}
+    ports:
+      - "127.0.0.1:9022:9020"  # Blue deployment on port 9022
+    volumes:
+      - /:/host:ro  # Read-only access to entire host filesystem for Claude Code session files
+    networks:
+      - iccm_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  iccm_network:
+    external: true

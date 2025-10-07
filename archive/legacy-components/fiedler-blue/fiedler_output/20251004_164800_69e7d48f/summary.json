@@ -1,0 +1,55 @@
+{
+  "correlation_id": "69e7d48f",
+  "timestamp": "20251004_164800",
+  "prompt": "<redacted - 1682 chars>",
+  "prompt_length": 1682,
+  "files": [
+    "/mnt/projects/ICCM/marco/server.js",
+    "/mnt/projects/ICCM/marco/package.json",
+    "/mnt/projects/ICCM/marco/Dockerfile",
+    "/mnt/projects/ICCM/marco/docker-compose.yml",
+    "/mnt/projects/ICCM/marco/REQUIREMENTS.md"
+  ],
+  "package_metadata": {
+    "num_files": 5,
+    "total_size": 35899,
+    "total_lines": 1074
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_164800_69e7d48f/gpt-4o-mini.md",
+      "duration": 5.12,
+      "tokens": {
+        "prompt": 8443,
+        "completion": 196
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_164800_69e7d48f/gemini-2.5-pro.md",
+      "duration": 25.36,
+      "tokens": {
+        "prompt": 8404,
+        "completion": 229
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_164800_69e7d48f/deepseek-ai_DeepSeek-R1.md",
+      "duration": 43.78,
+      "tokens": {
+        "prompt": 8843,
+        "completion": 1947
+      }
+    }
+  ]
+}

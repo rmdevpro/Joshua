@@ -1,0 +1,52 @@
+{
+  "correlation_id": "0807ac0d",
+  "timestamp": "20251005_174603",
+  "prompt": "<redacted - 416 chars>",
+  "prompt_length": 416,
+  "files": [
+    "/mnt/projects/ICCM/architecture/triplet_final_review_package.md",
+    "/mnt/projects/ICCM/architecture/ARCHITECTURAL_REALIGNMENT_PLAN_FINAL.md"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 43062,
+    "total_lines": 1039
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_174603_0807ac0d/gpt-4o-mini.md",
+      "duration": 12.06,
+      "tokens": {
+        "prompt": 10201,
+        "completion": 85
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_174603_0807ac0d/gemini-2.5-pro.md",
+      "duration": 12.59,
+      "tokens": {
+        "prompt": 10207,
+        "completion": 2
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_174603_0807ac0d/deepseek-ai_DeepSeek-R1.md",
+      "duration": 35.85,
+      "tokens": {
+        "prompt": 10385,
+        "completion": 748
+      }
+    }
+  ]
+}

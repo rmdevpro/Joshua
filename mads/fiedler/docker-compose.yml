@@ -1,0 +1,103 @@
+version: '3.8'
+
+services:
+  fiedler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: fiedler-mcp:latest
+    container_name: fiedler-mcp
+    restart: unless-stopped
+    stdin_open: true  # Keep stdin open for MCP stdio protocol
+    tty: true         # Allocate pseudo-TTY
+
+    # Load environment from .env file
+    env_file:
+      - .env
+
+    # Environment variables for configuration
+    environment:
+      # Required: Subprocess client paths
+      - FIEDLER_GEMINI_CLIENT=/app/clients/gemini_client.py
+      - FIEDLER_GEMINI_PYTHON=/usr/local/bin/python
+      - FIEDLER_GROK_CLIENT=/app/clients/grok_client.py
+      - FIEDLER_GROK_PYTHON=/usr/local/bin/python
+
+      # Security: File access controls
+      - FIEDLER_ALLOWED_FILE_ROOTS=/app/allowed_files,/app/fiedler_output,/mnt/projects
+      - FIEDLER_MAX_PACKAGE_BYTES=20971520  # 20MB
+      - FIEDLER_MAX_FILE_COUNT=100
+      - FIEDLER_MAX_LINES=100000
+
+      # Security: Prompt redaction (default)
+      - FIEDLER_SAVE_PROMPT=0
+
+      # Security: Require secure keyring
+      - FIEDLER_REQUIRE_SECURE_KEYRING=0  # Set to 1 in production
+
+      # Performance: Parallelism control
+      - FIEDLER_MAX_WORKERS=4
+
+      # Output directory (default to Horace temp storage)
+      - FIEDLER_OUTPUT_DIR=/mnt/irina_storage/files/temp/fiedler
+
+      # API Keys (mount as secrets in production)
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - TOGETHER_API_KEY=${TOGETHER_API_KEY:-}
+      - XAI_API_KEY=${XAI_API_KEY:-}
+
+    # Volumes
+    volumes:
+      # Output directory (bind mount to host for easy access)
+      - ./fiedler_output:/app/fiedler_output
+
+      # Horace storage mount for default output
+      - irina_storage_files:/mnt/irina_storage/files
+
+      # Allowed files directory (read-only)
+      - ./allowed_files:/app/allowed_files:ro
+
+      # Direct access to project files (read-only) - Change 1
+      - /mnt/projects:/mnt/projects:ro
+
+      # Client scripts (read-only)
+      - /mnt/projects/hawkmoth-ecosystem/tools/gemini-client/gemini_client.py:/app/clients/gemini_client.py:ro
+      - /mnt/projects/ICCM/tools/grok_client.py:/app/clients/grok_client.py:ro
+
+      # State persistence
+      - fiedler_state:/root/.fiedler
+
+    # Ports
+    ports:
+      - "9010:8080"  # MCP WebSocket server on port 9010
+      - "9011:8081"  # HTTP streaming proxy on port 9011
+
+    # Networks
+    networks:
+      - fiedler_network
+      - iccm_network  # Shared network for KGB integration
+
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  fiedler_state:
+
+  irina_storage_files:
+    driver: local
+    driver_opts:
+      type: none
+      device: /mnt/projects/ICCM/irina_storage_test/files
+      o: bind
+
+networks:
+  fiedler_network:
+    driver: bridge
+  iccm_network:
+    external: true

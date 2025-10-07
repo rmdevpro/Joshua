@@ -1,0 +1,13 @@
+# MCP Relay Backend Configuration - CONTAINERIZED MODE
+#
+# This config routes ALL traffic through KGB for complete logging.
+# Both Claude Code and KGB are on the same Docker network (iccm_network).
+
+backends:
+  - name: fiedler
+    url: ws://kgb-proxy:9000?upstream=fiedler
+    # Routes through KGB WebSocket spy (enables logging to Winni)
+
+  - name: dewey
+    url: ws://kgb-proxy:9000?upstream=dewey
+    # Routes through KGB WebSocket spy (enables logging to Winni)

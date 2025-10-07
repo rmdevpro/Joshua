@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "iccm": {
+      "type": "stdio",
+      "command": "/mnt/projects/ICCM/mcp-relay/mcp_relay.py",
+      "args": []
+    }
+  },
+  "hasTrustDialogAccepted": true,
+  "theme": "dark",
+  "hasCompletedOnboarding": true,
+  "hasSeenWelcome": true
+}

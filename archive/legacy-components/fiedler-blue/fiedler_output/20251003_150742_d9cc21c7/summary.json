@@ -1,0 +1,53 @@
+{
+  "correlation_id": "d9cc21c7",
+  "timestamp": "20251003_150742",
+  "prompt": "<redacted - 165 chars>",
+  "prompt_length": 165,
+  "files": [
+    "/mnt/projects/ICCM/architecture/BUG_TRACKING.md",
+    "/mnt/projects/ICCM/architecture/CURRENT_STATUS.md",
+    "/mnt/projects/ICCM/architecture/General Architecture.PNG"
+  ],
+  "package_metadata": {
+    "num_files": 3,
+    "total_size": 138715,
+    "total_lines": 1188
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_150742_d9cc21c7/deepseek-ai_DeepSeek-R1.md",
+      "duration": 43.5,
+      "tokens": {
+        "prompt": 55303,
+        "completion": 1907
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_150742_d9cc21c7/gemini-2.5-pro.md",
+      "duration": 48.11,
+      "tokens": {
+        "prompt": 55796,
+        "completion": 1500
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_150742_d9cc21c7/gpt-4o-mini.md",
+      "duration": 57.26,
+      "tokens": {
+        "prompt": 54114,
+        "completion": 822
+      }
+    }
+  ]
+}

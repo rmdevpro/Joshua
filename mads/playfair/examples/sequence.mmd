@@ -1,0 +1,14 @@
+sequenceDiagram
+    participant User
+    participant LLM
+    participant Playfair
+    participant Graphviz
+
+    User->>+LLM: "Create a flowchart for my process"
+    LLM->>+Playfair: playfair_create_diagram(content: "digraph G {...}")
+    Playfair->>Playfair: Enqueue render job (high priority)
+    Playfair->>+Graphviz: dot -Tsvg ...
+    Graphviz-->>-Playfair: Returns raw SVG
+    Playfair->>Playfair: Post-process SVG (apply modern theme)
+    Playfair-->>-LLM: { result: { data: "base64_svg" } }
+    LLM-->>-User: Displays the rendered diagram

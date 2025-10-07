@@ -1,0 +1,41 @@
+{
+  "correlation_id": "6d240e17",
+  "timestamp": "20251006_192717",
+  "prompt": "<redacted - 1022 chars>",
+  "prompt_length": 1022,
+  "files": [
+    "/mnt/projects/ICCM/fiedler-blue/papers_01_round2/01_IAE_v1.0_corrected.md",
+    "/mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 30686,
+    "total_lines": 564
+  },
+  "models": [
+    "gpt-4o",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_192717_6d240e17/gpt-4o.md",
+      "duration": 15.25,
+      "tokens": {
+        "prompt": 7704,
+        "completion": 431
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_192717_6d240e17/deepseek-ai_DeepSeek-R1.md",
+      "duration": 17.72,
+      "tokens": {
+        "prompt": 7907,
+        "completion": 1478
+      }
+    }
+  ]
+}

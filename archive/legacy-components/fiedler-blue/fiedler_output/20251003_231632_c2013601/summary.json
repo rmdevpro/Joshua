@@ -1,0 +1,30 @@
+{
+  "correlation_id": "c2013601",
+  "timestamp": "20251003_231632",
+  "prompt": "<redacted - 307 chars>",
+  "prompt_length": 307,
+  "files": [
+    "/mnt/projects/ICCM/conversation_backups/PARSING_TASK.md",
+    "/mnt/projects/ICCM/conversation_backups/all_conversations_concat.txt"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 2465086,
+    "total_lines": 46505
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_231632_c2013601/gemini-2.5-pro.md",
+      "duration": 84.03,
+      "tokens": {
+        "prompt": 622858,
+        "completion": 1720
+      }
+    }
+  ]
+}

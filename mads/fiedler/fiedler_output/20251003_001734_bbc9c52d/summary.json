@@ -1,0 +1,23 @@
+{
+  "correlation_id": "bbc9c52d",
+  "timestamp": "20251003_001734",
+  "prompt": "<redacted - 32 chars>",
+  "prompt_length": 32,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "Qwen/Qwen2.5-72B-Instruct-Turbo"
+  ],
+  "results": [
+    {
+      "model": "Qwen/Qwen2.5-72B-Instruct-Turbo",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_001734_bbc9c52d/Qwen_Qwen2.5-72B-Instruct-Turbo.md",
+      "duration": 0.54,
+      "tokens": {
+        "prompt": 41,
+        "completion": 3
+      }
+    }
+  ]
+}

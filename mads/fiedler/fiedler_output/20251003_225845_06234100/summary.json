@@ -1,0 +1,51 @@
+{
+  "correlation_id": "06234100",
+  "timestamp": "20251003_225845",
+  "prompt": "<redacted - 180 chars>",
+  "prompt_length": 180,
+  "files": [
+    "/mnt/projects/ICCM/anthropic_api_logging_consultation.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 2791,
+    "total_lines": 74
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "grok-4-0709"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_225845_06234100/gemini-2.5-pro.md",
+      "duration": 55.73,
+      "tokens": {
+        "prompt": 668,
+        "completion": 3620
+      }
+    },
+    {
+      "model": "grok-4-0709",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_225845_06234100/grok-4-0709.md",
+      "duration": 77.88,
+      "tokens": {
+        "prompt": 668,
+        "completion": 2431
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_225845_06234100/gpt-5.md",
+      "duration": 111.01,
+      "tokens": {
+        "prompt": 676,
+        "completion": 6453
+      }
+    }
+  ]
+}

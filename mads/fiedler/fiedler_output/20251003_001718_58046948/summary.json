@@ -1,0 +1,23 @@
+{
+  "correlation_id": "58046948",
+  "timestamp": "20251003_001718",
+  "prompt": "<redacted - 32 chars>",
+  "prompt_length": 32,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "gpt-5"
+  ],
+  "results": [
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_001718_58046948/gpt-5.md",
+      "duration": 4.1,
+      "tokens": {
+        "prompt": 18,
+        "completion": 74
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+=== Fiedler Run 2025-10-05T04:22:25.145998 (cid=1c281d80) ===
+
+[04:22:25] [cid:1c281d80] Starting Fiedler run (correlation_id: 1c281d80)
+[04:22:25] [cid:1c281d80] Models: gemini-2.5-pro, gpt-4o-mini, deepseek-ai/DeepSeek-R1
+[04:22:25] [cid:1c281d80] Output: /app/fiedler_output/20251005_042225_1c281d80
+[04:22:25] [cid:1c281d80] Compiling package from 4 file(s)
+[04:22:25] [cid:1c281d80] Compiling package from 4 files...
+[04:22:25] [cid:1c281d80] Adding file 1/4: synthesis.md
+[04:22:25] [cid:1c281d80] Adding file 2/4: gpt-4o-mini.md
+[04:22:25] [cid:1c281d80] Adding file 3/4: gemini-2.5-pro.md
+[04:22:25] [cid:1c281d80] Adding file 4/4: deepseek-ai_DeepSeek-R1.md
+[04:22:25] [cid:1c281d80] ✅ Package compiled: 99,620 bytes, 2,844 lines
+[04:22:25] [cid:1c281d80] Package compiled: 99620 bytes, 2844 lines
+[04:22:25] [cid:1c281d80] Sending to 3 model(s) in parallel (max_workers=3)
+[04:22:25] [cid:1c281d80] [deepseek-ai/DeepSeek-R1] Sending to deepseek-ai/DeepSeek-R1...
+[04:22:25] [cid:1c281d80] [deepseek-ai/DeepSeek-R1] Attempt 1/3
+[04:22:25] [cid:1c281d80] [gemini-2.5-pro] Sending to gemini-2.5-pro...
+[04:22:25] [cid:1c281d80] [gemini-2.5-pro] Attempt 1/3
+[04:22:25] [cid:1c281d80] [gpt-4o-mini] Sending to gpt-4o-mini...
+[04:22:25] [cid:1c281d80] [gpt-4o-mini] Attempt 1/3
+[04:22:34] [cid:1c281d80] [gpt-4o-mini] Content type: <class 'str'>, length: 2780
+[04:22:34] [cid:1c281d80] [gpt-4o-mini] ✓ gpt-4o-mini completed in 9.4s
+[04:22:58] [cid:1c281d80] [gemini-2.5-pro] ✓ gemini-2.5-pro completed in 33.2s
+[04:23:54] [cid:1c281d80] [deepseek-ai/DeepSeek-R1] ✓ deepseek-ai/DeepSeek-R1 completed in 89.6s
+[04:23:54] [cid:1c281d80] Run complete: 3/3 models succeeded

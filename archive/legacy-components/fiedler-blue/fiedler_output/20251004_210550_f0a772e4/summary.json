@@ -1,0 +1,29 @@
+{
+  "correlation_id": "f0a772e4",
+  "timestamp": "20251004_210550",
+  "prompt": "<redacted - 916 chars>",
+  "prompt_length": 916,
+  "files": [
+    "/mnt/projects/ICCM/playfair/CODE_GENERATION_PACKAGE.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 36210,
+    "total_lines": 1246
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_210550_f0a772e4/gemini-2.5-pro.md",
+      "duration": 192.12,
+      "tokens": {
+        "prompt": 9114,
+        "completion": 10485
+      }
+    }
+  ]
+}

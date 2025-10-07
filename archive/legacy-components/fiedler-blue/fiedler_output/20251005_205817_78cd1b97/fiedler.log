@@ -1,0 +1,23 @@
+=== Fiedler Run 2025-10-05T20:58:17.465152 (cid=78cd1b97) ===
+
+[20:58:17] [cid:78cd1b97] Starting Fiedler run (correlation_id: 78cd1b97)
+[20:58:17] [cid:78cd1b97] Models: gemini-2.5-pro, gpt-4o-mini, deepseek-ai/DeepSeek-R1
+[20:58:17] [cid:78cd1b97] Output: /app/fiedler_output/20251005_205817_78cd1b97
+[20:58:17] [cid:78cd1b97] Compiling package from 1 file(s)
+[20:58:17] [cid:78cd1b97] Compiling package from 1 files...
+[20:58:17] [cid:78cd1b97] Adding file 1/1: iccm_network_synthesis_review.md
+[20:58:17] [cid:78cd1b97] ✅ Package compiled: 17,952 bytes, 587 lines
+[20:58:17] [cid:78cd1b97] Package compiled: 17952 bytes, 587 lines
+[20:58:17] [cid:78cd1b97] Sending to 3 model(s) in parallel (max_workers=3)
+[20:58:17] [cid:78cd1b97] [gemini-2.5-pro] Sending to gemini-2.5-pro...
+[20:58:17] [cid:78cd1b97] [gemini-2.5-pro] Attempt 1/3
+[20:58:17] [cid:78cd1b97] [gpt-4o-mini] Sending to gpt-4o-mini...
+[20:58:17] [cid:78cd1b97] [gpt-4o-mini] Attempt 1/3
+[20:58:17] [cid:78cd1b97] [deepseek-ai/DeepSeek-R1] Sending to deepseek-ai/DeepSeek-R1...
+[20:58:17] [cid:78cd1b97] [deepseek-ai/DeepSeek-R1] Attempt 1/3
+[20:58:26] [cid:78cd1b97] [gpt-4o-mini] Content type: <class 'str'>, length: 3691
+[20:58:26] [cid:78cd1b97] [gpt-4o-mini] ✓ gpt-4o-mini completed in 8.7s
+[20:58:58] [cid:78cd1b97] [gemini-2.5-pro] ✓ gemini-2.5-pro completed in 41.2s
+[21:00:26] [cid:78cd1b97] [deepseek-ai/DeepSeek-R1] ✓ deepseek-ai/DeepSeek-R1 completed in 129.3s
+[21:00:26] [cid:78cd1b97] Waiting for conversation logging to complete...
+[21:00:26] [cid:78cd1b97] Run complete: 3/3 models succeeded

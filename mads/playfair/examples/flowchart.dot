@@ -1,0 +1,23 @@
+digraph flowchart {
+    rankdir=TB;
+
+    start [label="Start", shape=Mdiamond];
+    input [label="User provides diagram content", shape=box];
+    detect [label="Auto-detect format?", shape=diamond];
+    graphviz [label="Use Graphviz Engine"];
+    mermaid [label="Use Mermaid Engine"];
+    render [label="Render SVG"];
+    theme [label="Apply Modern Theme"];
+    output [label="Return Base64 Image", shape=box];
+    end [label="End", shape=Msquare];
+
+    start -> input;
+    input -> detect;
+    detect -> graphviz [label="Yes (DOT)"];
+    detect -> mermaid [label="Yes (MMD)"];
+    graphviz -> render;
+    mermaid -> render;
+    render -> theme;
+    theme -> output;
+    output -> end;
+}

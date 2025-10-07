@@ -1,0 +1,29 @@
+{
+  "correlation_id": "1be52ab2",
+  "timestamp": "20251006_192236",
+  "prompt": "<redacted - 1942 chars>",
+  "prompt_length": 1942,
+  "files": [
+    "/mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 8091,
+    "total_lines": 185
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_192236_1be52ab2/gemini-2.5-pro.md",
+      "duration": 78.17,
+      "tokens": {
+        "prompt": 2461,
+        "completion": 5631
+      }
+    }
+  ]
+}

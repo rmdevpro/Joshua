@@ -1,0 +1,53 @@
+{
+  "correlation_id": "eec19811",
+  "timestamp": "20251006_183231",
+  "prompt": "<redacted - 1495 chars>",
+  "prompt_length": 1495,
+  "files": [
+    "//mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.0.md",
+    "//mnt/projects/ICCM/docs/papers/00_IDE_Intelligent_Decision_Engineering_v1.0.md",
+    "//mnt/projects/ICCM/docs/papers/00_IEE_Intelligent_Execution_Engineering_v1.0.md"
+  ],
+  "package_metadata": {
+    "num_files": 3,
+    "total_size": 72538,
+    "total_lines": 1279
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183231_eec19811/gemini-2.5-pro.md",
+      "duration": 42.19,
+      "tokens": {
+        "prompt": 15314,
+        "completion": 2103
+      }
+    },
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183231_eec19811/claude-opus-4-20250514.md",
+      "duration": 75.56,
+      "tokens": {
+        "prompt": 17599,
+        "completion": 2421
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183231_eec19811/gpt-5.md",
+      "duration": 148.18,
+      "tokens": {
+        "prompt": 15235,
+        "completion": 6530
+      }
+    }
+  ]
+}

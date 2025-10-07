@@ -1,0 +1,32 @@
+{
+  "correlation_id": "6d21edef",
+  "timestamp": "20251006_191222",
+  "prompt": "<redacted - 3118 chars>",
+  "prompt_length": 3118,
+  "files": [
+    "/mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.1.md",
+    "/mnt/projects/ICCM/docs/papers/00_IDE_Intelligent_Decision_Engineering_v1.1.md",
+    "/mnt/projects/ICCM/docs/papers/00_IEE_Intelligent_Execution_Engineering_v1.1.md",
+    "/mnt/projects/ICCM/docs/papers/00_ICCM_Intelligent_Context_Conversation_Management_v1.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 4,
+    "total_size": 26250,
+    "total_lines": 465
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_191222_6d21edef/gemini-2.5-pro.md",
+      "duration": 69.58,
+      "tokens": {
+        "prompt": 7014,
+        "completion": 6235
+      }
+    }
+  ]
+}

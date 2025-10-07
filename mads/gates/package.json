@@ -1,0 +1,36 @@
+{
+  "name": "gates-mcp-server",
+  "version": "1.0.0",
+  "description": "Gates Document Generation Gateway - Markdown to ODT conversion with Playfair diagram integration",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "jest",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "mcp",
+    "websocket",
+    "markdown",
+    "odt",
+    "document-generation",
+    "playfair"
+  ],
+  "author": "ICCM Project",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.17.0",
+    "markdown-it": "^14.0.0",
+    "markdown-it-multimd-table": "^4.2.3",
+    "markdown-it-attrs": "^4.1.6",
+    "markdown-it-task-lists": "^2.1.1",
+    "execa": "^8.0.1",
+    "p-queue": "^8.0.1",
+    "pino": "^8.19.0",
+    "websocket": "^1.0.34"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}

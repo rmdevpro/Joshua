@@ -1,0 +1,1 @@
+although these are going in the right direction that fail to understand what a 00 paper is.  It is a structural control document that lays out the outline of the papers to be written. See paper 00 for ICCM from the ICCM project.

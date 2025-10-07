@@ -1,0 +1,54 @@
+{
+  "correlation_id": "089166a0",
+  "timestamp": "20251005_013009",
+  "prompt": "<redacted - 542 chars>",
+  "prompt_length": 542,
+  "files": [
+    "/mnt/projects/ICCM/gates/server.js",
+    "/mnt/projects/ICCM/fiedler/fiedler/mcp_server.py",
+    "/mnt/projects/ICCM/dewey/dewey/mcp_server.py",
+    "/mnt/projects/ICCM/mcp-relay/mcp_relay.py"
+  ],
+  "package_metadata": {
+    "num_files": 4,
+    "total_size": 72919,
+    "total_lines": 2158
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_013009_089166a0/gpt-4o-mini.md",
+      "duration": 26.23,
+      "tokens": {
+        "prompt": 15096,
+        "completion": 925
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_013009_089166a0/gemini-2.5-pro.md",
+      "duration": 120.45,
+      "tokens": {
+        "prompt": 15044,
+        "completion": 1313
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_013009_089166a0/deepseek-ai_DeepSeek-R1.md",
+      "duration": 224.16,
+      "tokens": {
+        "prompt": 15933,
+        "completion": 12851
+      }
+    }
+  ]
+}

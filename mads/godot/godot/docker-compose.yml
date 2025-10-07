@@ -1,0 +1,49 @@
+services:
+  godot:
+    build: .
+    container_name: godot-mcp
+    restart: unless-stopped
+    ports:
+      - "9060:9060" # MCP server port
+    environment:
+      # Dewey connection
+      - DEWEY_MCP_URL=ws://dewey-mcp-blue:9020
+      - DEWEY_CONNECT_TIMEOUT=30
+
+      # Worker configuration
+      - BATCH_SIZE=100
+      - BATCH_TIMEOUT_MS=100
+      - RETRY_MAX_ATTEMPTS=5
+      - RETRY_INITIAL_DELAY=1
+      - RETRY_MAX_DELAY=30
+
+      # Redis configuration (internal)
+      - REDIS_HOST=localhost
+      - REDIS_PORT=6379
+      - LOG_QUEUE_NAME=logs:queue
+      - MAX_QUEUE_SIZE=100000  # REQ-GOD-004, REQ-PERF-003
+
+      # Database configuration (for conversation storage)
+      # Using Dewey credentials for now (Godot user needs pg_hba.conf entry)
+      - GODOT_DB_HOST=192.168.1.210
+      - GODOT_DB_PORT=5432
+      - GODOT_DB_NAME=winni
+      - GODOT_DB_USER=dewey
+      - GODOT_DB_PASSWORD=D3w3y!SecurePass2025
+      - GODOT_DB_POOL_MIN_CONN=2
+      - GODOT_DB_POOL_MAX_CONN=10
+
+    volumes:
+      - godot_redis_data:/data
+      - ../../iccm-network:/app/iccm-network:ro
+      - /home/aristotle9:/host/home/aristotle9:ro
+      - /tmp:/host/tmp:ro
+    networks:
+      - iccm_network
+
+volumes:
+  godot_redis_data:
+
+networks:
+  iccm_network:
+    external: true

@@ -1,0 +1,30 @@
+{
+  "correlation_id": "a83edf81",
+  "timestamp": "20251006_191644",
+  "prompt": "<redacted - 1286 chars>",
+  "prompt_length": 1286,
+  "files": [
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_IEE_v1.1_corrected.md",
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_IAE_v1.1_corrected.md"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 12629,
+    "total_lines": 260
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_191644_a83edf81/gemini-2.5-pro.md",
+      "duration": 18.73,
+      "tokens": {
+        "prompt": 3393,
+        "completion": 1153
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "correlation_id": "7f03947f",
+  "timestamp": "20251003_223805",
+  "prompt": "<redacted - 116 chars>",
+  "prompt_length": 116,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_223805_7f03947f/gpt-4o.md",
+      "duration": 2.8,
+      "tokens": {
+        "prompt": 29,
+        "completion": 98
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_223805_7f03947f/gemini-2.5-pro.md",
+      "duration": 37.9,
+      "tokens": {
+        "prompt": 22,
+        "completion": 2511
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_223805_7f03947f/deepseek-ai_DeepSeek-R1.md",
+      "duration": 69.9,
+      "tokens": {
+        "prompt": 28,
+        "completion": 2619
+      }
+    }
+  ]
+}

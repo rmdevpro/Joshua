@@ -1,0 +1,51 @@
+{
+  "correlation_id": "3a41ad23",
+  "timestamp": "20251005_030206",
+  "prompt": "<redacted - 1045 chars>",
+  "prompt_length": 1045,
+  "files": [
+    "/mnt/projects/ICCM/godot/REQUIREMENTS.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 19467,
+    "total_lines": 535
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_030206_3a41ad23/gpt-4o-mini.md",
+      "duration": 15.81,
+      "tokens": {
+        "prompt": 5285,
+        "completion": 419
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_030206_3a41ad23/gemini-2.5-pro.md",
+      "duration": 37.94,
+      "tokens": {
+        "prompt": 5324,
+        "completion": 1383
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_030206_3a41ad23/deepseek-ai_DeepSeek-R1.md",
+      "duration": 47.59,
+      "tokens": {
+        "prompt": 5489,
+        "completion": 2416
+      }
+    }
+  ]
+}

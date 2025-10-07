@@ -1,0 +1,92 @@
+{
+  "professional": {
+    "graph": {
+      "bgcolor": "transparent",
+      "fontname": "Inter, sans-serif",
+      "fontsize": 12,
+      "pad": "0.5",
+      "rankdir": "TB",
+      "splines": "ortho"
+    },
+    "node": {
+      "shape": "box",
+      "style": "rounded,filled",
+      "fillcolor": "#E8F4F8",
+      "color": "#2E86AB",
+      "fontname": "Inter, sans-serif",
+      "fontsize": 11,
+      "penwidth": 1.5
+    },
+    "edge": {
+      "color": "#555555",
+      "penwidth": 1.5,
+      "fontname": "Inter, sans-serif",
+      "fontsize": 10
+    }
+  },
+  "modern": {
+    "graph": {
+      "bgcolor": "transparent",
+      "fontname": "Roboto, sans-serif",
+      "fontsize": 12,
+      "pad": "0.5",
+      "rankdir": "TB",
+      "splines": "curved"
+    },
+    "node": {
+      "shape": "box",
+      "style": "rounded,filled",
+      "fillcolor": "#667EEA",
+      "color": "#5A67D8",
+      "fontcolor": "white",
+      "fontname": "Roboto, sans-serif",
+      "fontsize": 11,
+      "penwidth": 0,
+      "margin": "0.15,0.1"
+    },
+    "edge": {
+      "color": "#A0AEC0",
+      "penwidth": 2,
+      "arrowsize": 0.8
+    }
+  },
+  "minimal": {
+    "graph": {
+      "bgcolor": "transparent",
+      "fontname": "Inter, sans-serif"
+    },
+    "node": {
+      "shape": "box",
+      "style": "filled",
+      "fillcolor": "#F7FAFC",
+      "color": "#1A202C",
+      "fontcolor": "#1A202C",
+      "fontname": "Inter, sans-serif",
+      "penwidth": 1.5
+    },
+    "edge": {
+      "color": "#2D3748",
+      "penwidth": 1.5
+    }
+  },
+  "dark": {
+    "graph": {
+      "bgcolor": "transparent",
+      "fontname": "Roboto, sans-serif",
+      "fontcolor": "#E2E8F0"
+    },
+    "node": {
+      "shape": "box",
+      "style": "rounded,filled",
+      "fillcolor": "#2D3748",
+      "color": "#4A5568",
+      "fontcolor": "#F7FAFC",
+      "fontname": "Roboto, sans-serif",
+      "penwidth": 1
+    },
+    "edge": {
+      "color": "#718096",
+      "fontcolor": "#E2E8F0"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+!package.json
+!package-lock.json
+test
+tests
+*.test.js
+.vscode
+.idea
+.DS_Store

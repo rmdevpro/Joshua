@@ -1,0 +1,18 @@
+{
+  "name": "anthropic-gateway",
+  "version": "1.0.0",
+  "description": "Reverse proxy gateway for Anthropic API with conversation logging",
+  "main": "gateway.js",
+  "scripts": {
+    "start": "node gateway.js",
+    "dev": "nodemon gateway.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}

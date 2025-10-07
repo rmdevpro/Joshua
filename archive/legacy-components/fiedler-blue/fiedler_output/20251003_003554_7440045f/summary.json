@@ -1,0 +1,23 @@
+{
+  "correlation_id": "7440045f",
+  "timestamp": "20251003_003554",
+  "prompt": "<redacted - 230 chars>",
+  "prompt_length": 230,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_003554_7440045f/gemini-2.5-pro.md",
+      "duration": 31.35,
+      "tokens": {
+        "prompt": 48,
+        "completion": 1422
+      }
+    }
+  ]
+}

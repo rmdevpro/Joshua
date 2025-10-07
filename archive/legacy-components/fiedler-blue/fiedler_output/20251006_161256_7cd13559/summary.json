@@ -1,0 +1,29 @@
+{
+  "correlation_id": "7cd13559",
+  "timestamp": "20251006_161256",
+  "prompt": "<redacted - 1340 chars>",
+  "prompt_length": 1340,
+  "files": [
+    "/mnt/projects/ICCM/fiedler-blue/fiedler_output/council_elders_complete_package.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 98028,
+    "total_lines": 2117
+  },
+  "models": [
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_161256_7cd13559/claude-opus-4-20250514.md",
+      "duration": 506.29,
+      "tokens": {
+        "prompt": 24882,
+        "completion": 3977
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+# requirements.txt
+
+# For the web server (MCP)
+fastapi
+uvicorn[standard]
+
+# For the filesystem watcher
+watchdog
+
+# For scheduled tasks (ZFS snapshots)
+apscheduler
+
+# For PostgreSQL async database connectivity
+asyncpg
+
+# For MCP WebSocket server
+/app/iccm-network

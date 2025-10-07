@@ -1,0 +1,31 @@
+{
+  "correlation_id": "6188d7c9",
+  "timestamp": "20251006_185343",
+  "prompt": "<redacted - 592 chars>",
+  "prompt_length": 592,
+  "files": [
+    "//mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.1.md",
+    "//mnt/projects/ICCM/docs/papers/00_IDE_Intelligent_Decision_Engineering_v1.1.md",
+    "//mnt/projects/ICCM/docs/papers/00_IEE_Intelligent_Execution_Engineering_v1.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 3,
+    "total_size": 18561,
+    "total_lines": 368
+  },
+  "models": [
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_185343_6188d7c9/claude-opus-4-20250514.md",
+      "duration": 40.17,
+      "tokens": {
+        "prompt": 5574,
+        "completion": 1127
+      }
+    }
+  ]
+}

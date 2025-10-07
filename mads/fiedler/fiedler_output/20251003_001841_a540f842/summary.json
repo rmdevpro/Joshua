@@ -1,0 +1,23 @@
+{
+  "correlation_id": "a540f842",
+  "timestamp": "20251003_001841",
+  "prompt": "<redacted - 355 chars>",
+  "prompt_length": 355,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo"
+  ],
+  "results": [
+    {
+      "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_001841_a540f842/meta-llama_Meta-Llama-3.1-70B-Instruct-Turbo.md",
+      "duration": 3.14,
+      "tokens": {
+        "prompt": 112,
+        "completion": 409
+      }
+    }
+  ]
+}

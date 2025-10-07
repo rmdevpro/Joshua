@@ -1,0 +1,20 @@
+# MCP Relay Backend Configuration
+#
+# This file is automatically updated by relay management tools.
+# Manual edits will be overwritten.
+
+backends:
+- name: marco
+  url: ws://localhost:9031
+- name: fiedler
+  url: ws://localhost:9012
+- name: dewey
+  url: ws://localhost:9022
+- name: horace
+  url: ws://localhost:9070
+- name: godot
+  url: ws://localhost:9060
+- name: playfair
+  url: ws://localhost:9040
+- name: gates
+  url: ws://localhost:9050

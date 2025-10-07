@@ -1,0 +1,10 @@
+=== Fiedler Run 2025-10-06T16:05:36.514027 (cid=f20ada9d) ===
+
+[16:05:36] [cid:f20ada9d] Conversation storage: enabled
+[16:05:36] [cid:f20ada9d] Starting Fiedler run (correlation_id: f20ada9d)
+[16:05:36] [cid:f20ada9d] Models: claude-opus-4-20250514
+[16:05:36] [cid:f20ada9d] Output: /app/fiedler_output/20251006_160536_f20ada9d
+[16:05:36] [cid:f20ada9d] Sending to 1 model(s) in parallel (max_workers=1)
+[16:05:36] [cid:f20ada9d] [claude-opus-4-20250514] ✗ claude-opus-4-20250514 exception: Unknown model: claude-opus-4-20250514
+[16:05:36] [cid:f20ada9d] Waiting for conversation logging to complete...
+[16:05:36] [cid:f20ada9d] Run complete: 0/1 models succeeded

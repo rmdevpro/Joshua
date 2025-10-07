@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  claude-code:
+    build: .
+    image: iccm/claude-code:latest
+    container_name: claude-code-container
+    stdin_open: true
+    tty: true
+    # Keep container running for interactive sessions
+    command: sleep infinity
+    networks:
+      - iccm-network
+    volumes:
+      # Mount workspace
+      - /mnt/projects:/mnt/projects
+      - ${PWD}:/workspace
+
+      # Mount MCP config (will create if needed)
+      - ./config:/root/.config/claude-code
+
+      # Mount MCP relay backends config (containerized mode with KGB routing)
+      - ./config/backends.yaml:/mnt/projects/ICCM/mcp-relay/backends.yaml
+
+      # Mount SSH keys for git operations (if needed)
+      - ${HOME}/.ssh:/root/.ssh:ro
+
+      # Mount git config (if needed)
+      - ${HOME}/.gitconfig:/root/.gitconfig:ro
+
+    environment:
+      # API Configuration - route through KGB HTTP gateway
+      # Note: No /v1 suffix - Claude Code will add it
+      - ANTHROPIC_BASE_URL=http://kgb-proxy:8089
+
+      # API Key - from host environment
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+
+      # MCP Relay connection - connects to KGB WebSocket spy
+      # Both Claude and KGB are on same Docker network (iccm_network)
+
+  # Claude Code UI - Web interface for Claudette
+  claude-ui:
+    build:
+      context: ../claudecodeui
+    image: iccm/claude-code-ui:latest
+    container_name: claude-ui
+    ports:
+      # Map host port 8080 to container port 3001 (API server)
+      - "8080:3001"
+    networks:
+      - iccm-network
+    environment:
+      - PORT=3001
+      - VITE_PORT=5173
+      # Configure to use docker exec for Claudette
+      - CLAUDE_CLI_PATH=docker exec -i claude-code-container claude
+    volumes:
+      # Mount Docker socket to enable docker exec commands
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - claude-code
+
+networks:
+  iccm-network:
+    name: iccm_network
+    external: true

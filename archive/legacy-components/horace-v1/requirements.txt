@@ -1,0 +1,16 @@
+# requirements.txt
+
+# WebSocket library (required by iccm-network which is volume-mounted)
+websockets>=11.0,<15.0
+
+# Asynchronous PostgreSQL driver
+asyncpg>=0.29.0
+
+# Asynchronous file I/O
+aiofiles>=23.0.0
+
+# MIME type detection
+python-magic>=0.4.27
+
+# YAML for potential future config, though not used in this version
+# pyyaml>=6.0

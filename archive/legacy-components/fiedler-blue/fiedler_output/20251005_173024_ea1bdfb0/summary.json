@@ -1,0 +1,51 @@
+{
+  "correlation_id": "ea1bdfb0",
+  "timestamp": "20251005_173024",
+  "prompt": "<redacted - 1342 chars>",
+  "prompt_length": 1342,
+  "files": [
+    "/mnt/projects/ICCM/architecture/architectural_realignment_proposal_v1.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 16662,
+    "total_lines": 533
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_173024_ea1bdfb0/gpt-4o-mini.md",
+      "duration": 16.71,
+      "tokens": {
+        "prompt": 4437,
+        "completion": 715
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_173024_ea1bdfb0/deepseek-ai_DeepSeek-R1.md",
+      "duration": 28.05,
+      "tokens": {
+        "prompt": 4532,
+        "completion": 2082
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_173024_ea1bdfb0/gemini-2.5-pro.md",
+      "duration": 43.69,
+      "tokens": {
+        "prompt": 4444,
+        "completion": 1844
+      }
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "correlation_id": "eed97fb4",
+  "timestamp": "20251006_195134",
+  "prompt": "<redacted - 1378 chars>",
+  "prompt_length": 1378,
+  "files": [
+    "/mnt/projects/ICCM/architecture/horace_nas_gateway_requirements_v2.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 12182,
+    "total_lines": 282
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_195134_eed97fb4/gemini-2.5-pro.md",
+      "duration": 114.17,
+      "tokens": {
+        "prompt": 3239,
+        "completion": 9177
+      }
+    }
+  ]
+}

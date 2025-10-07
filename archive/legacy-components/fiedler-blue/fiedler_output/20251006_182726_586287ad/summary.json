@@ -1,0 +1,29 @@
+{
+  "correlation_id": "586287ad",
+  "timestamp": "20251006_182726",
+  "prompt": "<redacted - 641 chars>",
+  "prompt_length": 641,
+  "files": [
+    "//mnt/projects/ICCM/CURRENT_STATUS.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 85115,
+    "total_lines": 1924
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_182726_586287ad/gemini-2.5-pro.md",
+      "duration": 46.32,
+      "tokens": {
+        "prompt": 22256,
+        "completion": 2253
+      }
+    }
+  ]
+}

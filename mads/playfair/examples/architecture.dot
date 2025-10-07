@@ -1,0 +1,40 @@
+digraph G {
+    rankdir="TB";
+    splines=ortho;
+
+    subgraph cluster_user {
+        label = "User Layer";
+        style=filled;
+        color=lightgrey;
+        node [style=filled,color=white];
+        WebApp [label="Web Application"];
+        MobileApp [label="Mobile App"];
+    }
+
+    subgraph cluster_gateway {
+        label = "API Gateway";
+        APIGateway [label="API Gateway\n(playfair-mcp)"];
+    }
+
+    subgraph cluster_services {
+        label = "Microservices";
+        style=filled;
+        color=lightgrey;
+        node [style=filled, color=white];
+        AuthService [label="Auth Service"];
+        RenderService [label="Render Service"];
+        StorageService [label="Storage Service"];
+    }
+    
+    subgraph cluster_data {
+        label = "Data Layer";
+        Database [label="PostgreSQL DB", shape=cylinder];
+        Cache [label="Redis Cache", shape=cylinder];
+    }
+
+    WebApp -> APIGateway;
+    MobileApp -> APIGateway;
+    APIGateway -> {AuthService, RenderService, StorageService};
+    RenderService -> {Database, Cache};
+    StorageService -> Database;
+}

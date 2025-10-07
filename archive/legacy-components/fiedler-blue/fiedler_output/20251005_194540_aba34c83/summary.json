@@ -1,0 +1,57 @@
+{
+  "correlation_id": "aba34c83",
+  "timestamp": "20251005_194540",
+  "prompt": "<redacted - 429 chars>",
+  "prompt_length": 429,
+  "files": [
+    "/mnt/projects/ICCM/horace/AGGREGATE_PACKAGE.md",
+    "/mnt/projects/ICCM/horace/src/config.py",
+    "/mnt/projects/ICCM/horace/src/database.py",
+    "/mnt/projects/ICCM/horace/src/tools.py",
+    "/mnt/projects/ICCM/horace/src/mcp_server.py",
+    "/mnt/projects/ICCM/horace/schema.sql",
+    "/mnt/projects/ICCM/horace/docker-compose.yml"
+  ],
+  "package_metadata": {
+    "num_files": 7,
+    "total_size": 35461,
+    "total_lines": 927
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_194540_aba34c83/gpt-4o-mini.md",
+      "duration": 17.83,
+      "tokens": {
+        "prompt": 8011,
+        "completion": 702
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_194540_aba34c83/gemini-2.5-pro.md",
+      "duration": 47.94,
+      "tokens": {
+        "prompt": 7956,
+        "completion": 1940
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_194540_aba34c83/deepseek-ai_DeepSeek-R1.md",
+      "duration": 135.85,
+      "tokens": {
+        "prompt": 8456,
+        "completion": 7244
+      }
+    }
+  ]
+}

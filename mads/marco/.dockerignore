@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+*.md
+REQUIREMENTS.md
+README.md
+REVIEW_PACKAGE.md
+FINAL_REVIEW_PACKAGE.md

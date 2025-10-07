@@ -1,0 +1,43 @@
+{
+  "correlation_id": "3e6daf6b",
+  "timestamp": "20251006_191504",
+  "prompt": "<redacted - 1185 chars>",
+  "prompt_length": 1185,
+  "files": [
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_IAE_v1.1_corrected.md",
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_IDE_v1.1_corrected.md",
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_IEE_v1.1_corrected.md",
+    "/mnt/projects/ICCM/fiedler-blue/inputs_round2/00_ICCM_v1.1_corrected.md"
+  ],
+  "package_metadata": {
+    "num_files": 4,
+    "total_size": 25259,
+    "total_lines": 439
+  },
+  "models": [
+    "gpt-5",
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_191504_3e6daf6b/claude-opus-4-20250514.md",
+      "duration": 15.53,
+      "tokens": {
+        "prompt": 7330,
+        "completion": 399
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_191504_3e6daf6b/gpt-5.md",
+      "duration": 68.15,
+      "tokens": {
+        "prompt": 6267,
+        "completion": 3829
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "correlation_id": "82bc364c",
+  "timestamp": "20251005_215158",
+  "prompt": "<redacted - 98 chars>",
+  "prompt_length": 98,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "gpt-4o-mini"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251005_215158_82bc364c/gpt-4o-mini.md",
+      "duration": 0.98,
+      "tokens": {
+        "prompt": 27,
+        "completion": 7
+      }
+    }
+  ]
+}

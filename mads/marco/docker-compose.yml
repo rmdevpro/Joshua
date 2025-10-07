@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  marco-mcp-blue:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: marco-mcp-blue
+    restart: unless-stopped
+
+    # Port mapping: host 9031 -> container 8030
+    ports:
+      - "9031:8030"
+
+    # Resource limits (REQ-9: 2GB memory hard limit)
+    mem_limit: 2g
+    # Shared memory for Chromium
+    shm_size: 1gb
+
+    # Environment configuration (REQ-6)
+    environment:
+      - MARCO_PORT=8030
+      - BROWSER_TYPE=chromium
+      - HEADLESS=true
+      - LOG_LEVEL=info
+      # Godot Logging Integration
+      - GODOT_URL=ws://godot-mcp:9060
+
+    # Network configuration (REQ-13: iccm_network isolation)
+    networks:
+      - iccm_network
+
+networks:
+  iccm_network:
+    external: true

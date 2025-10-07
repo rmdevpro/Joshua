@@ -1,0 +1,19 @@
+graph mindmap {
+    layout=twopi;
+    ranksep=3;
+    node [shape=box, style="rounded,filled", fillcolor=lightblue];
+    
+    Playfair -- { "Features", "Architecture", "Technology" };
+
+    Features -- { "Diagram Types", "Output Formats", "Theming" };
+    "Diagram Types" -- { "Flowchart", "Org Chart", "Sequence" };
+    "Output Formats" -- { "SVG", "PNG" };
+    Theming -- { "Modern", "Professional", "Dark" };
+
+    Architecture -- { "MCP Server", "Worker Pool", "Engines" };
+    "MCP Server" -- "WebSocket";
+    "Worker Pool" -- "Priority Queue";
+    Engines -- { "Graphviz", "Mermaid" };
+
+    Technology -- { "Node.js", "Docker", "Sharp" };
+}

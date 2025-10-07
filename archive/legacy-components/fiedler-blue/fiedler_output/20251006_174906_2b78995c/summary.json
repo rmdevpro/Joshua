@@ -1,0 +1,51 @@
+{
+  "correlation_id": "2b78995c",
+  "timestamp": "20251006_174906",
+  "prompt": "<redacted - 1050 chars>",
+  "prompt_length": 1050,
+  "files": [
+    "/app/allowed_files/MAD_Paper_00_v2_Outline_for_Council.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 28183,
+    "total_lines": 590
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_174906_2b78995c/gemini-2.5-pro.md",
+      "duration": 99.86,
+      "tokens": {
+        "prompt": 6200,
+        "completion": 8247
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_174906_2b78995c/gpt-5.md",
+      "duration": 171.53,
+      "tokens": {
+        "prompt": 6142,
+        "completion": 9558
+      }
+    },
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_174906_2b78995c/claude-opus-4-20250514.md",
+      "duration": 366.5,
+      "tokens": {
+        "prompt": 7311,
+        "completion": 16384
+      }
+    }
+  ]
+}

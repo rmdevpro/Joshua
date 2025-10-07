@@ -1,0 +1,33 @@
+services:
+  dewey:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: dewey-mcp:latest
+    container_name: dewey-mcp
+    restart: unless-stopped
+    environment:
+      DEWEY_DB_HOST: ${DEWEY_DB_HOST:-irina}
+      DEWEY_DB_PORT: ${DEWEY_DB_PORT:-5432}
+      DEWEY_DB_NAME: ${DEWEY_DB_NAME:-winni}
+      DEWEY_DB_USER: ${DEWEY_DB_USER:-dewey}
+      DEWEY_DB_PASSWORD: ${DEWEY_DB_PASSWORD}
+      DEWEY_MCP_HOST: 0.0.0.0
+      DEWEY_MCP_PORT: 9020
+      DEWEY_LOG_LEVEL: ${DEWEY_LOG_LEVEL:-INFO}
+    ports:
+      - "127.0.0.1:9020:9020"
+    volumes:
+      - /:/host:ro  # Read-only access to entire host filesystem for Claude Code session files
+    networks:
+      - iccm_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; sys.exit(0)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+networks:
+  iccm_network:
+    external: true

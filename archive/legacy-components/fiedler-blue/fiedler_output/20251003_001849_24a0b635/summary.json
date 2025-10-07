@@ -1,0 +1,23 @@
+{
+  "correlation_id": "24a0b635",
+  "timestamp": "20251003_001849",
+  "prompt": "<redacted - 355 chars>",
+  "prompt_length": 355,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_001849_24a0b635/deepseek-ai_DeepSeek-R1.md",
+      "duration": 23.39,
+      "tokens": {
+        "prompt": 82,
+        "completion": 987
+      }
+    }
+  ]
+}

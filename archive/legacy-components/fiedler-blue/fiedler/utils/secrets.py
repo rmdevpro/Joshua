@@ -1,0 +1,242 @@
+"""Secure API key management using system keyring."""
+import os
+import logging
+from typing import Optional
+
+try:
+    import keyring
+    import keyring.errors
+    KEYRING_AVAILABLE = True
+except ImportError:
+    KEYRING_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+SERVICE_NAME = "fiedler-mcp-server"
+
+# Provider registry - single source of truth
+KNOWN_PROVIDERS = ["google", "openai", "together", "xai"]
+
+
+def _get_backend_name() -> str:
+    """Get the name of the current keyring backend."""
+    if not KEYRING_AVAILABLE:
+        return "unavailable"
+    kr = keyring.get_keyring()
+    return f"{kr.__class__.__module__}.{kr.__class__.__name__}"
+
+
+def _is_secure_backend() -> tuple[bool, str]:
+    """
+    Check if keyring backend is secure (not plaintext/null).
+
+    Returns:
+        (is_secure, backend_name) tuple
+    """
+    if not KEYRING_AVAILABLE:
+        return (False, "unavailable")
+
+    backend_name = _get_backend_name()
+
+    # Reject known insecure backends
+    insecure_prefixes = (
+        "keyrings.alt.",            # plaintext/file-based backends
+        "keyring.backends.null",    # no-op backend
+        "keyring.backends.fail",    # failing backend
+    )
+    if backend_name.startswith(insecure_prefixes):
+        return (False, backend_name)
+
+    # Allow common secure backends
+    allowed = {
+        "keyring.backends.macOS.Keyring",
+        "keyring.backends.Windows.WinVaultKeyring",
+        "keyring.backends.SecretService.Keyring",
+        "keyring.backends.kwallet.DBusKeyring",
+    }
+    return (backend_name in allowed, backend_name)
+
+
+def _require_secure_keyring() -> bool:
+    """Check if FIEDLER_REQUIRE_SECURE_KEYRING environment flag is set."""
+    return os.getenv("FIEDLER_REQUIRE_SECURE_KEYRING", "0") in ("1", "true", "yes")
+
+
+def get_api_key(provider: str, env_var_name: str) -> Optional[str]:
+    """
+    Get API key from keyring or environment variable.
+
+    Fallback order:
+    1. System keyring (secure, encrypted)
+    2. Environment variable (only if FIEDLER_REQUIRE_SECURE_KEYRING not set)
+    3. None (caller should handle missing key)
+
+    Args:
+        provider: Provider name (e.g., "google", "openai", "together", "xai")
+        env_var_name: Environment variable name to check as fallback
+
+    Returns:
+        API key string or None
+    """
+    # Try keyring first (most secure)
+    if KEYRING_AVAILABLE:
+        try:
+            key = keyring.get_password(SERVICE_NAME, provider)
+            if key:
+                return key
+        except keyring.errors.KeyringError as e:
+            # Specific keyring errors - log warning
+            logger.warning(
+                "Keyring get_password failed for provider=%s using backend=%s: %s",
+                provider, _get_backend_name(), e
+            )
+        except Exception as e:
+            # Catch any other errors
+            logger.warning(
+                "Unexpected error accessing keyring for provider=%s: %s",
+                provider, e
+            )
+
+    # Check if fallback to env var is allowed
+    if _require_secure_keyring():
+        logger.error(
+            "Secure keyring required but unavailable or failed (backend=%s); refusing env fallback.",
+            _get_backend_name() if KEYRING_AVAILABLE else "unavailable"
+        )
+        return None
+
+    # Fall back to environment variable
+    env_key = os.getenv(env_var_name)
+    if env_key and KEYRING_AVAILABLE:
+        # Warn if falling back despite keyring being available
+        logger.info(
+            "Using environment variable %s for provider=%s (keyring returned None)",
+            env_var_name, provider
+        )
+    return env_key
+
+
+def set_api_key(provider: str, api_key: str) -> None:
+    """
+    Store API key in system keyring.
+
+    Args:
+        provider: Provider name (e.g., "google", "openai", "together", "xai")
+        api_key: API key to store (will be encrypted by OS keyring)
+
+    Raises:
+        RuntimeError: If keyring is not available or backend is insecure
+    """
+    if not KEYRING_AVAILABLE:
+        raise RuntimeError(
+            "Keyring library not available. Install with: pip install keyring"
+        )
+
+    # Validate backend security
+    is_secure, backend = _is_secure_backend()
+
+    if _require_secure_keyring():
+        # Strict mode - refuse insecure backends
+        if not is_secure:
+            raise RuntimeError(
+                f"Insecure or unavailable keyring backend ({backend}). "
+                "Refusing to store secret. Install/enable an OS-native keyring "
+                "or unset FIEDLER_REQUIRE_SECURE_KEYRING."
+            )
+    else:
+        # Permissive mode - warn about insecure backends
+        if not is_secure:
+            logger.warning(
+                "Storing key using a non-secure keyring backend (%s). "
+                "Consider enabling FIEDLER_REQUIRE_SECURE_KEYRING=1.",
+                backend
+            )
+
+    # Store the key
+    try:
+        keyring.set_password(SERVICE_NAME, provider, api_key)
+        logger.info("API key stored for provider=%s using backend=%s", provider, backend)
+    except Exception as e:
+        raise RuntimeError(
+            f"Failed to store API key in keyring (backend={backend}): {e}"
+        ) from e
+
+
+def delete_api_key(provider: str) -> bool:
+    """
+    Delete API key from system keyring.
+
+    Args:
+        provider: Provider name
+
+    Returns:
+        True if key was deleted, False if no key was stored
+
+    Raises:
+        RuntimeError: If keyring is not available
+    """
+    if not KEYRING_AVAILABLE:
+        raise RuntimeError(
+            "Keyring library not available. Install with: pip install keyring"
+        )
+
+    try:
+        existing = keyring.get_password(SERVICE_NAME, provider)
+        if existing:
+            keyring.delete_password(SERVICE_NAME, provider)
+            logger.info("API key deleted for provider=%s", provider)
+            return True
+        return False
+    except Exception as e:
+        # Catch all keyring errors during deletion
+        logger.warning("Failed to delete key for provider=%s: %s", provider, e)
+        return False
+
+
+def list_stored_providers() -> list[str]:
+    """
+    List providers that have keys stored in keyring.
+
+    Returns:
+        List of provider names with stored keys
+    """
+    if not KEYRING_AVAILABLE:
+        return []
+
+    stored = []
+    for provider in KNOWN_PROVIDERS:
+        try:
+            if keyring.get_password(SERVICE_NAME, provider):
+                stored.append(provider)
+        except Exception as e:
+            # Log errors but continue checking other providers
+            logger.warning(
+                "Could not check keyring for provider '%s': %s. "
+                "It will be omitted from the list.",
+                provider, e
+            )
+            continue
+
+    return stored
+
+
+def get_backend_info() -> dict[str, str]:
+    """
+    Get keyring backend information for diagnostics.
+
+    Returns:
+        Dict with backend name and security status
+    """
+    if not KEYRING_AVAILABLE:
+        return {
+            "available": False,
+            "backend": "unavailable",
+            "secure": False
+        }
+
+    is_secure, backend = _is_secure_backend()
+    return {
+        "available": True,
+        "backend": backend,
+        "secure": is_secure
+    }

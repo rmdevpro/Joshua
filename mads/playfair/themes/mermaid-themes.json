@@ -1,0 +1,14 @@
+{
+  "professional": {
+    "mermaidTheme": "neutral"
+  },
+  "modern": {
+    "mermaidTheme": "forest"
+  },
+  "minimal": {
+    "mermaidTheme": "default"
+  },
+  "dark": {
+    "mermaidTheme": "dark"
+  }
+}

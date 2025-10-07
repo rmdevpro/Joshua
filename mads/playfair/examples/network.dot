@@ -1,0 +1,21 @@
+graph network_topology {
+    layout=neato;
+    node [shape=box, style=rounded];
+
+    Router1 [label="Core Router 1", pos="0,3!"];
+    Router2 [label="Core Router 2", pos="4,3!"];
+    Switch1 [label="Access Switch 1", pos="-2,0!"];
+    Switch2 [label="Access Switch 2", pos="2,0!"];
+    Switch3 [label="Access Switch 3", pos="6,0!"];
+    Firewall [label="Firewall", pos="2,-3!"];
+    Internet [label="Internet", shape=cloud, pos="2,-5!"];
+
+    Router1 -- Router2 [label="10Gbps"];
+    Router1 -- Switch1;
+    Router1 -- Switch2;
+    Router2 -- Switch2;
+    Router2 -- Switch3;
+    Switch1 -- Firewall;
+    Switch3 -- Firewall;
+    Firewall -- Internet;
+}

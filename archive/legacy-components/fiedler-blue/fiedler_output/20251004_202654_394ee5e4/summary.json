@@ -1,0 +1,52 @@
+{
+  "correlation_id": "394ee5e4",
+  "timestamp": "20251004_202654",
+  "prompt": "<redacted - 2736 chars>",
+  "prompt_length": 2736,
+  "files": [
+    "/mnt/projects/ICCM/playfair_requirements_v2.md",
+    "/mnt/projects/ICCM/architecture/General Architecture.PNG"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 165319,
+    "total_lines": 1428
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_202654_394ee5e4/deepseek-ai_DeepSeek-R1.md",
+      "duration": 30.33,
+      "tokens": {
+        "prompt": 65237,
+        "completion": 1548
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_202654_394ee5e4/gemini-2.5-pro.md",
+      "duration": 41.79,
+      "tokens": {
+        "prompt": 66097,
+        "completion": 1470
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_202654_394ee5e4/gpt-4o-mini.md",
+      "duration": 49.31,
+      "tokens": {
+        "prompt": 64717,
+        "completion": 628
+      }
+    }
+  ]
+}

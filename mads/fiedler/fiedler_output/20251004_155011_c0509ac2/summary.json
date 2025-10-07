@@ -1,0 +1,51 @@
+{
+  "correlation_id": "c0509ac2",
+  "timestamp": "20251004_155011",
+  "prompt": "<redacted - 615 chars>",
+  "prompt_length": 615,
+  "files": [
+    "/mnt/projects/ICCM/marco/REVIEW_PACKAGE.md"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 28059,
+    "total_lines": 937
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-4o-mini",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_155011_c0509ac2/gpt-4o-mini.md",
+      "duration": 13.03,
+      "tokens": {
+        "prompt": 6401,
+        "completion": 784
+      }
+    },
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_155011_c0509ac2/gemini-2.5-pro.md",
+      "duration": 43.88,
+      "tokens": {
+        "prompt": 6459,
+        "completion": 2150
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251004_155011_c0509ac2/deepseek-ai_DeepSeek-R1.md",
+      "duration": 60.43,
+      "tokens": {
+        "prompt": 6594,
+        "completion": 3574
+      }
+    }
+  ]
+}

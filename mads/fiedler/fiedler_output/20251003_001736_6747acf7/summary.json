@@ -1,0 +1,23 @@
+{
+  "correlation_id": "6747acf7",
+  "timestamp": "20251003_001736",
+  "prompt": "<redacted - 32 chars>",
+  "prompt_length": 32,
+  "files": [],
+  "package_metadata": {},
+  "models": [
+    "grok-4-0709"
+  ],
+  "results": [
+    {
+      "model": "grok-4-0709",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251003_001736_6747acf7/grok-4-0709.md",
+      "duration": 5.15,
+      "tokens": {
+        "prompt": 12,
+        "completion": 2
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+# docker-compose.yml
+
+version: '3.8'
+
+volumes:
+  # TEST DEPLOYMENT: Using regular directories (ZFS not available on this host)
+  # For production, use ZFS datasets as documented in README.md
+  irina_storage_files:
+    driver: local
+    driver_opts:
+      type: none
+      device: /mnt/projects/ICCM/irina_storage_test/files
+      o: bind
+
+  irina_storage_metadata:
+    driver: local
+    driver_opts:
+      type: none
+      device: /mnt/projects/ICCM/irina_storage_test/metadata
+      o: bind
+
+services:
+  horace-mcp:
+    build:
+      context: ..
+      dockerfile: horace-nas-v2/Dockerfile
+    restart: unless-stopped
+    # Run as a non-root user. This UID/GID must match the ownership
+    # of the ZFS datasets on the host.
+    user: "1000:1000"
+    ports:
+      - "8000:8000"   # HTTP REST API
+      - "9070:9070"   # MCP WebSocket server
+    volumes:
+      # Mounts the shared files directory (read-write)
+      - irina_storage_files:/mnt/irina_storage/files
+      # Mounts the private metadata directory
+      - irina_storage_metadata:/mnt/irina_storage/.horace
+      # Mount /etc/localtime to ensure container time matches host time for snapshots
+      - /etc/localtime:/etc/localtime:ro
+      # Mount iccm-network library for MCP WebSocket server
+      - ../iccm-network:/app/iccm-network:ro
+    environment:
+      # These paths match the mount points inside the container
+      - HORACE_FILES_PATH=/mnt/irina_storage/files
+      - HORACE_METADATA_PATH=/mnt/irina_storage/.horace
+      # ZFS snapshots disabled (ZFS not available on this host)
+      - ENABLE_ZFS_SNAPSHOTS=false
+      - LOG_LEVEL=INFO
+      # PostgreSQL connection (using shared ICCM PostgreSQL server)
+      - DATABASE_URL=postgresql://${HORACE_DB_USER:-horace}:${HORACE_DB_PASSWORD}@${HORACE_DB_HOST:-irina}:${HORACE_DB_PORT:-5432}/${HORACE_DB_NAME:-horace}
+    # ZFS snapshots disabled for test deployment
+    # For production deployment with ZFS, see README.md

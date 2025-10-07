@@ -1,0 +1,19 @@
+digraph orgchart {
+    rankdir=TB;
+    node [shape=box, style="rounded"];
+
+    CEO [label="CEO\n(Chief Executive Officer)"];
+    CTO [label="CTO\n(Chief Technology Officer)"];
+    CFO [label="CFO\n(Chief Financial Officer)"];
+    COO [label="COO\n(Chief Operating Officer)"];
+
+    VP_Eng [label="VP of Engineering"];
+    VP_Product [label="VP of Product"];
+    Controller [label="Controller"];
+    Dir_Ops [label="Director of Operations"];
+
+    CEO -> {CTO, CFO, COO};
+    CTO -> {VP_Eng, VP_Product};
+    CFO -> Controller;
+    COO -> Dir_Ops;
+}

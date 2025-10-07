@@ -1,0 +1,41 @@
+{
+  "correlation_id": "23257290",
+  "timestamp": "20251006_195353",
+  "prompt": "<redacted - 697 chars>",
+  "prompt_length": 697,
+  "files": [
+    "/mnt/projects/ICCM/horace/nas_gateway_impl_round1/implementation.md",
+    "/mnt/projects/ICCM/architecture/horace_nas_gateway_requirements_v2.1.md"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 53581,
+    "total_lines": 1422
+  },
+  "models": [
+    "gpt-4o",
+    "deepseek-ai/DeepSeek-R1"
+  ],
+  "results": [
+    {
+      "model": "gpt-4o",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_195353_23257290/gpt-4o.md",
+      "duration": 20.2,
+      "tokens": {
+        "prompt": 12331,
+        "completion": 562
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_195353_23257290/deepseek-ai_DeepSeek-R1.md",
+      "duration": 82.4,
+      "tokens": {
+        "prompt": 13129,
+        "completion": 3204
+      }
+    }
+  ]
+}

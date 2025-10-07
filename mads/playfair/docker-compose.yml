@@ -1,0 +1,49 @@
+services:
+  playfair-mcp-blue:
+    container_name: playfair-mcp-blue
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      # Map host port 9041 to container port 8040 for MCP and health checks
+      - "9041:8040"
+    networks:
+      # Connect to the external ICCM network
+      - iccm_network
+    environment:
+      # Application Configuration
+      - NODE_ENV=production
+      - PORT=8040
+      - LOG_LEVEL=info
+      # Godot Logging Integration
+      - GODOT_URL=ws://godot-mcp:9060
+      # Worker Pool Configuration
+      - WORKER_POOL_SIZE=3
+      - MAX_QUEUE_SIZE=50
+      # Resource Limits
+      - RENDER_TIMEOUT_MS=60000
+      - MAX_CONTENT_LINES=10000
+      - MAX_PNG_WIDTH=8192
+      - MAX_PNG_HEIGHT=8192
+    deploy:
+      # Enforce resource limits at the container level
+      resources:
+        limits:
+          memory: 2G
+          cpus: '2.0'
+    restart: unless-stopped
+    user: "1000:1000"  # Run as host user (aristotle9) for file write permissions
+    volumes:
+      # Persist temporary files if needed for debugging, though the app should clean up
+      - playfair-temp-blue:/tmp/playfair
+      # Read-write access to host filesystem for saving diagrams
+      - /mnt/projects:/host/mnt/projects
+
+networks:
+  iccm_network:
+    # This configuration assumes the 'iccm_network' is created by another compose file or manually.
+    external: true
+
+volumes:
+  playfair-temp-blue:
+    # Define the named volume for temporary data

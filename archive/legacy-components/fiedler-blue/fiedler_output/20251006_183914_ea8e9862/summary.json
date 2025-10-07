@@ -1,0 +1,56 @@
+{
+  "correlation_id": "ea8e9862",
+  "timestamp": "20251006_183914",
+  "prompt": "<redacted - 2199 chars>",
+  "prompt_length": 2199,
+  "files": [
+    "//mnt/projects/ICCM/docs/papers/00_IAE_Intelligent_Agentic_Engineering_v1.0.md",
+    "//mnt/projects/ICCM/docs/papers/00_IDE_Intelligent_Decision_Engineering_v1.0.md",
+    "//mnt/projects/ICCM/docs/papers/00_IEE_Intelligent_Execution_Engineering_v1.0.md",
+    "//mnt/projects/ICCM/fiedler-blue/fiedler_output/20251006_183231_eec19811/gemini-2.5-pro.md",
+    "//mnt/projects/ICCM/fiedler-blue/fiedler_output/20251006_183231_eec19811/gpt-5.md",
+    "//mnt/projects/ICCM/fiedler-blue/fiedler_output/20251006_183231_eec19811/claude-opus-4-20250514.md"
+  ],
+  "package_metadata": {
+    "num_files": 6,
+    "total_size": 105548,
+    "total_lines": 1842
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "claude-opus-4-20250514"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183914_ea8e9862/gemini-2.5-pro.md",
+      "duration": 71.2,
+      "tokens": {
+        "prompt": 22898,
+        "completion": 6126
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183914_ea8e9862/gpt-5.md",
+      "duration": 222.52,
+      "tokens": {
+        "prompt": 22772,
+        "completion": 11177
+      }
+    },
+    {
+      "model": "claude-opus-4-20250514",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251006_183914_ea8e9862/claude-opus-4-20250514.md",
+      "duration": 546.14,
+      "tokens": {
+        "prompt": 26278,
+        "completion": 16384
+      }
+    }
+  ]
+}

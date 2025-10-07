@@ -1,0 +1,17 @@
+{
+  "name": "marco-mcp-gateway",
+  "version": "1.0.0",
+  "description": "Marco - Internet Gateway service for ICCM, providing browser automation via WebSocket MCP",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@playwright/mcp": "0.0.41",
+    "ws": "^8.17.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
