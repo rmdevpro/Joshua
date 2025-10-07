@@ -45,275 +45,174 @@ Driver prepares inputs:
   - Tests (from test cycle)
   - Deployment config
   ↓
-Driver validates inputs complete
-  ↓
-Driver creates Blue/Green deployment plan
+Deploy to Green (Blue stays running)
 ```
 
 **Success Criteria:**
 - All inputs present and accessible
-- Deployment config validated
-- Blue/Green strategy defined
-- Rollback plan documented
+- Green environment deployed
+- Blue environment still running (safety net)
 
 ---
 
-### Phase 2: Blue/Green Deployment
+### Phase 2: Fix Loop
 ```
-Driver deploys to Green environment
-  (existing Blue environment remains active)
+[FIX LOOP]
+Driver tries reasonable fixes
   ↓
-Driver verifies Green container/service started
+Stuck?
   ↓
-Driver runs health checks on Green
+If YES → Consult Senior Member
+  ↓
+Really stuck?
+  ↓
+If YES → Consult Trio
+  ↓
+Redeploy to Green
+  ↓
+Running?
+  ↓
+If NO → Continue Fix Loop
+If YES → Proceed to Test Loop
+[END FIX LOOP]
 ```
 
 **Success Criteria:**
-- Green environment deployed successfully
-- Service starts without errors
-- Health checks pass
-- Blue environment still running (safety net)
+- Green environment running without crashes
+- Basic functionality operational
+- Ready for testing
 
-**Blue/Green Strategy:**
-- **Blue**: Currently running production code
-- **Green**: New code being deployed/tested
-- **Switch**: Only after Green fully validated
-- **Rollback**: Switch back to Blue if issues found
+**Fix Strategy:**
+- Start with reasonable fixes Driver can make
+- Escalate to Senior Member when stuck
+- Escalate to Trio for major issues
+- Redeploy and verify after each fix
+- Repeat until service is running
+
+**Note**: Almost nothing "just works" on first deployment. This loop is expected and normal.
 
 ---
 
-### Phase 3: Automated Testing
+### Phase 3: Test Loop
 ```
-Driver runs test suite against Green environment
+[TEST LOOP]
+Driver runs test suite against Green
   ↓
 Tests pass?
   ↓
-If NO → Proceed to Bug Fix Loop
-If YES → Proceed to Requirements Validation
+If NO → Back to Fix Loop
+If YES → Proceed to Full Code Review
+[END TEST LOOP]
 ```
 
 **Success Criteria:**
 - All tests execute
 - All tests pass
 - No errors in test output
-- Test coverage meets threshold
 
 **Test Execution:**
-- Unit tests
-- Integration tests
+- Unit tests (if available)
+- Integration tests (if available)
 - Service health tests
-- Any custom tests from test suite
+- Manual validation if test suite not complete
+
+**Note**: Fix Loop → Test Loop → Fix Loop iteration continues until all tests pass.
 
 ---
 
-### Phase 4: Bug Fix Loop (if tests fail)
+### Phase 4: Full Code Review
 ```
-[LOOP START]
-Driver collects test failures and logs
-  ↓
-Driver sends to Trio (via Fiedler)
-  ↓
-Trio analyzes failures and generates fixes
-  ↓
-Driver sends to Senior Member
-  ↓
-Senior Member synthesizes fix + notes
-  ↓
-Driver reviews & rates (Quality, Completeness, Drift)
-  ↓
-Driver sends to Junior Members
-  ↓
-Junior Members review fix
-  ↓
-Driver reviews & rates Junior performance
-  ↓
-Consensus? (2/2 approve)
-  ↓
-If YES → Deploy updated code to Green, re-run tests
-If NO → Loop (max 3 iterations)
-  ↓
-Tests pass after fix?
-  ↓
-If YES → EXIT LOOP to Requirements Validation
-If NO and loop count ≤ 3 → CONTINUE LOOP
-If NO and loop count > 3 → STOP, escalate to user
-[LOOP END]
-```
-
-**Success Criteria:**
-- Bugs identified and fixed
-- Tests pass after fix
-- Fix reviewed by Junior Members (2/2 approval)
-- No drift from requirements
-
-**Stop Conditions:**
-- Max 3 fix iterations → Escalate to user
-- Fundamental issue with code → Escalate to user
-- Fix causes requirements drift → Stop and consult
-
----
-
-### Phase 5: Requirements Validation
-```
-Driver sends to Trio:
+[REVIEW LOOP]
+Driver sends to Trio (via Fiedler):
   - Deployed code
   - Original requirements
   - Test results
-  - Deployment logs
   ↓
 Trio reviews code against requirements
   ↓
 Driver sends to Senior Member
   ↓
-Senior Member synthesizes validation + notes
+Senior Member synthesizes review
   ↓
-Driver evaluates: Requirements met?
+Driver sends to Junior Members
   ↓
-If NO → Document gaps, consult user (may need new dev cycle)
-If YES → Proceed to UAT
+Junior Members review
+  ↓
+Major flaws found?
+  ↓
+If YES → May need to return to Development Flow
+If NO → Reasonable fixes needed?
+  ↓
+If YES → Back to Fix Loop → Test Loop → Full Code Review again
+If NO → Consensus reached (code good + requirements met)
+[END REVIEW LOOP]
 ```
 
 **Success Criteria:**
-- All requirements addressed in deployed code
-- No missing functionality
-- No scope creep
-- Implementation matches specification
+- Trio consensus: code is good
+- All requirements met
+- No major flaws
+- Ready for production
 
-**Validation Focus:**
-- Functional requirements met
-- Non-functional requirements met (performance, security, etc.)
-- Edge cases handled
-- Error handling present
-
----
-
-### Phase 6: User Acceptance Testing (UAT)
-```
-Driver presents to user:
-  - Deployed Green environment details
-  - Test results
-  - Requirements validation
-  - How to access/test
-  ↓
-User tests Green environment
-  ↓
-User acceptance?
-  ↓
-If NO → Document issues, may trigger new dev cycle or bug fix
-If YES → Proceed to Production Promotion
-```
-
-**Success Criteria:**
-- User has access to Green environment
-- User validates functionality
-- User accepts deployment
-- Any user concerns documented
-
-**UAT Checklist:**
-- Core functionality works as expected
+**Review Focus:**
+- Code quality meets standards
+- Requirements fully implemented
+- Security considerations addressed
 - Performance acceptable
-- UI/UX acceptable (if applicable)
-- No critical issues found
-- User explicitly approves
+- No critical issues
+
+**Decision Points:**
+- **Major flaws**: Fundamental design issues → Return to Development Flow
+- **Reasonable fixes**: Minor issues, bugs, improvements → Back to Fix Loop
+- **Consensus**: Code approved, requirements met → Proceed to completion
 
 ---
 
-### Phase 7: Production Promotion
+### Phase 5: Completion
 ```
-Driver switches traffic from Blue to Green
-  (Green becomes new production)
+Promote Green to production
   ↓
-Driver monitors for issues (5-10 minutes)
+Shutdown Blue environment
   ↓
-Issues detected?
-  ↓
-If YES → Rollback to Blue immediately
-If NO → Proceed to Blue Shutdown
-```
-
-**Success Criteria:**
-- Traffic successfully switched to Green
-- No errors in logs
-- Service responding normally
-- Monitoring confirms stability
-
-**Promotion Steps:**
-1. Update routing/proxy to point to Green
-2. Monitor logs and metrics
-3. Verify Blue is still running (for rollback)
-4. Wait for stability period (5-10 min)
-
----
-
-### Phase 8: Blue Shutdown & Documentation
-```
-Driver confirms Green stable
-  ↓
-Driver stops Blue environment
-  ↓
-Driver updates documentation:
-  - Deployment notes
-  - Test results
-  - Any issues encountered
-  - Performance baselines
-  ↓
-Driver updates GitHub:
-  - Close related issues
-  - Update affected docs
-  - Commit deployment notes
-  - Push to GitHub
+Driver updates documentation and GitHub
   ↓
 Deployment Complete
 ```
 
 **Success Criteria:**
+- Green promoted to production
 - Blue safely shut down
 - Documentation updated
 - GitHub issues closed
-- Deployment notes committed
-- Team notified
 
-**Documentation Requirements:**
-- Deployment timestamp
-- Code version/commit hash
-- Test results summary
-- Any issues encountered and resolutions
-- Performance metrics
-- Rollback instructions (for future reference)
+**Completion Actions:**
+1. Promote Green (rename container, update routing if needed)
+2. Stop and remove Blue environment
+3. Update documentation:
+   - Deployment notes
+   - Test results summary
+   - Issues encountered and resolutions
+4. Update GitHub:
+   - Close related issues (with `fixes #N`)
+   - Update affected docs
+   - Commit and push changes
 
 ---
 
 ## Rollback Procedure
 
-**Trigger Conditions:**
-- Tests fail after max iterations (3)
-- Requirements not met
-- User rejects in UAT
-- Issues detected after promotion
+**When to Rollback:**
+- Green environment won't stabilize after reasonable fixes
+- Major flaws discovered requiring Development Flow restart
+- User requests rollback
 
 **Rollback Steps:**
-1. Switch traffic back to Blue
+1. Keep Blue running (it never stopped)
 2. Stop Green environment
 3. Document reason for rollback
-4. Analyze failure (may consult Trio)
-5. Determine next steps (fix and retry, or new dev cycle)
-
----
-
-## Stop Conditions & Escalation
-
-**Driver stops deployment and escalates to user when:**
-- Test failures exceed 3 fix iterations
-- Requirements validation fails
-- User rejects in UAT
-- Critical issues found after promotion
-- Fundamental code issues requiring redesign
-
-**Escalation Process:**
-1. Driver documents issue clearly
-2. Driver presents options (rollback, fix, new cycle)
-3. User decides path forward
-4. Driver executes user decision
+4. Determine next steps:
+   - Minor fixes: Retry deployment with fixes
+   - Major issues: Return to Development Flow
 
 ---
 
@@ -321,15 +220,14 @@ Deployment Complete
 
 **Deployment Quality:**
 - All tests pass
+- Trio consensus achieved
 - Requirements fully met
-- User acceptance achieved
-- Zero production issues in first 24 hours
+- Green stable in production
 
 **Deployment Efficiency:**
-- Time from start to production
-- Number of bug fix iterations
-- Rollback frequency
-- User acceptance rate
+- Time from start to completion
+- Number of Fix Loop iterations
+- Trio review outcome (consensus vs. major flaws)
 
 ---
 
