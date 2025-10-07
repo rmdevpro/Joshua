@@ -80,6 +80,110 @@ Horace NAS Gateway is a ZFS-backed file versioning and cataloging system. Servic
 3. Run migration if needed
 4. Deploy to production
 
+---
+
+## Usage Patterns
+
+### For Ecosystem Components (Internal)
+
+**Components write directly to the shared filesystem:**
+
+```python
+from pathlib import Path
+
+# Playfair writing a diagram
+output_path = Path("/mnt/irina_storage/files/playfair/diagram.svg")
+output_path.parent.mkdir(parents=True, exist_ok=True)
+output_path.write_text(svg_content)
+# Done! Horace automatically catalogs this file
+
+# Fiedler writing LLM outputs
+output_dir = Path("/mnt/irina_storage/files/temp/fiedler")
+output_dir.mkdir(parents=True, exist_ok=True)
+(output_dir / "response.md").write_text(response)
+# Automatically versioned and cataloged
+
+# Gates creating documents
+doc_path = Path("/mnt/irina_storage/files/gates/output.odt")
+doc_path.parent.mkdir(parents=True, exist_ok=True)
+doc_path.write_bytes(odt_bytes)
+# Tracked by Horace with checksum verification
+```
+
+**Best practices for components:**
+1. Use the **write-to-temp-and-rename pattern** for atomic writes:
+   ```python
+   temp_path = output_path.with_suffix('.tmp')
+   temp_path.write_text(content)
+   temp_path.rename(output_path)  # Atomic operation
+   ```
+2. Create subdirectories under `/mnt/irina_storage/files/` for your component
+3. No need to call `horace_register_file` - Horace watches automatically
+4. Use `/mnt/irina_storage/files/temp/` for temporary/transient outputs
+5. Horace catalogs `CLOSE_WRITE` and `MOVED_TO` events - ignore intermediate writes
+
+### For External Users (Claude Code, Scripts, etc.)
+
+**Access the filesystem via SSHFS mount:**
+
+```bash
+# One-time setup: Mount the ZFS filesystem locally
+sudo mkdir -p /mnt/irina_storage
+echo "password" | sudo -S sshfs -o password_stdin,allow_other,default_permissions \
+    user@server:/mnt/irina_storage /mnt/irina_storage
+
+# Now read/write files directly
+echo "test" > /mnt/irina_storage/files/test.txt
+
+# Read component outputs
+ls -la /mnt/irina_storage/files/temp/fiedler/
+cat /mnt/irina_storage/files/playfair/diagram.svg
+
+# Write input files for components
+cp my_document.md /mnt/irina_storage/files/input/
+```
+
+**Claude Code usage:**
+```python
+from pathlib import Path
+
+# Read Fiedler output
+fiedler_output = Path("/mnt/irina_storage/files/temp/fiedler/20251007_123456/response.md")
+content = fiedler_output.read_text()
+
+# Write input for Playfair
+diagram_spec = Path("/mnt/irina_storage/files/input/diagram.dot")
+diagram_spec.write_text(dot_content)
+
+# All files automatically cataloged by Horace
+```
+
+**MCP Tool Access:**
+```python
+# Search for files via Horace MCP
+mcp__iccm__horace_search_files(file_type="svg")
+
+# Get file info and version history
+mcp__iccm__horace_get_file_info(path="playfair/diagram.svg")
+
+# List collections (top-level directories)
+mcp__iccm__horace_list_collections()
+```
+
+**File Organization:**
+- `/mnt/irina_storage/files/temp/` - Temporary outputs from components
+- `/mnt/irina_storage/files/input/` - Input files for processing
+- `/mnt/irina_storage/files/{component}/` - Component-specific directories
+- `/mnt/irina_storage/files/fiedler/` - Fiedler LLM outputs
+- `/mnt/irina_storage/files/playfair/` - Playfair diagrams
+- `/mnt/irina_storage/files/gates/` - Gates documents
+- `/mnt/irina_storage/files/shared/` - Shared workspace
+
+**External mount instructions:**
+See CLAUDE.md for the full SSHFS mount command and troubleshooting.
+
+---
+
 ## Quick Start
 
 ### Prerequisites
