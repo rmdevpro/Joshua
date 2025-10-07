@@ -186,7 +186,7 @@ A structured development process leveraging multiple AI agents with specialized 
 ```
 Driver prepares inputs (outline, requirements, code, documents)
   ↓
-Driver sends to Trio
+Driver sends to Trio (via Fiedler)
   ↓
 Trio generates 3 independent drafts (parallel)
   ↓
@@ -209,6 +209,18 @@ Driver reviews & rates (Quality, Completeness, Drift)
 - **README**: Existing code + requirements
 - **Architecture doc**: Outline drafted with user
 - **Refactoring**: Existing code + objectives
+
+**Trio Selection Process**:
+- Driver sends to Fiedler MCP with trio preset selection
+- **Default**: `std_trio` (1 premium + 1 standard + 1 open-source)
+  - Example: Gemini 2.5 Pro, GPT-4o, DeepSeek
+- **User can request**: `sr_trio` (3 premium) or `jr_trio` (1 standard + 2 open-source)
+- Fiedler uses randomization/selection within preset constraints
+- Fiedler returns which 3 models were selected
+- **Driver locks team composition** for entire cycle:
+  - Most premium model → Senior Member (synthesis)
+  - Other 2 models → Junior Members (review)
+- Team remains consistent across all phases (no rotation mid-cycle)
 
 ---
 
