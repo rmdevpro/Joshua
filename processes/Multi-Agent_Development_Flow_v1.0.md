@@ -331,6 +331,11 @@ Senior Member implicitly approves (their work)
   ↓
 Driver final validation & Post-Mortem Report
   ↓
+Driver updates:
+  - Git projects & GitHub issues
+  - Affected documents
+  - Push to GitHub
+  ↓
 User reviews and approves
   ↓
 Finished code or document
@@ -357,6 +362,14 @@ Finished code or document
 3. Process improvement recommendations
 4. Documentation gap identification
 5. Trio performance assessment
+
+**Driver Post-Completion Actions**:
+1. Save finished code/document to appropriate repository location
+2. Update or close related GitHub issues (with `fixes #N` or `closes #N`)
+3. Update affected documentation (README, architecture docs, etc.)
+4. Commit all changes with descriptive message
+5. Push to GitHub
+6. Present post-mortem report to user
 
 ---
 
