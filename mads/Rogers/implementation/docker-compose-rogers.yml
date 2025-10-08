@@ -1,0 +1,254 @@
+version: '3.8'
+
+# Rogers MAD Deployment - Complete MAD Architecture
+# Each MAD = Thought Engine + Action Engine
+
+services:
+  # ============================================================================
+  # ROGERS MAD - Session Management
+  # ============================================================================
+
+  rogers-mad:
+    build:
+      context: .
+      dockerfile: Dockerfile.rogers
+    container_name: rogers-mad
+    hostname: rogers
+    environment:
+      # MAD Identity
+      MAD_NAME: Rogers
+      MAD_PHASE: 1
+
+      # Thought Engine Configuration
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      CONTEXT_FILE: /app/context/rogers.md
+
+      # Action Engine Configuration
+      REDIS_URL: redis://rogers-redis:6379
+      MONGODB_URL: mongodb://admin:admin123@rogers-mongodb:27017
+      S3_ENDPOINT: http://rogers-minio:9000
+
+      # Communication Configuration
+      CONVERSATION_CHANNEL: rogers-conversations
+      MESSAGE_BROKER: redis://rogers-redis:6379
+
+    ports:
+      - "8000:8000"  # REST API (Action Engine)
+      - "8080:8080"  # MCP Server (for Imperator control)
+      - "8090:8090"  # Conversation Interface (Ears/Mouth)
+
+    volumes:
+      - ./rogers.md:/app/context/rogers.md:ro  # Rogers context file
+      - rogers-logs:/app/logs                  # Interaction logs for future DER
+
+    depends_on:
+      - rogers-redis
+      - rogers-mongodb
+      - rogers-minio
+
+    networks:
+      - mad-network
+      - rogers-internal
+
+    labels:
+      - "mad.name=Rogers"
+      - "mad.type=session-management"
+      - "mad.phase=1"
+      - "mad.thought-engine=basic"
+      - "mad.action-engine=strong"
+
+  # ============================================================================
+  # ROGERS ACTION ENGINE COMPONENTS (Arms & Legs)
+  # ============================================================================
+
+  # Redis - Hot Cache (1 hour TTL)
+  rogers-redis:
+    image: redis:7-alpine
+    container_name: rogers-redis
+    volumes:
+      - rogers-redis-data:/data
+    networks:
+      - rogers-internal
+    command: redis-server --appendonly yes
+
+  # MongoDB - Warm Storage (7 days)
+  rogers-mongodb:
+    image: mongo:6
+    container_name: rogers-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+      MONGO_INITDB_DATABASE: sessions
+    volumes:
+      - rogers-mongo-data:/data/db
+    networks:
+      - rogers-internal
+
+  # MinIO (S3) - Cold Storage (>7 days)
+  rogers-minio:
+    image: minio/minio:latest
+    container_name: rogers-minio
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    volumes:
+      - rogers-minio-data:/data
+    networks:
+      - rogers-internal
+    command: server /data --console-address ":9001"
+    ports:
+      - "9001:9001"  # MinIO console (for debugging)
+
+  # ============================================================================
+  # OTHER MADS (Showing conversation architecture)
+  # ============================================================================
+
+  # Dewey MAD - Conversation Storage
+  dewey-mad:
+    image: dewey-mad:latest
+    container_name: dewey-mad
+    environment:
+      MAD_NAME: Dewey
+      MAD_PHASE: 1
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4}
+      CONVERSATION_CHANNEL: dewey-conversations
+      MESSAGE_BROKER: redis://mad-message-broker:6379
+    networks:
+      - mad-network
+    labels:
+      - "mad.name=Dewey"
+      - "mad.type=conversation-storage"
+
+  # Horace MAD - File Management
+  horace-mad:
+    image: horace-mad:latest
+    container_name: horace-mad
+    environment:
+      MAD_NAME: Horace
+      MAD_PHASE: 1
+      LLM_PROVIDER: ${LLM_PROVIDER:-openai}
+      LLM_MODEL: ${LLM_MODEL:-gpt-4}
+      CONVERSATION_CHANNEL: horace-conversations
+      MESSAGE_BROKER: redis://mad-message-broker:6379
+    networks:
+      - mad-network
+    labels:
+      - "mad.name=Horace"
+      - "mad.type=file-management"
+
+  # ============================================================================
+  # MAD COMMUNICATION INFRASTRUCTURE
+  # ============================================================================
+
+  # Central Message Broker for MAD conversations
+  mad-message-broker:
+    image: redis:7-alpine
+    container_name: mad-message-broker
+    networks:
+      - mad-network
+    ports:
+      - "6380:6379"  # Different port to avoid conflict
+    command: redis-server --appendonly yes
+
+  # ============================================================================
+  # MONITORING (Optional - for observing MAD behavior)
+  # ============================================================================
+
+  # Prometheus for metrics
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: rogers-prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    networks:
+      - rogers-internal
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+
+  # Grafana for visualization
+  grafana:
+    image: grafana/grafana:latest
+    container_name: rogers-grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=redis-datasource
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - rogers-internal
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+
+# ============================================================================
+# NETWORKS
+# ============================================================================
+
+networks:
+  # Network for MAD-to-MAD conversations
+  mad-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+    labels:
+      - "network.purpose=mad-conversations"
+
+  # Internal network for Rogers components
+  rogers-internal:
+    driver: bridge
+    labels:
+      - "network.purpose=rogers-internal"
+
+# ============================================================================
+# VOLUMES
+# ============================================================================
+
+volumes:
+  # Rogers-specific volumes
+  rogers-redis-data:
+  rogers-mongo-data:
+  rogers-minio-data:
+  rogers-logs:
+
+  # Monitoring volumes
+  prometheus-data:
+  grafana-data:
+
+# ============================================================================
+# DEPLOYMENT NOTES
+# ============================================================================
+
+# Phase 1 Deployment (Current):
+# - Rogers with basic Thought Engine (Imperator + rogers.md)
+# - Strong Action Engine with 3-tier storage
+# - Simple conversation capability via message broker
+# - Rule-based decision making
+
+# Phase 2 Deployment (Future):
+# - Add DER container alongside Rogers
+# - DER learns from rogers-logs volume
+# - Connects to Thought Engine for decision recommendations
+# - Improves session management decisions over time
+
+# Phase 3 Deployment (Future):
+# - Add CET container alongside Rogers
+# - CET learns conversation patterns from mad-message-broker
+# - Optimizes Rogers' communication with other MADs
+# - More natural and efficient conversations
+
+# Example MAD Conversation Flow:
+# 1. Dewey sends message via mad-message-broker
+# 2. Rogers' Ears (Action Engine) receive it
+# 3. Rogers' Imperator (Thought Engine) processes it
+# 4. Rogers' MCP Server executes decision
+# 5. Rogers' Mouth sends response via mad-message-broker
+# 6. Dewey receives response

@@ -1,0 +1,59 @@
+# Rogers MAD - Phase 1 Implementation
+# Thought Engine (Basic) + Action Engine (Strong)
+
+FROM python:3.11-slim
+
+# Metadata
+LABEL name="rogers-mad" \
+      version="1.0.0-phase1" \
+      description="Session Management MAD with Thought and Action Engines" \
+      architecture="MAD (Model-driven Autonomous Development)"
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Rogers context (for Thought Engine)
+COPY rogers.md /app/context/rogers.md
+
+# Copy application code
+COPY rogers_thought_engine.py .
+COPY rogers_action_engine.py .
+COPY main_rogers.py .
+
+# Environment variables for Rogers
+ENV MAD_NAME=Rogers \
+    MAD_PHASE=1 \
+    THOUGHT_ENGINE=basic \
+    ACTION_ENGINE=strong \
+    CONTEXT_FILE=/app/context/rogers.md \
+    # LLM configuration (selectable)
+    LLM_PROVIDER=openai \
+    LLM_MODEL=gpt-4 \
+    # Storage configuration
+    REDIS_URL=redis://redis:6379 \
+    MONGODB_URL=mongodb://admin:admin123@mongodb:27017 \
+    # MCP configuration
+    MCP_PORT=8080 \
+    # API configuration
+    API_PORT=8000
+
+# Expose ports
+# 8000 - REST API (Action Engine)
+# 8080 - MCP Server (for Imperator control)
+# 8090 - Conversation interface (Ears/Mouth)
+EXPOSE 8000 8080 8090
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Start Rogers MAD
+CMD ["python", "-m", "uvicorn", "main_rogers:app", "--host", "0.0.0.0", "--port", "8000"]
