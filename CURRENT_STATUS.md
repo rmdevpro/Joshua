@@ -21,6 +21,7 @@
 - ✅ **Deployment Plan APPROVED** - Blue/Green strategy for bare metal with container testing
 - ✅ **Code Review Complete** - Trio review with senior decision for minimal fix
 - ✅ **Production Testing** - All 97 tools available, 8/8 backends healthy
+- 📋 **Post-Mortem**: Complete analysis at `/docs/deployment/relay_v3.6_post_mortem.md`
 
 ### Key Achievements
 1. **Library Standardization**: Successfully replaced inline implementations with standardized libraries
