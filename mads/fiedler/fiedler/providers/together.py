@@ -1,6 +1,6 @@
 """Together.AI provider implementation."""
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 
 from openai import OpenAI
 
@@ -21,7 +21,14 @@ class TogetherProvider(BaseProvider):
             )
         self.client = OpenAI(api_key=api_key, base_url=base_url)
 
-    def _send_impl(self, package: str, prompt: str, output_file: Path, logger) -> Dict[str, Any]:
+    def _send_impl(
+        self,
+        package: str,
+        prompt: str,
+        output_file: Path,
+        logger,
+        attachments: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         # Combine prompt and package
         full_input = f"{prompt}\n\n{package}" if package else prompt
 

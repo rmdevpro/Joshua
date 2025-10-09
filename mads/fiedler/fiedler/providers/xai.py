@@ -3,7 +3,7 @@ import os
 import subprocess
 import tempfile
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 
 from .base import BaseProvider
 from ..utils.tokens import estimate_tokens
@@ -22,7 +22,14 @@ class XAIProvider(BaseProvider):
                 f"No API key found for xAI. Set via fiedler_set_key or environment variable {api_key_env}"
             )
 
-    def _send_impl(self, package: str, prompt: str, output_file: Path, logger) -> Dict[str, Any]:
+    def _send_impl(
+        self,
+        package: str,
+        prompt: str,
+        output_file: Path,
+        logger,
+        attachments: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         # Combine prompt and package
         full_input = f"{prompt}\n\n{package}" if package else prompt
 

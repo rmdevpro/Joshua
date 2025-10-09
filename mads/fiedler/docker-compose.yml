@@ -62,7 +62,7 @@ services:
       - /mnt/projects:/mnt/projects:ro
 
       # Client scripts (read-only)
-      - /mnt/projects/hawkmoth-ecosystem/tools/gemini-client/gemini_client.py:/app/clients/gemini_client.py:ro
+      - /mnt/projects/Joshua/mads/fiedler/tools/gemini_client.py:/app/clients/gemini_client.py:ro
       - /mnt/projects/ICCM/tools/grok_client.py:/app/clients/grok_client.py:ro
 
       # State persistence
@@ -76,7 +76,7 @@ services:
     # Networks
     networks:
       - fiedler_network
-      - iccm_network  # Shared network for KGB integration
+      - iccm_network
 
     # Health check
     healthcheck:

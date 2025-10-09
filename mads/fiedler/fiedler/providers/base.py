@@ -1,7 +1,7 @@
 """Base provider abstraction with retry logic."""
 import time
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Dict, Any, Optional, List
 from pathlib import Path
 
 
@@ -24,7 +24,14 @@ class BaseProvider(ABC):
         # Max completion tokens (output budget)
         self.max_completion_tokens = config.get("max_completion_tokens", 4096)
 
-    def send(self, package: str, prompt: str, output_file: Path, logger) -> Dict[str, Any]:
+    def send(
+        self,
+        package: str,
+        prompt: str,
+        output_file: Path,
+        logger,
+        attachments: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Send request to model with retry logic.
 
@@ -33,6 +40,7 @@ class BaseProvider(ABC):
             prompt: User prompt
             output_file: Path to write response
             logger: ProgressLogger instance
+            attachments: Optional list of multimodal attachments (dicts with mime_type, data)
 
         Returns:
             Dict with success, duration, output_file, output_size, tokens, error (if failed)
@@ -42,7 +50,7 @@ class BaseProvider(ABC):
         for attempt in range(self.retry_attempts):
             try:
                 logger.log(f"Attempt {attempt + 1}/{self.retry_attempts}", self.model_id)
-                result = self._send_impl(package, prompt, output_file, logger)
+                result = self._send_impl(package, prompt, output_file, logger, attachments=attachments)
                 duration = time.time() - start_time
                 return {
                     "success": True,
@@ -72,7 +80,14 @@ class BaseProvider(ABC):
                     }
 
     @abstractmethod
-    def _send_impl(self, package: str, prompt: str, output_file: Path, logger) -> Dict[str, Any]:
+    def _send_impl(
+        self,
+        package: str,
+        prompt: str,
+        output_file: Path,
+        logger,
+        attachments: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
         """
         Concrete implementation of send logic.
 
@@ -83,6 +98,7 @@ class BaseProvider(ABC):
             prompt: User prompt
             output_file: Path to write response
             logger: ProgressLogger instance
+            attachments: Optional list of multimodal attachments (dicts with mime_type, data)
 
         Returns:
             Dict with optional 'tokens' key: {"tokens": {"prompt": int, "completion": int}}

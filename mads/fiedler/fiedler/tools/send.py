@@ -12,6 +12,7 @@ from ..utils import get_models, get_output_dir
 from ..utils.logger import ProgressLogger
 from ..utils.package import compile_package
 from ..utils.tokens import check_token_budget
+from ..utils.attachments import Attachment, resolve_attachment, ResolutionStatus
 from ..providers import GeminiProvider, OpenAIProvider, TogetherProvider, XAIProvider
 
 
@@ -43,14 +44,15 @@ def send_to_model(
     output_dir: Path,
     correlation_id: str,
     config: Dict[str, Any],
-    logger: ProgressLogger
+    logger: ProgressLogger,
+    attachments: Optional[List[Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
     """Send to single model (runs in thread)."""
     try:
         # Create provider
         provider = create_provider(model_id, config)
 
-        # Check token budget
+        # Check token budget (only for text content, attachments handled separately)
         full_input = f"{prompt}\n\n{package}" if package else prompt
         within_budget, estimated, warning = check_token_budget(
             full_input,
@@ -64,9 +66,9 @@ def send_to_model(
         # Create output file
         output_file = output_dir / f"{model_id.replace('/', '_')}.md"
 
-        # Send
+        # Send (with attachments if provider supports them)
         logger.log(f"Sending to {model_id}...", model_id)
-        result = provider.send(package, prompt, output_file, logger)
+        result = provider.send(package, prompt, output_file, logger, attachments=attachments)
 
         if result["success"]:
             logger.log(f"✓ {model_id} completed in {result['duration']:.1f}s", model_id)
@@ -159,10 +161,36 @@ def fiedler_send(
     # Compile package if files provided
     package = ""
     package_metadata = {}
+    binary_files = []
     if files:
         logger.log(f"Compiling package from {len(files)} file(s)")
-        package, package_metadata = compile_package(files, logger)
+        package, package_metadata, binary_files = compile_package(files, logger)
         logger.log(f"Package compiled: {package_metadata['total_size']} bytes, {package_metadata['total_lines']} lines")
+
+    # Resolve binary files as attachments for multimodal handling
+    attachments = []
+    if binary_files:
+        logger.log(f"Resolving {len(binary_files)} binary file(s) as attachments...")
+        for binary_file in binary_files:
+            file_name = Path(binary_file).name
+            logger.log(f"  Resolving: {file_name}")
+
+            attachment = Attachment(source="file", content=binary_file)
+            resolution = resolve_attachment(attachment)
+
+            if resolution.status == ResolutionStatus.SUCCESS:
+                # Convert stream to bytes for provider handling
+                content_bytes = b"".join(resolution.content_stream())
+                attachments.append({
+                    "filename": file_name,
+                    "mime_type": resolution.mime_type,
+                    "data": content_bytes,
+                    "sha256": resolution.sha256_hash
+                })
+                logger.log(f"  ✓ {file_name}: {resolution.mime_type}, {len(content_bytes):,} bytes, sha256={resolution.sha256_hash[:16]}...")
+            else:
+                logger.log(f"  ✗ {file_name}: {resolution.error_message}")
+                raise ValueError(f"Failed to resolve attachment {file_name}: {resolution.error_message}")
 
     # Send to models in parallel
     results = []
@@ -185,7 +213,8 @@ def fiedler_send(
                 output_dir,
                 correlation_id,
                 config,
-                logger
+                logger,
+                attachments=attachments if attachments else None
             ): model_id
             for model_id in models
         }

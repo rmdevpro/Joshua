@@ -87,23 +87,24 @@ def _validate_package_limits(
         )
 
 
-def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict[str, int]]:
+def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict[str, int], List[str]]:
     """
     Compile list of files into a single package string.
+    Binary files are separated and returned for attachment handling.
 
     Args:
         files: List of file paths
         logger: Progress logger
 
     Returns:
-        Tuple of (package_string, metadata_dict)
+        Tuple of (package_string, metadata_dict, binary_files_list)
 
     Raises:
         FileNotFoundError: If any file doesn't exist
     """
     if not files:
         logger.log("No files provided")
-        return "", {"num_files": 0, "total_size": 0, "total_lines": 0}
+        return "", {"num_files": 0, "total_size": 0, "total_lines": 0}, []
 
     # Validate file count limit upfront
     _validate_package_limits(len(files), 0, 0)
@@ -111,6 +112,7 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
     logger.log(f"Compiling package from {len(files)} files...")
 
     contents = []
+    binary_files = []
     total_bytes = 0
     total_lines = 0
 
@@ -128,23 +130,37 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
 
         logger.log(f"Adding file {i+1}/{len(files)}: {file_path.name}")
 
-        # Try to read as text, fallback to replacement encoding for binary files
+        # Try to read as text, skip binary files for attachment handling
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 content = f.read()
+
+            # Successfully read as text
+            contents.append(f"--- {file_path.name} ---\n{content}")
+            total_bytes += len(content.encode("utf-8"))
+            total_lines += content.count("\n") + (1 if content and not content.endswith("\n") else 0)
+
         except UnicodeDecodeError:
-            logger.log(f"⚠️  Binary file detected, using fallback encoding: {file_path.name}")
-            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read()
+            # Binary file - skip text package, add to binary list for multimodal handling
+            logger.log(f"📎 Binary file detected, will handle as attachment: {file_path.name}")
+            binary_files.append(str(file_path))
+            # Don't count binary files in package size limits
+            continue
 
-        contents.append(f"--- {file_path.name} ---\n{content}")
-        total_bytes += len(content.encode("utf-8"))
-        total_lines += content.count("\n") + (1 if content and not content.endswith("\n") else 0)
-
-        # Validate limits after each file to fail fast
+        # Validate limits after each text file
         _validate_package_limits(len(files), total_bytes, total_lines)
 
-    package = "\n\n".join(contents)
-    logger.log(f"✅ Package compiled: {total_bytes:,} bytes, {total_lines:,} lines")
+    package = "\n\n".join(contents) if contents else ""
 
-    return package, {"num_files": len(files), "total_size": total_bytes, "total_lines": total_lines}
+    if package:
+        logger.log(f"✅ Package compiled: {total_bytes:,} bytes, {total_lines:,} lines")
+    if binary_files:
+        logger.log(f"📎 {len(binary_files)} binary file(s) for attachment handling")
+
+    return package, {
+        "num_files": len(files),
+        "total_size": total_bytes,
+        "total_lines": total_lines,
+        "text_files": len(contents),
+        "binary_files": len(binary_files)
+    }, binary_files

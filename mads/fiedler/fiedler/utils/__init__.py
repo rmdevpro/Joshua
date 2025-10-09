@@ -1,4 +1,10 @@
 """Utility modules for Fiedler."""
+from .attachments import (
+    Attachment,
+    AttachmentResolution,
+    ResolutionStatus,
+    resolve_attachment,
+)
 from .logger import ProgressLogger
 from .package import compile_package
 from .paths import get_config_path
@@ -14,6 +20,10 @@ from .state import load_state, save_state, get_models, get_output_dir, set_model
 from .tokens import estimate_tokens, check_token_budget
 
 __all__ = [
+    "Attachment",
+    "AttachmentResolution",
+    "ResolutionStatus",
+    "resolve_attachment",
     "ProgressLogger",
     "compile_package",
     "get_config_path",

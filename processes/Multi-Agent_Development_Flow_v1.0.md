@@ -9,6 +9,14 @@
 
 A structured development process leveraging multiple AI agents with specialized roles to create documents and code through iterative generation, synthesis, and review cycles.
 
+**IMPORTANT: LLM Communication Format**:
+- All code transmitted between LLMs MUST be in Markdown format (code blocks in .md files)
+- LLMs cannot directly read/write .py or other code files - only markdown
+- Driver (Claude Code) extracts actual code files from markdown for deployment
+- Storage locations:
+  - **Development outputs**: `/mnt/projects/Joshua/docs/implementation/{feature}/`
+  - **Final code extraction**: Deployment phase converts MD → Python files in codebase
+
 ---
 
 ## Agent Roles

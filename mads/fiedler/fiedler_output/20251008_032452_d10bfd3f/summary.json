@@ -1,0 +1,29 @@
+{
+  "correlation_id": "d10bfd3f",
+  "timestamp": "20251008_032452",
+  "prompt": "<redacted - 28 chars>",
+  "prompt_length": 28,
+  "files": [
+    "/app/allowed_files/test_attachment.txt"
+  ],
+  "package_metadata": {
+    "num_files": 1,
+    "total_size": 60,
+    "total_lines": 1
+  },
+  "models": [
+    "gemini-2.5-pro"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/app/fiedler_output/20251008_032452_d10bfd3f/gemini-2.5-pro.md",
+      "duration": 7.64,
+      "tokens": {
+        "prompt": 20,
+        "completion": 74
+      }
+    }
+  ]
+}

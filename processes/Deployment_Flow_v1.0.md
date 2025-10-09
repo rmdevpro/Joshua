@@ -40,18 +40,36 @@ Deploy code safely to production after validating against:
 ### Phase 1: Pre-Deployment Preparation
 ```
 Driver prepares inputs:
-  - Code (from dev cycle)
+  - Code (from dev cycle) - IN MARKDOWN FORMAT
   - Requirements (from dev cycle)
   - Tests (from test cycle)
   - Deployment config
+  ↓
+Driver extracts code from markdown:
+  - Read implementation .md files from /mnt/projects/Joshua/docs/implementation/{feature}/
+  - Extract Python code from markdown code blocks
+  - Write actual .py files to codebase locations
+  - Update dependencies (pyproject.toml, requirements.txt, etc.)
   ↓
 Deploy to Green (Blue stays running)
 ```
 
 **Success Criteria:**
 - All inputs present and accessible
+- Code successfully extracted from markdown to Python files
+- Dependencies updated
 - Green environment deployed
 - Blue environment still running (safety net)
+
+**CRITICAL: Code Format Conversion**:
+- MAD outputs code in markdown (LLMs communicate via markdown)
+- Deployment requires actual code files (.py, .js, etc.)
+- Driver extracts code blocks from markdown implementation files
+- Example:
+  ```
+  Input:  /mnt/projects/Joshua/docs/implementation/fiedler_multimodal/fiedler_multimodal_implementation_final.md
+  Output: /mnt/projects/Joshua/mads/fiedler/fiedler/utils/attachments.py
+  ```
 
 ---
 
