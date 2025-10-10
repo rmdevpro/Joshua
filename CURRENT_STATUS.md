@@ -1,45 +1,50 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 18:45
+## Last Updated: 2025-10-10 19:10
 
 ---
 
-## 🚧 CURRENT WORK: Relay Singleton Pattern Fix - Ready for Restart
+## 🚧 CURRENT WORK: joshua_logger Backup Logging Implementation - COMPLETE ✅
 
-### Relay Logger Event Loop Fix - COMPLETE ✅
-**Status:** FIXED - Ready for restart
-**Completed:** 2025-10-10 18:45
+### joshua_logger Local Backup Logging - IMPLEMENTED ✅
+**Status:** IMPLEMENTED - Ready for restart
+**Completed:** 2025-10-10 19:10
 
 **Problem:**
-- Relay not writing any logs after joshua_logger migration
-- Relay tools returning empty/no output (relay_get_status, etc.)
-- All MCP tools unavailable due to relay failure
+- joshua_logger was rebuilt SPECIFICALLY to add local backup logging when Godot is unreachable
+- **THIS FEATURE WAS NEVER IMPLEMENTED** in the original rebuild
+- Logger only wrote to Godot via WebSocket with no fallback
+- When Godot connection failed, ALL logs were silently lost forever
+- MCP Relay: 0 logs written since Oct 10 restart (5 days of lost logs)
+- Last relay log in database: Oct 5 at 14:40
 
-**Root Cause (Diagnosed by Gemini 2.5 Pro):**
-- Logger singleton created at module import time (BEFORE asyncio event loop)
-- WebSocket client inside logger initialized without event loop context
-- All log calls failed silently (fire-and-forget tasks + exception handling)
-- Relay tool handlers crashed on first logger call → empty responses
+**Root Cause:**
+- Original joshua_logger implementation only attempted Godot WebSocket connection
+- On failure, logged error to stderr but did NOT write backup logs to disk
+- This defeated the ENTIRE PURPOSE of rebuilding the logger
 
-**Solution:**
-1. Removed singleton pattern from `/mnt/projects/Joshua/lib/joshua_logger/__init__.py`
-2. Relay now imports `Logger` class and creates instance in `__init__` method
-3. All 13 logging calls changed from `joshua_logger.log()` to `self.logger.log()`
+**Solution Implemented:**
+1. Added local filesystem backup logging to `/mnt/projects/Joshua/lib/joshua_logger/logger.py`
+2. When Godot connection fails, logs are written to: `/tmp/joshua_logs/{component}/{YYYY-MM-DD}.jsonl`
+3. Backup logs use JSONL format (one JSON object per line) for easy parsing
+4. Each log entry contains: timestamp, level, component, message, data, trace_id
 
 **Files Changed:**
-- `/mnt/projects/Joshua/lib/joshua_logger/__init__.py` - removed singleton
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - instance-based logging
+- `/mnt/projects/Joshua/lib/joshua_logger/logger.py` - Added `_write_backup_log()` method and backup logic
 
-**Commit:** `5dff13c` - "Fix relay logging: Remove singleton pattern from joshua_logger"
+**Testing:**
+- ✅ Tested with unreachable Godot - backup logs created successfully
+- ✅ Verified JSONL format and data structure
+- ✅ Confirmed logs written to `/tmp/joshua_logs/test-component/2025-10-10.jsonl`
 
 **Next Step:**
-🔴 **RESTART CLAUDE CODE** - Apply fixes and verify logging works
+🔴 **RESTART CLAUDE CODE** - Relay will pick up new logger with backup logging
 
 **Expected After Restart:**
-- ✅ Relay will create logger instance with event loop context
-- ✅ Relay logs will appear in Godot/database
-- ✅ Relay tools will return proper output
-- ✅ All MCP tools (Fiedler, Dewey, Horace, etc.) will become available
+- ✅ Relay will log to backup files when Godot is unreachable
+- ✅ Logs will be available for diagnosis even when Godot is down
+- ✅ Relay tools should work (pending investigation of why they're still failing)
+- ✅ No more silent log loss
 
 ---
 
