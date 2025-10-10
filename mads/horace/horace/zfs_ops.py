@@ -1,19 +1,21 @@
 # horace/zfs_ops.py
 
-import logging
+import asyncio
 import subprocess
 from datetime import datetime
 from typing import List, Optional
 
-logger = logging.getLogger(__name__)
+from joshua_logger import Logger
 
-def _run_command(command: List[str]) -> Optional[str]:
+logger = Logger()
+
+async def _run_command(command: List[str]) -> Optional[str]:
     """
     Executes a shell command and returns its stdout.
     Logs errors and returns None on failure.
     """
     try:
-        logger.debug(f"Executing ZFS command: {' '.join(command)}")
+        await logger.log("DEBUG", f"Executing ZFS command: {' '.join(command)}", "horace-zfs")
         result = subprocess.run(
             command,
             capture_output=True,
@@ -22,15 +24,15 @@ def _run_command(command: List[str]) -> Optional[str]:
         )
         return result.stdout.strip()
     except FileNotFoundError:
-        logger.error(f"ZFS command not found: '{command[0]}'. Is ZFS installed and in the system's PATH?")
+        await logger.log("ERROR", f"ZFS command not found: '{command[0]}'. Is ZFS installed and in the system's PATH?", "horace-zfs")
         return None
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error executing ZFS command: {' '.join(command)}")
-        logger.error(f"Return code: {e.returncode}")
-        logger.error(f"Stderr: {e.stderr.strip()}")
+        await logger.log("ERROR", f"Error executing ZFS command: {' '.join(command)}", "horace-zfs")
+        await logger.log("ERROR", f"Return code: {e.returncode}", "horace-zfs")
+        await logger.log("ERROR", f"Stderr: {e.stderr.strip()}", "horace-zfs")
         return None
 
-def create_snapshot(dataset: str, prefix: str) -> Optional[str]:
+async def create_snapshot(dataset: str, prefix: str) -> Optional[str]:
     """
     Creates a ZFS snapshot with a timestamp.
 
@@ -45,12 +47,12 @@ def create_snapshot(dataset: str, prefix: str) -> Optional[str]:
     snapshot_name = f"{dataset}@{prefix}-{timestamp}"
     command = ["zfs", "snapshot", snapshot_name]
 
-    if _run_command(command) is not None:
-        logger.info(f"Successfully created ZFS snapshot: {snapshot_name}")
+    if await _run_command(command) is not None:
+        await logger.log("INFO", f"Successfully created ZFS snapshot: {snapshot_name}", "horace-zfs")
         return snapshot_name
     return None
 
-def list_snapshots(dataset: str) -> List[str]:
+async def list_snapshots(dataset: str) -> List[str]:
     """
     Lists all snapshots for a given dataset.
 
@@ -61,13 +63,13 @@ def list_snapshots(dataset: str) -> List[str]:
         A list of snapshot names.
     """
     command = ["zfs", "list", "-t", "snapshot", "-o", "name", "-s", "creation", "-r", dataset]
-    output = _run_command(command)
+    output = await _run_command(command)
     if output:
         # First line is the header 'NAME', so we skip it.
         return output.splitlines()[1:]
     return []
 
-def destroy_snapshot(snapshot_name: str) -> bool:
+async def destroy_snapshot(snapshot_name: str) -> bool:
     """
     Destroys a ZFS snapshot.
 
@@ -78,12 +80,12 @@ def destroy_snapshot(snapshot_name: str) -> bool:
         True on success, False on failure.
     """
     command = ["zfs", "destroy", snapshot_name]
-    if _run_command(command) is not None:
-        logger.info(f"Successfully destroyed ZFS snapshot: {snapshot_name}")
+    if await _run_command(command) is not None:
+        await logger.log("INFO", f"Successfully destroyed ZFS snapshot: {snapshot_name}", "horace-zfs")
         return True
     return False
 
-def prune_snapshots(dataset: str, retention_rules: dict):
+async def prune_snapshots(dataset: str, retention_rules: dict):
     """
     Prunes old snapshots based on a retention policy.
 
@@ -93,8 +95,8 @@ def prune_snapshots(dataset: str, retention_rules: dict):
         "daily": 14,
     }
     """
-    logger.info(f"Pruning snapshots for dataset '{dataset}'...")
-    all_snapshots = list_snapshots(dataset)
+    await logger.log("INFO", f"Pruning snapshots for dataset '{dataset}'...", "horace-zfs")
+    all_snapshots = await list_snapshots(dataset)
 
     for prefix, keep_count in retention_rules.items():
         # Filter snapshots matching the current prefix, sorted oldest to newest
@@ -102,7 +104,7 @@ def prune_snapshots(dataset: str, retention_rules: dict):
 
         to_delete_count = len(prefix_snapshots) - keep_count
         if to_delete_count > 0:
-            logger.info(f"Found {len(prefix_snapshots)} '{prefix}' snapshots. "
-                        f"Keeping {keep_count}, deleting {to_delete_count}.")
+            await logger.log("INFO", f"Found {len(prefix_snapshots)} '{prefix}' snapshots. "
+                        f"Keeping {keep_count}, deleting {to_delete_count}.", "horace-zfs")
             for snapshot in prefix_snapshots[:to_delete_count]:
-                destroy_snapshot(snapshot)
+                await destroy_snapshot(snapshot)

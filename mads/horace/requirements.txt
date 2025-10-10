@@ -13,5 +13,4 @@ apscheduler
 # For PostgreSQL async database connectivity
 asyncpg
 
-# For MCP WebSocket server
-/app/iccm-network
+# Note: joshua-libs (joshua_network + joshua_logger) installed via Dockerfile

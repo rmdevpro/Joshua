@@ -23,8 +23,8 @@ volumes:
 services:
   horace-mcp:
     build:
-      context: ..
-      dockerfile: horace-nas-v2/Dockerfile
+      context: ../..
+      dockerfile: mads/horace/Dockerfile
     restart: unless-stopped
     # Run as a non-root user. This UID/GID must match the ownership
     # of the ZFS datasets on the host.
@@ -39,9 +39,11 @@ services:
       - irina_storage_metadata:/mnt/irina_storage/.horace
       # Mount /etc/localtime to ensure container time matches host time for snapshots
       - /etc/localtime:/etc/localtime:ro
-      # Mount iccm-network library for MCP WebSocket server
-      - ../iccm-network:/app/iccm-network:ro
     environment:
+      # Godot Logging Integration
+      - GODOT_URL=ws://godot-mcp:9060
+      - LOGGING_ENABLED=true
+
       # These paths match the mount points inside the container
       - HORACE_FILES_PATH=/mnt/irina_storage/files
       - HORACE_METADATA_PATH=/mnt/irina_storage/.horace
@@ -51,3 +53,11 @@ services:
       - LOG_LEVEL=INFO
       # PostgreSQL connection (using shared ICCM PostgreSQL server)
       - DATABASE_URL=postgresql://${HORACE_DB_USER:-horace}:${HORACE_DB_PASSWORD}@${HORACE_DB_HOST:-irina}:${HORACE_DB_PORT:-5432}/${HORACE_DB_NAME:-horace}
+
+    # Networks
+    networks:
+      - iccm_network
+
+networks:
+  iccm_network:
+    external: true

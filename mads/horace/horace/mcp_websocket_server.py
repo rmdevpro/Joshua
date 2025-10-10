@@ -3,19 +3,19 @@
 Horace MCP WebSocket Server
 
 Provides WebSocket MCP interface to Horace NAS Gateway v2.1
-Uses the shared iccm-network library for standardized MCP protocol.
+Uses the shared joshua_network library for standardized MCP protocol.
 """
 
 import asyncio
-import logging
 import os
 from pathlib import Path
 from typing import Any, Dict
 
-from iccm_network import MCPServer, MCPToolError
+from joshua_network import Server as MCPServer, ToolError as MCPToolError
+from joshua_logger import Logger
 from horace.catalog import CatalogManager
 
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 # Global catalog manager instance
 catalog: CatalogManager = None

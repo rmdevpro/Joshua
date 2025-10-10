@@ -1,16 +1,16 @@
 # horace/watcher.py
 
 import asyncio
-import logging
 from pathlib import Path
 from typing import NamedTuple, Optional
 
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers import Observer
+from joshua_logger import Logger
 
 from horace.catalog import CatalogManager
 
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 class Event(NamedTuple):
     """Represents a filesystem event to be processed."""
@@ -40,14 +40,14 @@ class CatalogEventHandler(FileSystemEventHandler):
     def on_moved(self, event: FileSystemEvent):
         if event.is_directory or self._should_ignore(event.dest_path):
             return
-        logger.debug(f"Event queued: MOVED {event.src_path} -> {event.dest_path}")
+        # Note: Synchronous handler - logging happens in async processor
         self.queue.put_nowait(Event('moved', Path(event.src_path), Path(event.dest_path)))
 
     def on_created(self, event: FileSystemEvent):
         # We prefer MOVED_TO/CLOSE_WRITE, but this can be a fallback.
         if event.is_directory or self._should_ignore(event.src_path):
             return
-        logger.debug(f"Event queued: CREATED {event.src_path}")
+        # Note: Synchronous handler - logging happens in async processor
         self.queue.put_nowait(Event('created', Path(event.src_path)))
 
     def on_modified(self, event: FileSystemEvent):
@@ -55,13 +55,13 @@ class CatalogEventHandler(FileSystemEventHandler):
         # It's the primary trigger for updates.
         if event.is_directory or self._should_ignore(event.src_path):
             return
-        logger.debug(f"Event queued: MODIFIED {event.src_path}")
+        # Note: Synchronous handler - logging happens in async processor
         self.queue.put_nowait(Event('modified', Path(event.src_path)))
 
     def on_deleted(self, event: FileSystemEvent):
         if event.is_directory or self._should_ignore(event.src_path):
             return
-        logger.debug(f"Event queued: DELETED {event.src_path}")
+        # Note: Synchronous handler - logging happens in async processor
         self.queue.put_nowait(Event('deleted', Path(event.src_path)))
 
 
@@ -81,12 +81,12 @@ class WatcherService:
         observer = Observer()
         observer.schedule(event_handler, str(self.watch_path), recursive=True)
         observer.start()
-        logger.info(f"File watcher started on '{self.watch_path}'")
+        await logger.log("INFO", f"File watcher started on '{self.watch_path}'", "horace-watcher")
 
         try:
             await self._process_events()
         except asyncio.CancelledError:
-            logger.info("Watcher service shutting down.")
+            await logger.log("INFO", "Watcher service shutting down.", "horace-watcher")
         finally:
             observer.stop()
             observer.join()
@@ -96,7 +96,7 @@ class WatcherService:
         while True:
             try:
                 event: Event = await self.queue.get()
-                logger.info(f"Processing event: {event.event_type} on {event.src_path}")
+                await logger.log("INFO", f"Processing event: {event.event_type} on {event.src_path}", "horace-watcher")
 
                 if event.event_type in ('created', 'modified'):
                     await self.catalog.handle_upsert(event.src_path)
@@ -107,4 +107,4 @@ class WatcherService:
 
                 self.queue.task_done()
             except Exception as e:
-                logger.error(f"Error processing event {event}: {e}", exc_info=True)
+                await logger.log("ERROR", f"Error processing event {event}: {e}", "horace-watcher", data={"exc_info": True})

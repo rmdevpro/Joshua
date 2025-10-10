@@ -1,14 +1,14 @@
 # horace/mcp_server.py
 
-import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
+from joshua_logger import Logger
 
 from horace.catalog import CatalogManager
 
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 app = FastAPI(
     title="Horace NAS Gateway MCP",
@@ -75,9 +75,11 @@ async def restore_version(path: str, checksum: str):
     search ZFS snapshots or a content-addressable store to retrieve the file
     content associated with the given checksum and write it to the specified path.
     """
-    logger.warning(
+    await logger.log(
+        "WARN",
         f"Placeholder RESTORE request for path='{path}' with checksum='{checksum}'. "
-        "Actual restoration logic is not implemented in this version."
+        "Actual restoration logic is not implemented in this version.",
+        "horace-mcp-rest"
     )
     # 1. Validate that the checksum is a known historical version for the path.
     # 2. Search ZFS snapshots for a file with this content hash.

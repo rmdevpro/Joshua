@@ -1,19 +1,14 @@
 import asyncio
 import hashlib
-import logging
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Set
 
 import asyncpg
+from joshua_logger import Logger
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 # --- Helper function for non-blocking I/O ---
 
@@ -72,23 +67,23 @@ class CatalogManager:
             "DATABASE_URL",
             "postgresql://user:password@localhost:5432/mcp_catalog"
         )
-        logger.info(f"CatalogManager initialized for base path: {self.base_path}")
-        logger.debug(f"db_path parameter '{db_path}' received but ignored for PostgreSQL.")
+        # Note: Cannot use await in __init__, these logs will be in connect() instead
 
     async def connect(self):
         """
         Establishes the connection pool to PostgreSQL and ensures schema is up to date.
         This method replaces the original 'initialize' to match the required interface.
         """
+        await logger.log("INFO", f"CatalogManager initialized for base path: {self.base_path}", "horace-catalog")
         if self._pool:
-            logger.warning("Connection pool already exists. Ignoring connect call.")
+            await logger.log("WARN", "Connection pool already exists. Ignoring connect call.", "horace-catalog")
             return
         try:
             self._pool = await asyncpg.create_pool(dsn=self.dsn)
-            logger.info("Successfully connected to PostgreSQL and created connection pool.")
+            await logger.log("INFO", "Successfully connected to PostgreSQL and created connection pool.", "horace-catalog")
             await self._initialize_schema()
         except Exception as e:
-            logger.critical(f"Failed to connect to PostgreSQL: {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to connect to PostgreSQL: {e}", "horace-catalog", data={"exc_info": True})
             raise
 
     async def close(self):
@@ -96,7 +91,7 @@ class CatalogManager:
         if self._pool:
             await self._pool.close()
             self._pool = None
-            logger.info("PostgreSQL connection pool closed.")
+            await logger.log("INFO", "PostgreSQL connection pool closed.", "horace-catalog")
 
     async def _initialize_schema(self):
         """Creates and migrates the database schema if necessary."""
@@ -115,7 +110,7 @@ class CatalogManager:
                 current_version = version_record['version'] or 0
 
                 if current_version < 1:
-                    logger.info("Schema version is less than 1, applying initial schema...")
+                    await logger.log("INFO", "Schema version is less than 1, applying initial schema...", "horace-catalog")
                     # Main files table
                     await conn.execute("""
                         CREATE TABLE IF NOT EXISTS files (
@@ -143,7 +138,7 @@ class CatalogManager:
 
                     # Update schema version
                     await conn.execute("INSERT INTO schema_version (version) VALUES ($1)", self._CURRENT_SCHEMA_VERSION)
-                    logger.info(f"Schema version {self._CURRENT_SCHEMA_VERSION} applied successfully.")
+                    await logger.log("INFO", f"Schema version {self._CURRENT_SCHEMA_VERSION} applied successfully.", "horace-catalog")
 
     async def _compute_checksum(self, file_path: Path) -> str:
         """
@@ -160,7 +155,7 @@ class CatalogManager:
             )
             return checksum
         except Exception as e:
-            logger.error(f"Error computing checksum for {file_path}: {e}")
+            await logger.log("ERROR", f"Error computing checksum for {file_path}: {e}", "horace-catalog")
             return ""
 
     async def handle_upsert(self, full_path: Path):
@@ -173,7 +168,7 @@ class CatalogManager:
 
         try:
             if not full_path.is_file():
-                logger.warning(f"Upsert requested for non-existent or non-file path: {full_path}")
+                await logger.log("WARN", f"Upsert requested for non-existent or non-file path: {full_path}", "horace-catalog")
                 return
 
             relative_path_str = str(full_path.relative_to(self.base_path))
@@ -181,7 +176,7 @@ class CatalogManager:
             checksum = await self._compute_checksum(full_path)
 
             if not checksum:
-                logger.error(f"Skipping upsert for {full_path} due to checksum computation failure.")
+                await logger.log("ERROR", f"Skipping upsert for {full_path} due to checksum computation failure.", "horace-catalog")
                 return
 
             async with self._pool.acquire() as conn:
@@ -214,12 +209,12 @@ class CatalogManager:
                             INSERT INTO file_versions (file_id, checksum, size_bytes)
                             VALUES ($1, $2, $3)
                         """, file_id, checksum, size_bytes)
-                        logger.info(f"Upserted new version for: {relative_path_str}")
+                        await logger.log("INFO", f"Upserted new version for: {relative_path_str}", "horace-catalog")
                     else:
-                        logger.debug(f"File version is unchanged, skipping version insert for: {relative_path_str}")
+                        await logger.log("DEBUG", f"File version is unchanged, skipping version insert for: {relative_path_str}", "horace-catalog")
 
         except Exception as e:
-            logger.error(f"Failed to handle upsert for {full_path}: {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to handle upsert for {full_path}: {e}", "horace-catalog", data={"exc_info": True})
 
     async def handle_delete(self, full_path: Path):
         """Marks a file as deleted in the catalog."""
@@ -235,11 +230,11 @@ class CatalogManager:
                     WHERE path = $2
                 """, datetime.now(timezone.utc), relative_path_str)
                 if result == "UPDATE 1":
-                    logger.info(f"Marked as deleted: {relative_path_str}")
+                    await logger.log("INFO", f"Marked as deleted: {relative_path_str}", "horace-catalog")
                 else:
-                    logger.warning(f"Attempted to delete non-existent record: {relative_path_str}")
+                    await logger.log("WARN", f"Attempted to delete non-existent record: {relative_path_str}", "horace-catalog")
         except Exception as e:
-            logger.error(f"Failed to handle delete for {relative_path_str}: {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to handle delete for {relative_path_str}: {e}", "horace-catalog", data={"exc_info": True})
 
     async def handle_move(self, src_path: Path, dest_path: Path):
         """Updates the path of a file in the catalog."""
@@ -256,13 +251,13 @@ class CatalogManager:
                     WHERE path = $3
                 """, dest_rel_path, datetime.now(timezone.utc), src_rel_path)
                 if result == "UPDATE 1":
-                    logger.info(f"Moved path from {src_rel_path} to {dest_rel_path}")
+                    await logger.log("INFO", f"Moved path from {src_rel_path} to {dest_rel_path}", "horace-catalog")
                 else:
-                    logger.warning(f"Attempted to move non-existent record: {src_rel_path}")
+                    await logger.log("WARN", f"Attempted to move non-existent record: {src_rel_path}", "horace-catalog")
         except asyncpg.UniqueViolationError:
-            logger.error(f"Move failed: destination path {dest_rel_path} already exists.")
+            await logger.log("ERROR", f"Move failed: destination path {dest_rel_path} already exists.", "horace-catalog")
         except Exception as e:
-            logger.error(f"Failed to handle move for {src_rel_path}: {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to handle move for {src_rel_path}: {e}", "horace-catalog", data={"exc_info": True})
 
     async def reconcile(self):
         """
@@ -272,31 +267,31 @@ class CatalogManager:
         if not self._pool:
             raise ConnectionError("Database not connected. Call connect() first.")
 
-        logger.info("Starting reconciliation process...")
+        await logger.log("INFO", "Starting reconciliation process...", "horace-catalog")
         loop = asyncio.get_running_loop()
 
         # 1. Get all file paths from the filesystem (non-blocking)
         disk_paths_set = await loop.run_in_executor(None, _blocking_scan_disk, self.base_path)
-        logger.info(f"Found {len(disk_paths_set)} files on disk.")
+        await logger.log("INFO", f"Found {len(disk_paths_set)} files on disk.", "horace-catalog")
 
         # 2. Get all non-deleted paths from the database
         async with self._pool.acquire() as conn:
             db_records = await conn.fetch("SELECT path FROM files WHERE is_deleted = false")
             db_paths_set = {record['path'] for record in db_records}
-        logger.info(f"Found {len(db_paths_set)} active files in database.")
+        await logger.log("INFO", f"Found {len(db_paths_set)} active files in database.", "horace-catalog")
 
         # 3. Compare and find differences
         new_paths = disk_paths_set - db_paths_set
         missing_paths = db_paths_set - disk_paths_set
 
         # 4. Process differences
-        logger.info(f"Reconciliation: {len(new_paths)} new files to add, {len(missing_paths)} missing files to mark as deleted.")
+        await logger.log("INFO", f"Reconciliation: {len(new_paths)} new files to add, {len(missing_paths)} missing files to mark as deleted.", "horace-catalog")
 
         # Upsert new files concurrently
         if new_paths:
             upsert_tasks = [self.handle_upsert(self.base_path / p) for p in new_paths]
             await asyncio.gather(*upsert_tasks)
-            logger.info(f"Finished processing {len(new_paths)} new files.")
+            await logger.log("INFO", f"Finished processing {len(new_paths)} new files.", "horace-catalog")
 
         # Batch-update missing files as deleted
         if missing_paths:
@@ -306,9 +301,9 @@ class CatalogManager:
                     SET is_deleted = true, updated_at = $1
                     WHERE path = ANY($2::text[])
                 """, datetime.now(timezone.utc), list(missing_paths))
-            logger.info(f"Marked {len(missing_paths)} missing files as deleted.")
+            await logger.log("INFO", f"Marked {len(missing_paths)} missing files as deleted.", "horace-catalog")
 
-        logger.info("Reconciliation process completed.")
+        await logger.log("INFO", "Reconciliation process completed.", "horace-catalog")
 
     async def search_files(self, query: str, limit: int = 100) -> List[Dict[str, Any]]:
         """Searches for files by path."""
@@ -339,7 +334,7 @@ class CatalogManager:
                 """, f'%{query}%', limit)
                 return [dict(row) for row in rows]
         except Exception as e:
-            logger.error(f"Failed to search files with query '{query}': {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to search files with query '{query}': {e}", "horace-catalog", data={"exc_info": True})
             return []
 
     async def get_file_info(self, file_path: str) -> Optional[Dict[str, Any]]:
@@ -373,5 +368,5 @@ class CatalogManager:
                 """, file_path)
                 return dict(row) if row else None
         except Exception as e:
-            logger.error(f"Failed to get file info for '{file_path}': {e}", exc_info=True)
+            await logger.log("ERROR", f"Failed to get file info for '{file_path}': {e}", "horace-catalog", data={"exc_info": True})
             return None

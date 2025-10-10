@@ -1,10 +1,51 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 20:56
+## Last Updated: 2025-10-10 21:07
 
 ---
 
-## 🎉 RECENT COMPLETION: Fiedler Migration to joshua-libs ✅
+## 🎉 RECENT COMPLETION: Horace Migration to joshua-libs ✅
+
+### Horace MCP Migration to joshua-libs - COMPLETE
+**Status:** DEPLOYED AND VERIFIED ✅
+**Completed:** 2025-10-10 21:07
+
+**Problem:**
+- Horace using old iccm-network library with Python logging in 6 files
+- Needed migration to joshua-libs (joshua_network + joshua_logger)
+
+**Solution Implemented:**
+- Updated Dockerfile to install joshua-libs and fix paths (horace-nas-v2 → mads/horace)
+- Updated docker-compose.yml to add GODOT_URL environment and iccm_network
+- Updated requirements.txt to remove /app/iccm-network reference
+- Migrated 6 Python files from `logging` module to `joshua_logger.Logger()`
+- Converted all zfs_ops functions to async to support await logger.log()
+- Component naming: horace-main, horace-catalog, horace-mcp-rest, horace-mcp-websocket, horace-watcher, horace-zfs
+
+**Files Changed:**
+- `/mnt/projects/Joshua/mads/horace/Dockerfile` - joshua-libs installation, path fixes
+- `/mnt/projects/Joshua/mads/horace/docker-compose.yml` - Godot logging + iccm_network
+- `/mnt/projects/Joshua/mads/horace/requirements.txt` - Removed iccm-network reference
+- `/mnt/projects/Joshua/mads/horace/horace/main.py` - Main server logging (6 calls), iccm_network→joshua_network
+- `/mnt/projects/Joshua/mads/horace/horace/catalog.py` - Catalog logging (29 calls)
+- `/mnt/projects/Joshua/mads/horace/horace/mcp_server.py` - REST API logging (1 call)
+- `/mnt/projects/Joshua/mads/horace/horace/mcp_websocket_server.py` - WebSocket logging, iccm_network→joshua_network
+- `/mnt/projects/Joshua/mads/horace/horace/watcher.py` - File watcher logging (4 calls)
+- `/mnt/projects/Joshua/mads/horace/horace/zfs_ops.py` - ZFS operations logging (9 calls), converted to async
+
+**Verification:**
+- ✅ Horace container rebuilt and restarted successfully
+- ✅ All 7 tools discoverable via relay (horace_register_file, horace_search_files, horace_get_file_info, horace_create_collection, horace_list_collections, horace_update_file, horace_restore_version)
+- ✅ Horace showing as healthy in relay status
+- ✅ joshua_logger integration working (logs flowing to Godot)
+
+**Migration Progress:**
+- ✅ 3/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace)
+- 🚧 Remaining: Godot, Sergey, Marco, Playfair, Gates
+
+---
+
+## 🎉 PREVIOUS COMPLETION: Fiedler Migration to joshua-libs ✅
 
 ### Fiedler MCP Migration to joshua-libs - COMPLETE
 **Status:** DEPLOYED AND VERIFIED ✅
@@ -100,14 +141,15 @@
 
 ---
 
-## 🚧 CURRENT WORK: MAD Migration to joshua-libs (2/7 Complete)
+## 🚧 CURRENT WORK: MAD Migration to joshua-libs (3/7 Complete)
 
 **Current Focus:** Systematically migrating all MADs to use joshua-libs standardization
 
 **Progress:**
 - ✅ Dewey - Migrated and verified (2025-10-10 20:15)
 - ✅ Fiedler - Migrated and verified (2025-10-10 20:56)
-- 🔄 Next: Godot, Horace, Sergey, Marco, Playfair, Gates
+- ✅ Horace - Migrated and verified (2025-10-10 21:07)
+- 🔄 Next: Godot, Sergey, Marco, Playfair, Gates
 
 **Migration Pattern:**
 1. Update Dockerfile to install joshua-libs

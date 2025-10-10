@@ -1,13 +1,13 @@
 # horace/main.py
 
 import asyncio
-import logging
 import os
 from pathlib import Path
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
+from joshua_logger import Logger
 
 import horace.mcp_server as mcp_server
 import horace.mcp_websocket_server as mcp_websocket_server
@@ -34,39 +34,20 @@ ZFS_RETENTION = {
 }
 
 # --- Logging Setup ---
-logging.basicConfig(
-    level=LOG_LEVEL,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
-logging.getLogger("uvicorn").setLevel(LOG_LEVEL)
-logging.getLogger("apscheduler").setLevel("WARNING")
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 
 async def run_snapshot_task(prefix: str):
-    """Async wrapper to run snapshot creation in a thread pool."""
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(
-        None,  # Use default executor
-        create_snapshot,
-        ZFS_DATASET,
-        prefix
-    )
+    """Async wrapper to run snapshot creation."""
+    await create_snapshot(ZFS_DATASET, prefix)
 
 async def run_prune_task():
     """Async wrapper to run snapshot pruning."""
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(
-        None,
-        prune_snapshots,
-        ZFS_DATASET,
-        ZFS_RETENTION
-    )
+    await prune_snapshots(ZFS_DATASET, ZFS_RETENTION)
 
 async def main():
     """Main function to initialize and run all services."""
-    logger.info("--- Starting Horace NAS Gateway v2.1 ---")
+    await logger.log("INFO", "Starting Horace NAS Gateway v2.1", "horace-main")
 
     # 1. Initialize Catalog Manager
     catalog = CatalogManager(db_path=DB_PATH, base_path=FILES_PATH)
@@ -87,8 +68,8 @@ async def main():
     http_server = uvicorn.Server(config)
 
     # 5. Initialize WebSocket MCP Server
-    from iccm_network import MCPServer
-    websocket_server = MCPServer(
+    from joshua_network import Server
+    websocket_server = Server(
         name="horace",
         version="2.1.0",
         port=9070,
@@ -99,7 +80,7 @@ async def main():
     # 6. Initialize ZFS Snapshot Scheduler
     scheduler = AsyncIOScheduler()
     if ENABLE_ZFS_SNAPSHOTS:
-        logger.info(f"ZFS snapshotting enabled for dataset '{ZFS_DATASET}'")
+        await logger.log("INFO", f"ZFS snapshotting enabled for dataset '{ZFS_DATASET}'", "horace-main")
         scheduler.add_job(run_snapshot_task, CronTrigger(minute=0), args=["hourly"])
         scheduler.add_job(run_snapshot_task, CronTrigger(hour=0, minute=5), args=["daily"])
         scheduler.add_job(run_snapshot_task, CronTrigger(day_of_week='sun', hour=1, minute=5), args=["weekly"])
@@ -107,7 +88,7 @@ async def main():
         scheduler.add_job(run_prune_task, CronTrigger(hour=3, minute=0)) # Prune daily
         scheduler.start()
     else:
-        logger.warning("ZFS snapshotting is disabled.")
+        await logger.log("WARN", "ZFS snapshotting is disabled", "horace-main")
 
     # Run watcher, HTTP server, and WebSocket MCP server concurrently
     try:
@@ -117,16 +98,16 @@ async def main():
             websocket_server.start()
         )
     except asyncio.CancelledError:
-        logger.info("Main task cancelled. Shutting down.")
+        await logger.log("INFO", "Main task cancelled - shutting down", "horace-main")
     finally:
         if scheduler.running:
             scheduler.shutdown()
         await catalog.close()
-        logger.info("--- Horace NAS Gateway shut down gracefully ---")
+        await logger.log("INFO", "Horace NAS Gateway shut down gracefully", "horace-main")
 
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        logger.info("Shutdown requested by user.")
+        pass  # Shutdown message logged in main() finally block

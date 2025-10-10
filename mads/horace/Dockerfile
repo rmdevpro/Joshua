@@ -13,15 +13,18 @@ WORKDIR /app
 # Create a non-root user and group
 RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
 
-# Copy iccm-network library for installation
-COPY iccm-network /app/iccm-network
+# Copy and install joshua-libs (joshua_network + joshua_logger)
+COPY --chown=root:root lib/joshua_network /tmp/joshua-libs-install/joshua_network
+COPY --chown=root:root lib/joshua_logger /tmp/joshua-libs-install/joshua_logger
+COPY --chown=root:root lib/pyproject.toml /tmp/joshua-libs-install/
+RUN pip install --no-cache-dir /tmp/joshua-libs-install && rm -rf /tmp/joshua-libs-install
 
 # Install dependencies
-COPY horace-nas-v2/requirements.txt .
+COPY mads/horace/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the application code
-COPY horace-nas-v2/horace/ /app/horace/
+COPY mads/horace/horace/ /app/horace/
 
 # Change ownership of the app directory to the non-root user
 # Note: Volumes mounted later will have their own ownership
