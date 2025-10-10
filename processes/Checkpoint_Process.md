@@ -137,7 +137,29 @@ sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua &&
 
 ---
 
-### Step 6: Backup Sessions to Godot (if restart required)
+### Step 6: Backup CLAUDE.md (if modified)
+
+**If CLAUDE.md was edited during this session:**
+
+**Run backup script:**
+```bash
+/mnt/projects/Joshua/config/backup_claude_md.sh
+```
+
+**Update CHANGELOG:**
+- Edit `/mnt/projects/Joshua/config/CLAUDE.md.versions/CHANGELOG.md`
+- Document what changed and why
+
+**Commit backup:**
+```bash
+sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua && git add config/CLAUDE.md.versions/ && git commit -m 'CLAUDE.md backup: [description]' && git push"
+```
+
+**See:** `/mnt/projects/Joshua/processes/CLAUDE_MD_Maintenance.md` for details
+
+---
+
+### Step 7: Backup Sessions to Godot (if restart required)
 
 **If Claude Code restart is imminent, backup last 24 hours:**
 
@@ -167,6 +189,7 @@ Use this checklist at each checkpoint:
 - [ ] Relevant files committed
 - [ ] GitHub issues updated/closed
 - [ ] Changes pushed to remote
+- [ ] (If CLAUDE.md modified) Backup created and committed
 - [ ] (If restart needed) Last 24h sessions backed up to Godot
 - [ ] Conversation IDs saved for recovery
 
