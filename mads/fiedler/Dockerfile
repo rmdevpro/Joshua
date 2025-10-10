@@ -10,10 +10,11 @@ RUN apt-get update && apt-get install -y \
     libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install joshua_network library
-COPY --chown=root:root lib/joshua_network /tmp/joshua-network-install/joshua_network
-COPY --chown=root:root lib/pyproject.toml /tmp/joshua-network-install/
-RUN pip install --no-cache-dir /tmp/joshua-network-install && rm -rf /tmp/joshua-network-install
+# Copy and install joshua-libs (joshua_network + joshua_logger)
+COPY --chown=root:root lib/joshua_network /tmp/joshua-libs-install/joshua_network
+COPY --chown=root:root lib/joshua_logger /tmp/joshua-libs-install/joshua_logger
+COPY --chown=root:root lib/pyproject.toml /tmp/joshua-libs-install/
+RUN pip install --no-cache-dir /tmp/joshua-libs-install && rm -rf /tmp/joshua-libs-install
 
 # Copy project files
 COPY mads/fiedler/pyproject.toml .

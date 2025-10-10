@@ -1,6 +1,6 @@
 """Secure API key management using system keyring."""
 import os
-import logging
+import asyncio
 from typing import Optional
 
 try:
@@ -10,7 +10,8 @@ try:
 except ImportError:
     KEYRING_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
+from joshua_logger import Logger
+logger = Logger()
 
 SERVICE_NAME = "fiedler-mcp-server"
 
@@ -86,33 +87,37 @@ def get_api_key(provider: str, env_var_name: str) -> Optional[str]:
                 return key
         except keyring.errors.KeyringError as e:
             # Specific keyring errors - log warning
-            logger.warning(
-                "Keyring get_password failed for provider=%s using backend=%s: %s",
-                provider, _get_backend_name(), e
-            )
+            asyncio.run(logger.log(
+                "WARN",
+                f"Keyring get_password failed for provider={provider} using backend={_get_backend_name()}: {e}",
+                "fiedler-utils"
+            ))
         except Exception as e:
             # Catch any other errors
-            logger.warning(
-                "Unexpected error accessing keyring for provider=%s: %s",
-                provider, e
-            )
+            asyncio.run(logger.log(
+                "WARN",
+                f"Unexpected error accessing keyring for provider={provider}: {e}",
+                "fiedler-utils"
+            ))
 
     # Check if fallback to env var is allowed
     if _require_secure_keyring():
-        logger.error(
-            "Secure keyring required but unavailable or failed (backend=%s); refusing env fallback.",
-            _get_backend_name() if KEYRING_AVAILABLE else "unavailable"
-        )
+        asyncio.run(logger.log(
+            "ERROR",
+            f"Secure keyring required but unavailable or failed (backend={_get_backend_name() if KEYRING_AVAILABLE else 'unavailable'}); refusing env fallback.",
+            "fiedler-utils"
+        ))
         return None
 
     # Fall back to environment variable
     env_key = os.getenv(env_var_name)
     if env_key and KEYRING_AVAILABLE:
         # Warn if falling back despite keyring being available
-        logger.info(
-            "Using environment variable %s for provider=%s (keyring returned None)",
-            env_var_name, provider
-        )
+        asyncio.run(logger.log(
+            "INFO",
+            f"Using environment variable {env_var_name} for provider={provider} (keyring returned None)",
+            "fiedler-utils"
+        ))
     return env_key
 
 
@@ -146,16 +151,16 @@ def set_api_key(provider: str, api_key: str) -> None:
     else:
         # Permissive mode - warn about insecure backends
         if not is_secure:
-            logger.warning(
-                "Storing key using a non-secure keyring backend (%s). "
-                "Consider enabling FIEDLER_REQUIRE_SECURE_KEYRING=1.",
-                backend
-            )
+            asyncio.run(logger.log(
+                "WARN",
+                f"Storing key using a non-secure keyring backend ({backend}). Consider enabling FIEDLER_REQUIRE_SECURE_KEYRING=1.",
+                "fiedler-utils"
+            ))
 
     # Store the key
     try:
         keyring.set_password(SERVICE_NAME, provider, api_key)
-        logger.info("API key stored for provider=%s using backend=%s", provider, backend)
+        asyncio.run(logger.log("INFO", f"API key stored for provider={provider} using backend={backend}", "fiedler-utils"))
     except Exception as e:
         raise RuntimeError(
             f"Failed to store API key in keyring (backend={backend}): {e}"
@@ -184,12 +189,12 @@ def delete_api_key(provider: str) -> bool:
         existing = keyring.get_password(SERVICE_NAME, provider)
         if existing:
             keyring.delete_password(SERVICE_NAME, provider)
-            logger.info("API key deleted for provider=%s", provider)
+            asyncio.run(logger.log("INFO", f"API key deleted for provider={provider}", "fiedler-utils"))
             return True
         return False
     except Exception as e:
         # Catch all keyring errors during deletion
-        logger.warning("Failed to delete key for provider=%s: %s", provider, e)
+        asyncio.run(logger.log("WARN", f"Failed to delete key for provider={provider}: {e}", "fiedler-utils"))
         return False
 
 
@@ -210,11 +215,11 @@ def list_stored_providers() -> list[str]:
                 stored.append(provider)
         except Exception as e:
             # Log errors but continue checking other providers
-            logger.warning(
-                "Could not check keyring for provider '%s': %s. "
-                "It will be omitted from the list.",
-                provider, e
-            )
+            asyncio.run(logger.log(
+                "WARN",
+                f"Could not check keyring for provider '{provider}': {e}. It will be omitted from the list.",
+                "fiedler-utils"
+            ))
             continue
 
     return stored

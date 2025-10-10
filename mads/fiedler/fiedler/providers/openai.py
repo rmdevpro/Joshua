@@ -21,7 +21,7 @@ class OpenAIProvider(BaseProvider):
             )
         self.client = OpenAI(api_key=api_key)
 
-    def _send_impl(
+    async def _send_impl(
         self,
         package: str,
         prompt: str,
@@ -54,9 +54,9 @@ class OpenAIProvider(BaseProvider):
         content = response.choices[0].message.content
 
         # Debug: Log content info
-        logger.log(f"Content type: {type(content)}, length: {len(content) if content else 0}", self.model_id)
+        await logger.log("DEBUG", f"Content type: {type(content)}, length: {len(content) if content else 0}", "fiedler-providers", data={"model": self.model_id})
         if not content:
-            logger.log(f"WARNING: Empty content! Response: {response}", self.model_id)
+            await logger.log("WARN", f"Empty content! Response: {response}", "fiedler-providers", data={"model": self.model_id})
 
         # Write to file
         output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -64,7 +64,7 @@ class OpenAIProvider(BaseProvider):
             if content:
                 f.write(content)
             else:
-                logger.log(f"ERROR: Content is None or empty, writing empty file", self.model_id)
+                await logger.log("ERROR", "Content is None or empty, writing empty file", "fiedler-providers", data={"model": self.model_id})
 
         # Extract token usage
         tokens = {

@@ -22,7 +22,7 @@ class XAIProvider(BaseProvider):
                 f"No API key found for xAI. Set via fiedler_set_key or environment variable {api_key_env}"
             )
 
-    def _send_impl(
+    async def _send_impl(
         self,
         package: str,
         prompt: str,

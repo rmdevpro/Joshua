@@ -4,7 +4,6 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import uuid
 import json
 
@@ -37,7 +36,7 @@ def create_provider(model_id: str, config: Dict[str, Any]):
     raise ValueError(f"Unknown model: {model_id}")
 
 
-def send_to_model(
+async def send_to_model(
     model_id: str,
     package: str,
     prompt: str,
@@ -61,17 +60,17 @@ def send_to_model(
             model_id
         )
         if warning:
-            logger.log(warning, model_id)
+            await logger.log("WARN", warning, "fiedler-tools", data={"model": model_id})
 
         # Create output file
         output_file = output_dir / f"{model_id.replace('/', '_')}.md"
 
         # Send (with attachments if provider supports them)
-        logger.log(f"Sending to {model_id}...", model_id)
-        result = provider.send(package, prompt, output_file, logger, attachments=attachments)
+        await logger.log("INFO", f"Sending to {model_id}...", "fiedler-tools", data={"model": model_id})
+        result = await provider.send(package, prompt, output_file, logger, attachments=attachments)
 
         if result["success"]:
-            logger.log(f"✓ {model_id} completed in {result['duration']:.1f}s", model_id)
+            await logger.log("INFO", f"{model_id} completed in {result['duration']:.1f}s", "fiedler-tools", data={"model": model_id})
             return {
                 "model": model_id,
                 "status": "success",
@@ -80,7 +79,7 @@ def send_to_model(
                 "tokens": result.get("tokens", {}),
             }
         else:
-            logger.log(f"✗ {model_id} failed: {result.get('error', 'unknown error')}", model_id)
+            await logger.log("ERROR", f"{model_id} failed: {result.get('error', 'unknown error')}", "fiedler-tools", data={"model": model_id})
             return {
                 "model": model_id,
                 "status": "failed",
@@ -88,7 +87,7 @@ def send_to_model(
             }
 
     except Exception as e:
-        logger.log(f"✗ {model_id} exception: {str(e)}", model_id)
+        await logger.log("ERROR", f"{model_id} exception: {str(e)}", "fiedler-tools", data={"model": model_id})
         return {
             "model": model_id,
             "status": "failed",
@@ -96,7 +95,7 @@ def send_to_model(
         }
 
 
-def fiedler_send(
+async def fiedler_send(
     prompt: str,
     files: Optional[List[str]] = None,
     models: Optional[List[str]] = None
@@ -154,26 +153,26 @@ def fiedler_send(
     log_file = output_dir / "fiedler.log"
     logger = ProgressLogger(correlation_id, log_file)
 
-    logger.log(f"Starting Fiedler run (correlation_id: {correlation_id})")
-    logger.log(f"Models: {', '.join(models)}")
-    logger.log(f"Output: {output_dir}")
+    await logger.log("INFO", f"Starting Fiedler run (correlation_id: {correlation_id})", "fiedler-tools")
+    await logger.log("INFO", f"Models: {', '.join(models)}", "fiedler-tools")
+    await logger.log("INFO", f"Output: {output_dir}", "fiedler-tools")
 
     # Compile package if files provided
     package = ""
     package_metadata = {}
     binary_files = []
     if files:
-        logger.log(f"Compiling package from {len(files)} file(s)")
-        package, package_metadata, binary_files = compile_package(files, logger)
-        logger.log(f"Package compiled: {package_metadata['total_size']} bytes, {package_metadata['total_lines']} lines")
+        await logger.log("INFO", f"Compiling package from {len(files)} file(s)", "fiedler-tools")
+        package, package_metadata, binary_files = await compile_package(files, logger)
+        await logger.log("INFO", f"Package compiled: {package_metadata['total_size']} bytes, {package_metadata['total_lines']} lines", "fiedler-tools")
 
     # Resolve binary files as attachments for multimodal handling
     attachments = []
     if binary_files:
-        logger.log(f"Resolving {len(binary_files)} binary file(s) as attachments...")
+        await logger.log("INFO", f"Resolving {len(binary_files)} binary file(s) as attachments...", "fiedler-tools")
         for binary_file in binary_files:
             file_name = Path(binary_file).name
-            logger.log(f"  Resolving: {file_name}")
+            await logger.log("INFO", f"  Resolving: {file_name}", "fiedler-tools")
 
             attachment = Attachment(source="file", content=binary_file)
             resolution = resolve_attachment(attachment)
@@ -187,9 +186,9 @@ def fiedler_send(
                     "data": content_bytes,
                     "sha256": resolution.sha256_hash
                 })
-                logger.log(f"  ✓ {file_name}: {resolution.mime_type}, {len(content_bytes):,} bytes, sha256={resolution.sha256_hash[:16]}...")
+                await logger.log("INFO", f"  {file_name}: {resolution.mime_type}, {len(content_bytes):,} bytes, sha256={resolution.sha256_hash[:16]}...", "fiedler-tools")
             else:
-                logger.log(f"  ✗ {file_name}: {resolution.error_message}")
+                await logger.log("ERROR", f"  {file_name}: {resolution.error_message}", "fiedler-tools")
                 raise ValueError(f"Failed to resolve attachment {file_name}: {resolution.error_message}")
 
     # Send to models in parallel
@@ -201,27 +200,25 @@ def fiedler_send(
         int(os.getenv("FIEDLER_MAX_WORKERS", str(max(2, (os.cpu_count() or 4)))))
     )
 
-    logger.log(f"Sending to {len(models)} model(s) in parallel (max_workers={max_workers})")
+    await logger.log("INFO", f"Sending to {len(models)} model(s) in parallel (max_workers={max_workers})", "fiedler-tools")
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
-            executor.submit(
-                send_to_model,
-                model_id,
-                package,
-                prompt,
-                output_dir,
-                correlation_id,
-                config,
-                logger,
-                attachments=attachments if attachments else None
-            ): model_id
-            for model_id in models
-        }
+    # Use asyncio.gather for parallel async execution
+    import asyncio
+    tasks = [
+        send_to_model(
+            model_id,
+            package,
+            prompt,
+            output_dir,
+            correlation_id,
+            config,
+            logger,
+            attachments=attachments if attachments else None
+        )
+        for model_id in models
+    ]
 
-        for future in as_completed(futures):
-            result = future.result()
-            results.append(result)
+    results = await asyncio.gather(*tasks)
 
     # Create summary (with optional prompt redaction for security)
     save_prompt = os.getenv("FIEDLER_SAVE_PROMPT", "0") == "1"
@@ -249,7 +246,7 @@ def fiedler_send(
     else:
         status = "failure"
 
-    logger.log(f"Run complete: {success_count}/{len(models)} models succeeded")
+    await logger.log("INFO", f"Run complete: {success_count}/{len(models)} models succeeded", "fiedler-tools")
 
     return {
         "status": status,

@@ -1,11 +1,10 @@
 """Fiedler MCP Server - joshua_network implementation."""
 import asyncio
 import json
-import logging
-import sys
 from typing import Any, Dict
 
 from joshua_network import Server
+from joshua_logger import Logger
 
 from .tools import (
     fiedler_list_models,
@@ -18,14 +17,8 @@ from .tools import (
     fiedler_list_keys,
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    stream=sys.stderr,
-    force=True
-)
-logger = logging.getLogger(__name__)
+# Initialize joshua_logger for centralized logging
+logger = Logger()
 
 
 # Tool definitions for joshua_network
@@ -202,7 +195,7 @@ TOOL_HANDLERS = {
 
 async def _amain():
     """Main entry point for Fiedler MCP server using joshua_network."""
-    logger.info("=== FIEDLER STARTUP: Starting with joshua_network ===")
+    await logger.log("INFO", "Fiedler MCP server starting with joshua_network", "fiedler-mcp", data={"version": "1.0.0"})
 
     # Create joshua_network server
     server = Server(
@@ -210,16 +203,15 @@ async def _amain():
         version="1.0.0",
         port=8080,
         tool_definitions=TOOL_DEFINITIONS,
-        tool_handlers=TOOL_HANDLERS,
-        logger=logger
+        tool_handlers=TOOL_HANDLERS
     )
 
     # Start HTTP streaming proxy in parallel
     from .proxy_server import start_proxy_server
-    proxy_task = asyncio.create_task(start_proxy_server(logger))
+    proxy_task = asyncio.create_task(start_proxy_server())
 
     # Start joshua_network WebSocket server
-    logger.info("=== FIEDLER: Starting joshua_network WebSocket server on 0.0.0.0:8080 ===")
+    await logger.log("INFO", "Fiedler WebSocket server operational", "fiedler-mcp", data={"host": "0.0.0.0", "port": 8080})
     await server.start()
 
 

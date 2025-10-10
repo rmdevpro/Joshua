@@ -17,6 +17,10 @@ services:
 
     # Environment variables for configuration
     environment:
+      # Godot Logging Integration
+      - GODOT_URL=ws://godot-mcp:9060
+      - LOGGING_ENABLED=true
+
       # Required: Subprocess client paths
       - FIEDLER_GEMINI_CLIENT=/app/clients/gemini_client.py
       - FIEDLER_GEMINI_PYTHON=/usr/local/bin/python

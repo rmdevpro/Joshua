@@ -87,7 +87,7 @@ def _validate_package_limits(
         )
 
 
-def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict[str, int], List[str]]:
+async def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict[str, int], List[str]]:
     """
     Compile list of files into a single package string.
     Binary files are separated and returned for attachment handling.
@@ -103,13 +103,13 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
         FileNotFoundError: If any file doesn't exist
     """
     if not files:
-        logger.log("No files provided")
+        await logger.log("INFO", "No files provided", "fiedler-utils")
         return "", {"num_files": 0, "total_size": 0, "total_lines": 0}, []
 
     # Validate file count limit upfront
     _validate_package_limits(len(files), 0, 0)
 
-    logger.log(f"Compiling package from {len(files)} files...")
+    await logger.log("INFO", f"Compiling package from {len(files)} files...", "fiedler-utils")
 
     contents = []
     binary_files = []
@@ -128,7 +128,7 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
         # Security: Validate file access
         _validate_file_access(file_path)
 
-        logger.log(f"Adding file {i+1}/{len(files)}: {file_path.name}")
+        await logger.log("INFO", f"Adding file {i+1}/{len(files)}: {file_path.name}", "fiedler-utils")
 
         # Try to read as text, skip binary files for attachment handling
         try:
@@ -142,7 +142,7 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
 
         except UnicodeDecodeError:
             # Binary file - skip text package, add to binary list for multimodal handling
-            logger.log(f"📎 Binary file detected, will handle as attachment: {file_path.name}")
+            await logger.log("INFO", f"Binary file detected, will handle as attachment: {file_path.name}", "fiedler-utils")
             binary_files.append(str(file_path))
             # Don't count binary files in package size limits
             continue
@@ -153,9 +153,9 @@ def compile_package(files: List[str], logger: ProgressLogger) -> Tuple[str, Dict
     package = "\n\n".join(contents) if contents else ""
 
     if package:
-        logger.log(f"✅ Package compiled: {total_bytes:,} bytes, {total_lines:,} lines")
+        await logger.log("INFO", f"Package compiled: {total_bytes:,} bytes, {total_lines:,} lines", "fiedler-utils")
     if binary_files:
-        logger.log(f"📎 {len(binary_files)} binary file(s) for attachment handling")
+        await logger.log("INFO", f"{len(binary_files)} binary file(s) for attachment handling", "fiedler-utils")
 
     return package, {
         "num_files": len(files),

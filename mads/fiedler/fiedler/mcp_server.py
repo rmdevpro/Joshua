@@ -3,25 +3,21 @@
 
 import json
 import sys
-import logging
 from typing import Any, Dict, List
 
-# Set up logging to stderr (stdout is reserved for MCP protocol)
-logging.basicConfig(
-    level=logging.INFO,
-    format='[%(levelname)s] %(message)s',
-    stream=sys.stderr
-)
-logger = logging.getLogger(__name__)
+from joshua_logger import Logger
+logger = Logger()
 
 # Import Fiedler's functions
 try:
     from fiedler.tools.send import fiedler_send
     from fiedler.tools.models import fiedler_list_models
     from fiedler.tools.config import fiedler_get_config
-    logger.info("Successfully imported Fiedler tools")
+    import asyncio
+    asyncio.run(logger.log("INFO", "Successfully imported Fiedler tools", "fiedler-mcp"))
 except ImportError as e:
-    logger.error(f"Failed to import Fiedler tools: {e}")
+    import asyncio
+    asyncio.run(logger.log("ERROR", f"Failed to import Fiedler tools: {e}", "fiedler-mcp"))
     sys.exit(1)
 
 
@@ -29,6 +25,7 @@ class FiedlerMCPServer:
     """MCP server implementation for Fiedler."""
 
     def __init__(self):
+        import asyncio
         self.tools = {
             "fiedler_send": {
                 "description": "Send prompts to multiple LLM models (Gemini, GPT-5, Llama, DeepSeek, Qwen, Grok) and get parallel responses. Use this for comparing model outputs, getting diverse perspectives, or when user mentions specific models.",
@@ -68,15 +65,16 @@ class FiedlerMCPServer:
                 }
             }
         }
-        logger.info(f"Initialized Fiedler MCP Server with {len(self.tools)} tools")
+        asyncio.run(logger.log("INFO", f"Initialized Fiedler MCP Server with {len(self.tools)} tools", "fiedler-mcp"))
 
     def handle_request(self, request: Dict[str, Any]) -> Dict[str, Any]:
         """Handle incoming MCP requests."""
+        import asyncio
         method = request.get("method")
-        logger.info(f"Handling request: {method}")
+        asyncio.run(logger.log("INFO", f"Handling request: {method}", "fiedler-mcp"))
 
         if method == "initialize":
-            logger.info("Initializing MCP server")
+            asyncio.run(logger.log("INFO", "Initializing MCP server", "fiedler-mcp"))
             return {
                 "protocolVersion": "2024-11-05",
                 "capabilities": {
@@ -89,7 +87,7 @@ class FiedlerMCPServer:
             }
 
         elif method == "tools/list":
-            logger.info(f"Listing {len(self.tools)} available tools")
+            asyncio.run(logger.log("INFO", f"Listing {len(self.tools)} available tools", "fiedler-mcp"))
             return {
                 "tools": [
                     {"name": name, **spec}
@@ -100,11 +98,11 @@ class FiedlerMCPServer:
         elif method == "tools/call":
             tool_name = request["params"]["name"]
             arguments = request["params"].get("arguments", {})
-            logger.info(f"Calling tool: {tool_name} with arguments: {list(arguments.keys())}")
+            asyncio.run(logger.log("INFO", f"Calling tool: {tool_name} with arguments: {list(arguments.keys())}", "fiedler-mcp"))
 
             try:
                 result = self._call_tool(tool_name, arguments)
-                logger.info(f"Tool {tool_name} completed successfully")
+                asyncio.run(logger.log("INFO", f"Tool {tool_name} completed successfully", "fiedler-mcp"))
                 return {
                     "content": [
                         {
@@ -114,7 +112,7 @@ class FiedlerMCPServer:
                     ]
                 }
             except Exception as e:
-                logger.error(f"Tool {tool_name} failed: {str(e)}")
+                asyncio.run(logger.log("ERROR", f"Tool {tool_name} failed: {str(e)}", "fiedler-mcp"))
                 return {
                     "content": [
                         {
@@ -126,7 +124,7 @@ class FiedlerMCPServer:
                 }
 
         else:
-            logger.warning(f"Unknown method: {method}")
+            asyncio.run(logger.log("WARN", f"Unknown method: {method}", "fiedler-mcp"))
             return {"error": f"Unknown method: {method}"}
 
     def _call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
@@ -149,7 +147,8 @@ class FiedlerMCPServer:
 
     def run(self):
         """Main server loop - reads from stdin, writes to stdout."""
-        logger.info("Fiedler MCP Server starting - listening on stdin")
+        import asyncio
+        asyncio.run(logger.log("INFO", "Fiedler MCP Server starting - listening on stdin", "fiedler-mcp"))
 
         try:
             for line in sys.stdin:
@@ -166,7 +165,7 @@ class FiedlerMCPServer:
                     sys.stdout.flush()
 
                 except json.JSONDecodeError as e:
-                    logger.error(f"Invalid JSON received: {e}")
+                    asyncio.run(logger.log("ERROR", f"Invalid JSON received: {e}", "fiedler-mcp"))
                     error_response = {
                         "error": f"Invalid JSON: {str(e)}"
                     }
@@ -174,7 +173,7 @@ class FiedlerMCPServer:
                     sys.stdout.flush()
 
                 except Exception as e:
-                    logger.error(f"Error processing request: {e}")
+                    asyncio.run(logger.log("ERROR", f"Error processing request: {e}", "fiedler-mcp"))
                     error_response = {
                         "error": str(e)
                     }
@@ -182,9 +181,9 @@ class FiedlerMCPServer:
                     sys.stdout.flush()
 
         except KeyboardInterrupt:
-            logger.info("Fiedler MCP Server shutting down")
+            asyncio.run(logger.log("INFO", "Fiedler MCP Server shutting down", "fiedler-mcp"))
         except Exception as e:
-            logger.error(f"Fatal error: {e}")
+            asyncio.run(logger.log("ERROR", f"Fatal error: {e}", "fiedler-mcp"))
             sys.exit(1)
 
 

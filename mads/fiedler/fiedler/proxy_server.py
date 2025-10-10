@@ -1,11 +1,11 @@
 """Fiedler HTTP Streaming Proxy - Routes LLM requests through Fiedler."""
 import asyncio
-import logging
 import os
 import aiohttp
 from aiohttp import web
 
-logger = logging.getLogger(__name__)
+from joshua_logger import Logger
+logger = Logger()
 
 
 class AnthropicStreamingProxy:
@@ -17,7 +17,7 @@ class AnthropicStreamingProxy:
         self.upstream = "https://api.anthropic.com"
         self.app = None
         self.runner = None
-        logger.info(f"Anthropic Streaming Proxy initialized on {host}:{port} -> {self.upstream}")
+        asyncio.create_task(logger.log("INFO", f"Anthropic Streaming Proxy initialized on {host}:{port} -> {self.upstream}", "fiedler-proxy"))
 
     async def start(self):
         """Start the proxy server."""
@@ -32,13 +32,13 @@ class AnthropicStreamingProxy:
         await self.runner.setup()
         site = web.TCPSite(self.runner, self.host, self.port)
         await site.start()
-        logger.info(f"Anthropic Streaming Proxy started on {self.host}:{self.port}")
+        await logger.log("INFO", f"Anthropic Streaming Proxy started on {self.host}:{self.port}", "fiedler-proxy")
 
     async def stop(self):
         """Stop the proxy server."""
         if self.runner:
             await self.runner.cleanup()
-        logger.info("Anthropic Streaming Proxy stopped")
+        await logger.log("INFO", "Anthropic Streaming Proxy stopped", "fiedler-proxy")
 
     async def health_check(self, request: web.Request) -> web.Response:
         """Health check endpoint."""
@@ -77,7 +77,7 @@ class AnthropicStreamingProxy:
             # Force identity encoding to prevent gzip compression (critical for streaming)
             forward_headers['Accept-Encoding'] = 'identity'
 
-            logger.info(f"Proxying {request.method} /{path} to {upstream_url}")
+            await logger.log("INFO", f"Proxying {request.method} /{path} to {upstream_url}", "fiedler-proxy")
 
             # Forward request to upstream
             async with aiohttp.ClientSession() as session:
@@ -119,12 +119,12 @@ class AnthropicStreamingProxy:
                     # Complete the streaming response
                     await response.write_eof()
 
-                    logger.info(f"Completed proxying {request.method} /{path} - Status {upstream_response.status}")
+                    await logger.log("INFO", f"Completed proxying {request.method} /{path} - Status {upstream_response.status}", "fiedler-proxy")
 
                     return response
 
         except Exception as e:
-            logger.error(f"Proxy error for {request.method} /{path}: {e}", exc_info=True)
+            await logger.log("ERROR", f"Proxy error for {request.method} /{path}: {e}", "fiedler-proxy")
             return web.json_response({
                 "error": "Proxy Error",
                 "message": str(e)

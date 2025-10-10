@@ -22,7 +22,7 @@ class GeminiProvider(BaseProvider):
                 f"No API key found for Google. Set via fiedler_set_key or environment variable {api_key_env}"
             )
 
-    def _send_impl(
+    async def _send_impl(
         self,
         package: str,
         prompt: str,
@@ -56,7 +56,7 @@ class GeminiProvider(BaseProvider):
 
         # If attachments present, use direct API call via imported module
         if attachments:
-            return self._send_with_attachments(
+            return await self._send_with_attachments(
                 full_input, output_file, logger, gemini_client_path, attachments
             )
 
@@ -101,7 +101,7 @@ class GeminiProvider(BaseProvider):
 
         return {"tokens": tokens}
 
-    def _send_with_attachments(
+    async def _send_with_attachments(
         self,
         prompt: str,
         output_file: Path,
@@ -137,7 +137,7 @@ class GeminiProvider(BaseProvider):
                 for att in attachments
             ]
 
-            logger.log(f"  Sending {len(gemini_attachments)} attachment(s) natively to {self.model_id}")
+            await logger.log("INFO", f"Sending {len(gemini_attachments)} attachment(s) natively to {self.model_id}", "fiedler-providers", data={"model": self.model_id})
 
             # Call API
             result = client.generate_content(

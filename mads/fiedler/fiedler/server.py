@@ -4,6 +4,7 @@ from typing import Any
 
 from mcp.server import Server
 from mcp.types import Tool, TextContent
+from joshua_logger import Logger
 
 from .tools import (
     fiedler_list_models,
@@ -15,6 +16,8 @@ from .tools import (
     fiedler_delete_key,
     fiedler_list_keys,
 )
+
+logger = Logger()
 
 
 # Create server instance
@@ -248,26 +251,17 @@ async def _amain():
     import sys
     import websockets
     import json
-    import logging
     from websockets.server import WebSocketServerProtocol
     from .proxy_server import start_proxy_server
 
     print("=== FIEDLER: _amain() ENTRY POINT ===", flush=True, file=sys.stderr)
 
-    # Force logging to stderr with explicit configuration
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        stream=sys.stderr,
-        force=True
-    )
-    logger = logging.getLogger(__name__)
     print("=== FIEDLER: Logger configured ===", flush=True, file=sys.stderr)
-    logger.info("=== FIEDLER STARTUP: _amain() called ===")
+    await logger.log("INFO", "=== FIEDLER STARTUP: _amain() called ===", "fiedler-legacy")
 
     async def handle_client(websocket: WebSocketServerProtocol):
         """Handle WebSocket client connection."""
-        logger.info(f"=== FIEDLER: Client connected from {websocket.remote_address} ===")
+        await logger.log("INFO", f"=== FIEDLER: Client connected from {websocket.remote_address} ===", "fiedler-legacy")
 
         try:
             async for message in websocket:
@@ -278,7 +272,7 @@ async def _amain():
                     params = request.get("params", {})
                     request_id = request.get("id")
 
-                    logger.info(f"Received request: {method}")
+                    await logger.log("INFO", f"Received request: {method}", "fiedler-legacy")
 
                     # Handle MCP protocol methods
                     if method == "initialize":
@@ -316,7 +310,7 @@ async def _amain():
                         tool_name = params.get("name")
                         arguments = params.get("arguments", {})
 
-                        logger.info(f"Calling tool: {tool_name}")
+                        await logger.log("INFO", f"Calling tool: {tool_name}", "fiedler-legacy")
 
                         # Call the tool via the app's handler
                         result = await call_tool(tool_name, arguments)
@@ -360,7 +354,7 @@ async def _amain():
                     await websocket.send(json.dumps(error_response))
 
                 except Exception as e:
-                    logger.exception(f"Error processing request: {e}")
+                    await logger.log("ERROR", f"Error processing request: {e}", "fiedler-legacy")
                     error_response = {
                         "jsonrpc": "2.0",
                         "error": {
@@ -372,30 +366,30 @@ async def _amain():
                     await websocket.send(json.dumps(error_response))
 
         except websockets.exceptions.ConnectionClosed:
-            logger.info("Client disconnected")
+            await logger.log("INFO", "Client disconnected", "fiedler-legacy")
 
     # Start HTTP Streaming Proxy on port 8081
     print("=== FIEDLER: Starting HTTP Streaming Proxy ===", flush=True, file=sys.stderr)
     proxy = await start_proxy_server(host="0.0.0.0", port=8081)
     print("=== FIEDLER: HTTP Streaming Proxy STARTED on port 8081 ===", flush=True, file=sys.stderr)
-    logger.info("=== FIEDLER: HTTP Streaming Proxy RUNNING on port 8081 ===")
+    await logger.log("INFO", "=== FIEDLER: HTTP Streaming Proxy RUNNING on port 8081 ===", "fiedler-legacy")
 
     # Start WebSocket MCP server on port 8080
     host = "0.0.0.0"
     port = 8080
     print(f"=== FIEDLER: About to start WebSocket server on {host}:{port} ===", flush=True, file=sys.stderr)
-    logger.info(f"=== FIEDLER STARTUP: Starting WebSocket MCP server on {host}:{port} ===")
+    await logger.log("INFO", f"=== FIEDLER STARTUP: Starting WebSocket MCP server on {host}:{port} ===", "fiedler-legacy")
 
     try:
         print(f"=== FIEDLER: Calling websockets.serve ===", flush=True, file=sys.stderr)
         async with websockets.serve(handle_client, host, port):
             print(f"=== FIEDLER: WebSocket server STARTED on port {port} ===", flush=True, file=sys.stderr)
-            logger.info(f"=== FIEDLER STARTUP: WebSocket MCP server RUNNING on ws://{host}:{port} ===")
-            logger.info(f"=== FIEDLER STARTUP: Both servers operational (MCP: 8080, Proxy: 8081) ===")
+            await logger.log("INFO", f"=== FIEDLER STARTUP: WebSocket MCP server RUNNING on ws://{host}:{port} ===", "fiedler-legacy")
+            await logger.log("INFO", f"=== FIEDLER STARTUP: Both servers operational (MCP: 8080, Proxy: 8081) ===", "fiedler-legacy")
             await asyncio.Future()  # Run forever
     except Exception as e:
         print(f"=== FIEDLER ERROR: {e} ===", flush=True, file=sys.stderr)
-        logger.error(f"=== FIEDLER ERROR: Failed to start WebSocket server: {e} ===", exc_info=True)
+        await logger.log("ERROR", f"=== FIEDLER ERROR: Failed to start WebSocket server: {e} ===", "fiedler-legacy")
         raise
 
 

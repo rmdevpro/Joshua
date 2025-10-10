@@ -21,7 +21,7 @@ class TogetherProvider(BaseProvider):
             )
         self.client = OpenAI(api_key=api_key, base_url=base_url)
 
-    def _send_impl(
+    async def _send_impl(
         self,
         package: str,
         prompt: str,

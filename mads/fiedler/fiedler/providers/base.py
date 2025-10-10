@@ -24,7 +24,7 @@ class BaseProvider(ABC):
         # Max completion tokens (output budget)
         self.max_completion_tokens = config.get("max_completion_tokens", 4096)
 
-    def send(
+    async def send(
         self,
         package: str,
         prompt: str,
@@ -49,8 +49,8 @@ class BaseProvider(ABC):
 
         for attempt in range(self.retry_attempts):
             try:
-                logger.log(f"Attempt {attempt + 1}/{self.retry_attempts}", self.model_id)
-                result = self._send_impl(package, prompt, output_file, logger, attachments=attachments)
+                await logger.log("INFO", f"Attempt {attempt + 1}/{self.retry_attempts}", "fiedler-providers", data={"model": self.model_id})
+                result = await self._send_impl(package, prompt, output_file, logger, attachments=attachments)
                 duration = time.time() - start_time
                 return {
                     "success": True,
@@ -61,11 +61,11 @@ class BaseProvider(ABC):
                 }
             except Exception as e:
                 error_msg = str(e)
-                logger.log(f"❌ Error: {error_msg}", self.model_id)
+                await logger.log("ERROR", f"Error: {error_msg}", "fiedler-providers", data={"model": self.model_id})
 
                 if attempt < self.retry_attempts - 1:
                     wait_time = 2 ** attempt  # Exponential backoff: 1s, 2s, 4s
-                    logger.log(f"Retrying in {wait_time}s...", self.model_id)
+                    await logger.log("INFO", f"Retrying in {wait_time}s...", "fiedler-providers", data={"model": self.model_id})
                     time.sleep(wait_time)
                 else:
                     # Final attempt failed
@@ -80,7 +80,7 @@ class BaseProvider(ABC):
                     }
 
     @abstractmethod
-    def _send_impl(
+    async def _send_impl(
         self,
         package: str,
         prompt: str,
