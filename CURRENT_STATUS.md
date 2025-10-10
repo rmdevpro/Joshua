@@ -1,6 +1,36 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 10:50
+## Last Updated: 2025-10-10 17:00
+
+---
+
+## 🚧 CURRENT WORK: Logging System Fixed, Relay Diagnosis Ready
+
+### Logging System Repair - COMPLETE ✅
+**Status:** FIXED
+**Completed:** 2025-10-10 17:00
+
+**Problem:** Logging system completely non-functional (0 logs in 24 hours), blocking relay diagnosis
+
+**Root Cause:**
+- Tool name mismatch: logger called `logger_log`, Godot expects `godot_logger_log`
+- Missing `websockets` dependency
+
+**Solution:**
+- Changed tool_name in `/mnt/projects/Joshua/lib/joshua_logger/logger.py:60`
+- Installed websockets module
+- Verified end-to-end: Logger → Godot → Redis → Dewey → PostgreSQL ✅
+
+**Verification Test:**
+```
+[2025-10-10 16:56:44+00:00] INFO: Test log from updated joshua_logger
+```
+
+**Commit:** `a6e7262` - "Fix logging system: use correct tool name and joshua_network"
+
+### Next: Resume Relay Diagnosis
+**Status:** Ready to proceed with working logs
+**Objective:** Diagnose why Fiedler tools unavailable through relay (Issue #10)
 
 ---
 
