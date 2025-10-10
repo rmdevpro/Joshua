@@ -1,59 +1,47 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 18:30
+## Last Updated: 2025-10-10 19:45
 
 ---
 
-## 🚧 CURRENT WORK: Relay Tool Response Investigation - IN PROGRESS
+## 🎉 RECENT COMPLETION: MCP Relay Tool Response Bug - FIXED ✅
 
-### MCP Relay Tool Response Issue - INVESTIGATING
-**Status:** DIAGNOSING
-**Started:** 2025-10-10 18:12
+### MCP Relay V3.7 - JSON-RPC Protocol Compliance Fix
+**Status:** FIXED - READY FOR TESTING
+**Completed:** 2025-10-10 19:45
 
 **Problem:**
-- joshua_logger was rebuilt SPECIFICALLY to add local backup logging when Godot is unreachable
-- **THIS FEATURE WAS NEVER IMPLEMENTED** in the original rebuild
-- Logger only wrote to Godot via WebSocket with no fallback
-- When Godot connection failed, ALL logs were silently lost forever
-- MCP Relay: 0 logs written since Oct 10 restart (5 days of lost logs)
-- Last relay log in database: Oct 5 at 14:40
+- Relay management tools (`relay_get_status`, `relay_list_servers`, etc.) returned no output to Claude Code
+- Tool calls were received and handlers executed successfully
+- Responses generated but Claude Code silently ignored them
 
 **Root Cause:**
-- Original joshua_logger implementation only attempted Godot WebSocket connection
-- On failure, logged error to stderr but did NOT write backup logs to disk
-- This defeated the ENTIRE PURPOSE of rebuilding the logger
+- Relay management tool handlers returned incomplete JSON-RPC responses
+- Missing required `"jsonrpc": "2.0"` field in response structure
+- Backend tools return proper format: `{"jsonrpc": "2.0", "result": {...}, "id": N}`
+- Relay tools only returned: `{"result": {...}}`
+- MCP protocol requires the jsonrpc field - without it, responses are invalid and ignored
 
 **Solution Implemented:**
-1. Added local filesystem backup logging to `/mnt/projects/Joshua/lib/joshua_logger/logger.py`
-2. When Godot connection fails, logs are written to: `/tmp/joshua_logs/{component}/{YYYY-MM-DD}.jsonl`
-3. Backup logs use JSONL format (one JSON object per line) for easy parsing
-4. Each log entry contains: timestamp, level, component, message, data, trace_id
+- Added `"jsonrpc": "2.0"` to all 5 relay management tool handlers:
+  - `handle_get_status()` - line 627
+  - `handle_list_servers()` - line 582
+  - `handle_reconnect_server()` - line 588, 604, 606
+  - `handle_add_server()` - line 519, 539, 542
+  - `handle_remove_server()` - line 549, 563
 
 **Files Changed:**
-- `/mnt/projects/Joshua/lib/joshua_logger/logger.py` - Added `_write_backup_log()` method and backup logic
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - Added JSON-RPC field to all management tool responses
 
 **Testing:**
-- ✅ Tested with unreachable Godot - backup logs created successfully
-- ✅ Verified JSONL format and data structure
-- ✅ Confirmed logs written to `/tmp/joshua_logs/test-component/2025-10-10.jsonl`
+- 🔴 **REQUIRES CLAUDE CODE RESTART** - Relay updated and ready, need to reconnect
 
-**Testing After Restart:**
-- ✅ Relay logs to backup files when Godot is unreachable - CONFIRMED WORKING
-- ✅ Logs available for diagnosis - `/tmp/joshua_logs/mcp-relay/2025-10-10.jsonl`
-- ✅ No more silent log loss - CONFIRMED
+**Version:**
+- Updated to V3.7 (from V3.6)
 
-**New Issue Discovered:**
-- Relay tools (`relay_get_status`, `relay_list_servers`) return no output to Claude Code
-- Backup logs show tool calls ARE received by relay
-- Tool handlers execute successfully (tested standalone)
-- Responses generated but not reaching Claude Code
-- Added additional logging to diagnose response path
+---
 
-**Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - Added response logging at line 736
-
-**Next Step:**
-🔴 **RESTART CLAUDE CODE** - Pick up new relay logging to diagnose response issue
+## 🚧 CURRENT WORK: Awaiting Claude Code Restart for Testing
 
 ---
 

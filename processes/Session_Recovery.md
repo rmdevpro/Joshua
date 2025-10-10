@@ -83,7 +83,9 @@ sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua &&
 
 ---
 
-### Step 5: Retrieve Recent Conversation from Dewey
+### Step 5: Retrieve Recent Conversation from Dewey (If Available)
+
+**⚠️ IMPORTANT:** This step requires Dewey to be available via MCP Relay. If relay tools are not working or Dewey is unavailable, **SKIP THIS STEP** and proceed with the context already gathered from CURRENT_STATUS.md, git log, and documentation.
 
 **If conversation ID is known (from CURRENT_STATUS.md notes):**
 ```
@@ -108,9 +110,17 @@ mcp__iccm__dewey_list_conversations
 
 **Note:** Each conversation can have thousands of messages. Consider retrieving just the conversation metadata first, then pull specific messages if needed.
 
+**If Dewey is unavailable:**
+- CURRENT_STATUS.md should contain sufficient context
+- Git commit history provides detailed technical changes
+- Documentation updates reflect recent work
+- Proceed without conversation retrieval
+
 ---
 
-### Step 6: Review Recent Messages (Last 100 Lines)
+### Step 6: Review Recent Messages (Last 100 Lines) - Optional
+
+**⚠️ SKIP THIS STEP if Dewey is unavailable** (see Step 5)
 
 **Once you have the conversation ID, get recent context:**
 
@@ -136,14 +146,19 @@ mcp__iccm__dewey_search
 
 ## Recovery Checklist
 
+**Core Steps (Always Required):**
 - [ ] Read CURRENT_STATUS.md
 - [ ] Check recent git commits (last 5)
 - [ ] Review git status for uncommitted changes
 - [ ] Read relevant documentation mentioned in STATUS
 - [ ] Check open GitHub issues
+- [ ] Identify next task to work on
+
+**Optional Steps (If Dewey Available):**
 - [ ] Retrieve recent conversation from Dewey
 - [ ] Review last 100 messages for context
-- [ ] Identify next task to work on
+
+**Note:** If Dewey/MCP tools are unavailable, the core steps provide sufficient context to resume work.
 
 ---
 
@@ -153,10 +168,12 @@ If restarting within same work session (hours, not days):
 
 1. Read CURRENT_STATUS.md
 2. Check git status
-3. Retrieve last conversation from Dewey
+3. Retrieve last conversation from Dewey (if available)
 4. Resume work
 
 Skip: Deep dive into docs, issues (unless needed)
+
+**Note:** If MCP tools unavailable, steps 1-2 are usually sufficient for same-day recovery.
 
 ---
 
@@ -218,4 +235,17 @@ Skip: Deep dive into docs, issues (unless needed)
 
 ---
 
-*Last Updated: 2025-10-10*
+## Changelog
+
+**2025-10-10 19:45:**
+- Made Step 5 (Dewey retrieval) and Step 6 (message review) optional
+- Added warnings to skip these steps if MCP relay/Dewey unavailable
+- Updated checklist to separate core vs optional steps
+- Added note that core steps provide sufficient context without Dewey
+
+**2025-10-10 (Initial):**
+- Created Session Recovery process document
+
+---
+
+*Last Updated: 2025-10-10 19:45*
