@@ -57,7 +57,7 @@ class Logger:
         try:
             # Use call_tool which sends tools/call JSON-RPC request
             await self._client.call_tool(
-                tool_name="logger_log",
+                tool_name="godot_logger_log",
                 arguments={
                     "level": level.upper(),
                     "message": message,
