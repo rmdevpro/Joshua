@@ -1,10 +1,53 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 21:30
+## Last Updated: 2025-10-10 21:57
 
 ---
 
-## 🎉 RECENT COMPLETION: Sergey Migration to joshua-libs ✅
+## 🎉 RECENT COMPLETION: Marco MCP Protocol Fix ✅
+
+### Marco MCP Protocol Bug Fix - COMPLETE
+**Status:** DEPLOYED AND VERIFIED ✅
+**Completed:** 2025-10-10 21:57
+
+**Problem:**
+- Marco showing "Invalid response structure" error in relay
+- Custom Node.js MCP server incorrectly sending `notifications/initialized` to client
+- Protocol violation: servers should NOT send this notification (client sends it TO server)
+
+**Root Cause Analysis:**
+- Marco has unique architecture: Node.js wrapper around Playwright MCP (stdio)
+- Playwright MCP is official Microsoft tool (@playwright/mcp) for browser automation
+- Marco's custom MCP implementation had protocol bug in initialize handler
+
+**Solution Implemented:**
+- Removed incorrect `notifications/initialized` notification from initialize handler
+- Added clarifying comment about correct MCP protocol flow
+- Server now only responds to initialize request (correct behavior)
+
+**Files Changed:**
+- `/mnt/projects/Joshua/mads/marco/server.js` - Fixed initialize handler (lines 442-457)
+
+**Verification:**
+- ✅ Marco container rebuilt and restarted successfully
+- ✅ All 21 tools discoverable via relay (browser_navigate, browser_click, browser_snapshot, etc.)
+- ✅ Marco showing as healthy in relay status
+- ✅ MCP protocol compliance verified
+
+**Future Work:**
+- GitHub Issue #16: Polo v1 - Rebuild Marco with joshua_network_js and FTP support
+- Create standardized joshua_network_js for Node.js MADs
+- Eliminate custom MCP implementations
+- Add FTP/FTPS protocol support alongside HTTP/HTTPS
+
+**Architecture Insight:**
+- Marco's Action Engine contains Playwright MCP (stdio subprocess)
+- This pattern will repeat for other stdio-based MCP servers
+- Need standardized solution for WebSocket ↔ stdio bridging in Action Engines
+
+---
+
+## 🎉 PREVIOUS COMPLETION: Sergey Migration to joshua-libs ✅
 
 ### Sergey MCP Migration to joshua-libs - COMPLETE
 **Status:** DEPLOYED AND VERIFIED ✅

@@ -451,14 +451,8 @@ function handleClientRequest(clientId, ws, request) {
       },
     };
     ws.send(JSON.stringify(response));
-
-    // Per MCP spec, server sends `notifications/initialized` after client initializes
-    const notification = {
-      jsonrpc: '2.0',
-      method: 'notifications/initialized',
-      params: {},
-    };
-    ws.send(JSON.stringify(notification));
+    // NOTE: Server does NOT send notifications/initialized - that's sent BY the client TO the server
+    // The server only responds to the initialize request
     return;
   }
 
