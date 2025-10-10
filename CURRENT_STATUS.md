@@ -1,42 +1,45 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 18:15
+## Last Updated: 2025-10-10 18:45
 
 ---
 
-## 🚧 CURRENT WORK: Relay Logger Signature Fix - Checkpoint Before Restart
+## 🚧 CURRENT WORK: Relay Singleton Pattern Fix - Ready for Restart
 
-### Relay Logger Signature Fix - COMPLETE ✅
+### Relay Logger Event Loop Fix - COMPLETE ✅
 **Status:** FIXED - Ready for restart
-**Completed:** 2025-10-10 18:15
+**Completed:** 2025-10-10 18:45
 
 **Problem:**
-- After restart from previous fix, relay tools still unavailable
-- Error: `Logger.log() takes from 4 to 6 positional arguments but 7 were given`
-- Previous migration to joshua_logger used incorrect call signature
+- Relay not writing any logs after joshua_logger migration
+- Relay tools returning empty/no output (relay_get_status, etc.)
+- All MCP tools unavailable due to relay failure
 
-**Root Cause:**
-- joshua_logger requires **keyword arguments** for optional parameters (`data=`, `trace_id=`)
-- Previous migration used positional arguments: `log(level, msg, component, {...}, trace_id)`
-- Python interpreted this as 6 positional args, exceeding the 5-param signature
+**Root Cause (Diagnosed by Gemini 2.5 Pro):**
+- Logger singleton created at module import time (BEFORE asyncio event loop)
+- WebSocket client inside logger initialized without event loop context
+- All log calls failed silently (fire-and-forget tasks + exception handling)
+- Relay tool handlers crashed on first logger call → empty responses
 
 **Solution:**
-- Fixed all 13 `joshua_logger.log()` calls in `/home/aristotle9/mcp-relay/mcp_relay.py`
-- Changed to keyword arguments: `log(level, msg, component, data={...}, trace_id=trace_id)`
-- Created comprehensive README.md for joshua_logger with migration guide
+1. Removed singleton pattern from `/mnt/projects/Joshua/lib/joshua_logger/__init__.py`
+2. Relay now imports `Logger` class and creates instance in `__init__` method
+3. All 13 logging calls changed from `joshua_logger.log()` to `self.logger.log()`
 
 **Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - fixed all logger calls to use keyword args
-- `/mnt/projects/Joshua/lib/joshua_logger/README.md` - NEW, comprehensive docs with migration guide
+- `/mnt/projects/Joshua/lib/joshua_logger/__init__.py` - removed singleton
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - instance-based logging
+
+**Commit:** `5dff13c` - "Fix relay logging: Remove singleton pattern from joshua_logger"
 
 **Next Step:**
-🔴 **CHECKPOINT THEN RESTART** - Following checkpoint process before restart
+🔴 **RESTART CLAUDE CODE** - Apply fixes and verify logging works
 
 **Expected After Restart:**
-- ✅ Relay will load without errors
-- ✅ Relay logs will appear in database
-- ✅ Relay tools will become available
-- ✅ Can diagnose Fiedler connectivity issue
+- ✅ Relay will create logger instance with event loop context
+- ✅ Relay logs will appear in Godot/database
+- ✅ Relay tools will return proper output
+- ✅ All MCP tools (Fiedler, Dewey, Horace, etc.) will become available
 
 ---
 
