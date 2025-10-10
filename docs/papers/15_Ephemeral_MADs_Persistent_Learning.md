@@ -1,26 +1,31 @@
 # Paper 15: Ephemeral MADs and Persistent Learning Architecture
 
-## Status: Concept Discussion (To be formalized later)
+## Status: Raw Conversation - To be formalized later
 
 ---
 
-## The eMAD Concept - Initial Discussion
+**User:** next topic, MAD CP - the MAD Converation Protocol. It will form the basis of all the communication but it will have little protocol in it. We talked about the diffrent kinds of content: deterministic, fixed and prose. Prose of course is just english. It can include regular API type stuff, but more often it should contain human shorthand that can be understood by users who undertsand technology, but are not code capable.
 
-### Core Idea
+**Assistant:** Explained the three content types and asked about term for non-persistent vs persistent.
 
-**eMADs (Ephemeral MADs)** - On-demand workers that spin up based on a class, get used, then are destroyed.
+**User:** persistent is the term we use for things like software, where workers dont persist. What is the term for non perisistent
 
-**The Innovation:** Workers disappear, but their learning remains.
+**Assistant:** Suggested "ephemeral" as the industry standard term.
 
-### Key Characteristics
+**User:** that is it. We need the concept of eMADs (ephemeral) were we spin up a mad based on a class, it used then it is destroyed. An example of an eMAD will be a team of LLMs as we use the trios today. A development cycle would begin the Imperator would spin up a PM (the job you played), A Senior Developer, and Two Junior Developers. And when they were not needed they would disappear. The ML models that they are trianed on would of course persist so that everytime they started they would get the benefit of the most up to date model. The types of roles the LLMs would play would probably have their own models optimized for them. And as such, if they were instantiated for multiple cycles simultaneously, or by different MADs, they all get the benefit of the model and all of their activites would serve to train the models. The LLM use case may be perhaps only one for eMADS.
 
+**Assistant:** Broke down the concept:
+
+## eMADs (Ephemeral MADs) - Core Concept
+
+**Key Characteristics:**
 1. **On-Demand Lifecycle**: Instantiated when needed → Execute task → Destroyed when done
 2. **Role-Based**: Each eMAD represents a specific role (PM, Senior Dev, Junior Dev, Specialist LLM, etc.)
 3. **Shared Learning**: All instances of a role type share the same underlying ML models
 4. **Concurrent Instances**: Multiple instances of same role can run simultaneously
 5. **Collective Intelligence**: Every instance contributes to training the shared model
 
-### Contrast with Persistent MADs
+**Contrast with Persistent MADs:**
 
 | Aspect | Persistent MADs | eMADs |
 |--------|----------------|-------|
@@ -30,8 +35,7 @@
 | **State** | Maintains session state | Stateless (model persists) |
 | **Resource** | Continuous resources | Resources only when active |
 
-### The Shared Model Innovation
-
+**The Shared Model Innovation:**
 - **PM Model** persists and improves over time
 - **Senior Dev Model** persists and improves over time
 - **Junior Dev Model** persists and improves over time
@@ -39,69 +43,19 @@
 - All activities from all instances contribute to training
 - Multiple simultaneous instances all benefit from collective learning
 
-### Primary Use Case: LLM Development Teams
+**User:** And there may be emads that are not the LLM use case. I cant think of any right now, but I think its possible. Its like having workers, but instead of just disappearing entirely their learning remains
 
-**Example:** Development cycle requires PM + Senior Dev + 2 Junior Devs
+**Assistant:** Listed potential non-LLM eMAD use cases:
 
-```
-Imperator (persistent MAD) receives development request
-    ↓
-Instantiates development team:
-    - PM (eMAD using pm model v2.1)
-    - Senior Developer (eMAD using senior_dev model v3.4)
-    - Junior Developer 1 (eMAD using junior_dev model v1.8)
-    - Junior Developer 2 (eMAD using junior_dev model v1.8)
-    ↓
-Team collaborates via conversation bus
-    ↓
-Development cycle completes
-    ↓
-All eMADs contribute to their respective role models
-    ↓
-Team instances terminated
-    ↓
-Next development cycle gets benefit of improved models
-```
-
-### Potential Use Cases Beyond LLMs
-
-**Note:** May be eMADs that are not the LLM use case. Can't think of specific examples right now, but the pattern is possible.
-
-**The Key Pattern:** Like having workers, but instead of just disappearing entirely their learning remains.
-
-#### Possible Non-LLM eMAD Examples:
+### Potential eMAD Use Cases Beyond LLMs
 
 1. **Data Processing eMADs**
-   - Spin up to process batches of data
-   - Learn patterns: data quality issues, transformation optimizations, anomaly detection
-   - Model improves over time → faster, smarter processing
-   - All instances contribute to the shared "Data Processor" model
-
 2. **Test Execution eMADs**
-   - Spin up to run test suites
-   - Learn: which tests catch which bugs, optimal test ordering, flaky test patterns
-   - Model gets better at predicting failures, prioritizing tests
-   - Shared "Test Runner" model improves with every execution
-
 3. **Code Analysis eMADs**
-   - Spin up for code reviews/analysis
-   - Learn: code smell patterns, architecture anti-patterns, team coding styles
-   - Model improves at identifying issues specific to the codebase
-   - Shared "Code Analyzer" model benefits from all analysis
-
 4. **Security Scanning eMADs**
-   - Spin up for security audits
-   - Learn: vulnerability patterns, false positive signatures, attack vectors
-   - Collective security intelligence across all scans
-   - Shared "Security Scanner" model improves detection
-
 5. **Document Processing eMADs**
-   - Spin up to extract/transform documents
-   - Learn: document structure patterns, extraction rules, edge cases
-   - Model improves accuracy over time
-   - Shared "Doc Processor" model benefits all processing
 
-### The Key Differentiator
+**The Key Differentiator:**
 
 | Traditional Workers | eMADs |
 |---------------------|-------|
@@ -111,30 +65,9 @@ Next development cycle gets benefit of improved models
 | No improvement over time | Constant improvement |
 | Instance-specific experience | Collective role-based intelligence |
 
-### Architectural Requirements (Initial Thoughts)
-
-- **Model Storage**: Role-based model repository (e.g., `/models/senior_dev/`, `/models/test_runner/`)
-- **Versioning**: Instances always get latest trained model
-- **Training Pipeline**: Activities feed back to continuous model training
-- **Concurrent Access**: Multiple instances can use same model simultaneously
-- **Hot Updates**: Model updates without downtime
+**User:** yes, I think what we need to do is add it to the top level summary in just a paragraph, but keep the extended concept in its own paper. All the major concepts need a paper for each.
 
 ---
 
-## To Be Developed
-
-This concept needs to be formalized into a proper academic paper covering:
-
-- Detailed architecture
-- Implementation considerations
-- Performance metrics
-- Comparison with related work
-- Future directions
-- Empirical validation
-
-**Target**: Q1 2026
-
----
-
-*Concept captured: 2025-10-09*
-*To be formalized later*
+*Conversation captured: 2025-10-09*
+*To be formalized into proper academic paper later*
