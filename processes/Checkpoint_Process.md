@@ -177,6 +177,11 @@ mcp__iccm__godot_conversation_store_messages_bulk
 
 **Save conversation IDs returned for recovery.**
 
+**⚠️ EXCEPTION: Can skip with user approval if technical blocker exists**
+- If Godot/Dewey tools are unavailable due to relay issues, ask user permission to skip
+- This is acceptable when the restart is specifically to fix the blocking issue
+- Example: "Session backup requires relay tools, but relay is broken. Skip backup and restart to fix relay?"
+
 ---
 
 ## Checkpoint Checklist
@@ -190,8 +195,8 @@ Use this checklist at each checkpoint:
 - [ ] GitHub issues updated/closed
 - [ ] Changes pushed to remote
 - [ ] (If CLAUDE.md modified) Backup created and committed
-- [ ] (If restart needed) Last 24h sessions backed up to Godot
-- [ ] Conversation IDs saved for recovery
+- [ ] (If restart needed) Last 24h sessions backed up to Godot OR skipped with user approval
+- [ ] Conversation IDs saved for recovery (if backup performed)
 
 ---
 
