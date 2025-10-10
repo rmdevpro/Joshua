@@ -1,45 +1,35 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 19:12
+## Last Updated: 2025-10-10 19:37
 
 ---
 
-## 🎉 RECENT COMPLETION: MCP Relay Tool Exposure Bug - FIXED ✅
+## 🎉 RECENT COMPLETION: MCP Relay Timeout Fix - READY FOR RESTART ✅
 
-### MCP Relay V3.8 - Tool Discovery Notification Fix
+### MCP Relay V3.8.1 - Increased Timeout for LLM Tool Calls
 **Status:** FIXED - REQUIRES RESTART
-**Completed:** 2025-10-10 19:12
+**Completed:** 2025-10-10 19:37
 
 **Problem:**
-- Relay discovered backend tools correctly (67 tools total)
-- Claude Code never received backend tools (only 5 relay management tools available)
-- Backend tools not exposed despite healthy backends
-
-**Root Cause:**
-- Relay wasn't sending `notifications/tools/list_changed` when backends discovered tools
-- Notification condition: `if self.initialized and len(valid_tools) != old_tool_count`
-- When reconnecting: old_tool_count = 8, new tools = 8, condition false → no notification
-- Claude Code cached empty tool list from initial connection (when backends were degraded)
-- Without notification, Claude Code never re-requested updated tool list
+- Relay timeout was 30 seconds for all tool calls
+- LLM tool calls (Fiedler, etc.) take 1-15 minutes
+- Tool calls timing out despite backends working correctly
 
 **Solution Implemented:**
-- Track if NEW tools are added to routing table (not just count changes)
-- Added `tools_added_to_routing` flag (line 369)
-- Set flag when tool not already in routing table (lines 400-401)
-- Changed notification condition to `if self.initialized and tools_added_to_routing` (line 421)
-- Now sends notification whenever new tools are registered, not just on count change
+- Increased `websocket_timeout` from 30s to 900s (15 minutes)
+- Located in `/home/aristotle9/mcp-relay/mcp_relay.py` line 80
+- Allows LLM backends sufficient time to complete multi-model requests
 
 **Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - Fixed tool discovery notification logic
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - Increased timeout for LLM calls
 
 **Testing:**
-- 🔴 **REQUIRES CLAUDE CODE RESTART** - Fix applied to file, running relay using old code
+- 🔴 **REQUIRES CLAUDE CODE RESTART** - Fix applied, needs reload
 
 **Version:**
-- Updated to V3.8 (from V3.7)
+- Updated to V3.8.1 (timeout fix)
 
-**Issue:**
-- GitHub Issue #14 - BLOCKER: Relay not exposing backend tools to Claude Code
+**Note:** V3.8 tool discovery notification fix was determined to be unnecessary - backends were timing out, not failing discovery.
 
 ---
 

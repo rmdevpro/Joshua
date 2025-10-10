@@ -159,44 +159,17 @@ sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua &&
 
 ---
 
-### Step 7: Backup Sessions to Godot (if restart required)
-
-**If Claude Code restart is imminent, backup last 24 hours:**
-
-**Find recent sessions:**
-```bash
-ls -lht ~/.claude/projects/-home-aristotle9/*.jsonl | head -10 | awk '{print $NF, $6, $7}'
-```
-
-**Store each session:**
-```
-mcp__iccm__godot_conversation_store_messages_bulk
-  messages_file: /host/home/aristotle9/.claude/projects/-home-aristotle9/[SESSION-ID].jsonl
-  metadata: {"source": "claude_code", "session_date": "2025-10-10", "topic": "work_description"}
-```
-
-**Save conversation IDs returned for recovery.**
-
-**⚠️ EXCEPTION: Can skip with user approval if technical blocker exists**
-- If Godot/Dewey tools are unavailable due to relay issues, ask user permission to skip
-- This is acceptable when the restart is specifically to fix the blocking issue
-- Example: "Session backup requires relay tools, but relay is broken. Skip backup and restart to fix relay?"
-
----
-
 ## Checkpoint Checklist
 
 Use this checklist at each checkpoint:
 
-- [ ] CURRENT_STATUS.md updated
+- [ ] CURRENT_STATUS.md updated (includes all restart information)
 - [ ] Project documentation updated (README, architecture, requirements, KB)
 - [ ] Git status checked
 - [ ] Relevant files committed
 - [ ] GitHub issues updated/closed
 - [ ] Changes pushed to remote
 - [ ] (If CLAUDE.md modified) Backup created and committed
-- [ ] (If restart needed) Last 24h sessions backed up to Godot OR skipped with user approval
-- [ ] Conversation IDs saved for recovery (if backup performed)
 
 ---
 
@@ -206,13 +179,13 @@ For small updates that don't warrant full checkpoint:
 
 1. Update CURRENT_STATUS.md (optional)
 2. Commit and push to git
-3. Skip issues/session backup
+3. Skip issues
 
 ---
 
 ## Example: Full Checkpoint Workflow
 
-**Scenario:** Completed MAD V1 Architecture V2, about to restart
+**Scenario:** Completed MAD V1 Architecture V2
 
 **Steps:**
 1. ✅ Updated CURRENT_STATUS.md with completion details
@@ -220,16 +193,20 @@ For small updates that don't warrant full checkpoint:
 3. ✅ No GitHub issues to update (new feature, not bug fix)
 4. ✅ Committed with detailed message about architectural corrections
 5. ✅ Pushed to GitHub (commit bdc76cb)
-6. ✅ Backed up 5 sessions from last 3 days to Godot
-7. ✅ Saved conversation IDs: `8e83f1b7...`, `ed79a557...`, etc.
 
-**Result:** All work preserved, can safely restart Claude Code
+**Result:** All work preserved, ready for next session
 
 ---
 
 ## Recovery After Checkpoint
 
-See: `/mnt/projects/Joshua/knowledge-base/Session_Recovery.md` (separate article)
+**On restart, simply:**
+1. Read CURRENT_STATUS.md - contains all restart information
+2. Check recent git commits
+3. Check open GitHub issues
+4. Resume work
+
+**All restart information is in CURRENT_STATUS.md - no separate recovery documents needed.**
 
 ---
 
