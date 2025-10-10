@@ -1,13 +1,47 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 17:45
+## Last Updated: 2025-10-10 18:15
 
 ---
 
-## 🚧 CURRENT WORK: Relay Logger Fixed - Restart Required
+## 🚧 CURRENT WORK: Relay Logger Signature Fix - Checkpoint Before Restart
+
+### Relay Logger Signature Fix - COMPLETE ✅
+**Status:** FIXED - Ready for restart
+**Completed:** 2025-10-10 18:15
+
+**Problem:**
+- After restart from previous fix, relay tools still unavailable
+- Error: `Logger.log() takes from 4 to 6 positional arguments but 7 were given`
+- Previous migration to joshua_logger used incorrect call signature
+
+**Root Cause:**
+- joshua_logger requires **keyword arguments** for optional parameters (`data=`, `trace_id=`)
+- Previous migration used positional arguments: `log(level, msg, component, {...}, trace_id)`
+- Python interpreted this as 6 positional args, exceeding the 5-param signature
+
+**Solution:**
+- Fixed all 13 `joshua_logger.log()` calls in `/home/aristotle9/mcp-relay/mcp_relay.py`
+- Changed to keyword arguments: `log(level, msg, component, data={...}, trace_id=trace_id)`
+- Created comprehensive README.md for joshua_logger with migration guide
+
+**Files Changed:**
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - fixed all logger calls to use keyword args
+- `/mnt/projects/Joshua/lib/joshua_logger/README.md` - NEW, comprehensive docs with migration guide
+
+**Next Step:**
+🔴 **CHECKPOINT THEN RESTART** - Following checkpoint process before restart
+
+**Expected After Restart:**
+- ✅ Relay will load without errors
+- ✅ Relay logs will appear in database
+- ✅ Relay tools will become available
+- ✅ Can diagnose Fiedler connectivity issue
+
+---
 
 ### Relay Logger Migration - COMPLETE ✅
-**Status:** FIXED - Awaiting Claude Code restart
+**Status:** FIXED (with follow-up signature fix above)
 **Completed:** 2025-10-10 17:45
 
 **Problem:**
@@ -24,17 +58,6 @@
 - Removed custom GodotLogger class (lines 42-112 in mcp_relay.py)
 - Replaced all `self.godot_logger.log()` calls with `joshua_logger.log()`
 - Standardized on joshua_logger v1.0.0 (same as other components)
-
-**Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - migrated to joshua_logger
-
-**Next Step:**
-🔴 **RESTART CLAUDE CODE** to reload relay with joshua_logger
-
-**Expected After Restart:**
-- ✅ Relay logs will appear in database
-- ✅ Relay tools will become available
-- ✅ Can diagnose Fiedler connectivity issue
 
 ---
 
