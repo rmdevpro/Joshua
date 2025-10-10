@@ -22,12 +22,15 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
 # ICCM standard libraries
-from iccm_network import MCPServer, MCPToolError
-from godot.mcp_logger import log_to_godot
+from joshua_network import Server as MCPServer, ToolError as MCPToolError
+from joshua_logger import Logger
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+# Initialize joshua_logger
+jlogger = Logger()
 
 class SergeyWorkspace:
     """Google Workspace integration manager"""
@@ -40,17 +43,11 @@ class SergeyWorkspace:
         self.google_docs_service = None
         self.google_slides_service = None
         self.google_calendar_service = None
-        self.godot_url = os.getenv("GODOT_URL", "ws://godot-mcp:8060")
 
     async def initialize(self):
         """Initialize all Google services"""
         try:
-            await log_to_godot(
-                level="INFO",
-                message="Initializing Sergey Google Workspace MAD",
-                component="sergey",
-                godot_url=self.godot_url
-            )
+            await jlogger.log("INFO", "Initializing Sergey Google Workspace MAD", "sergey")
 
             credentials = service_account.Credentials.from_service_account_file(
                 self.service_account_path,
@@ -69,25 +66,13 @@ class SergeyWorkspace:
             self.google_slides_service = build('slides', 'v1', credentials=credentials)
             self.google_calendar_service = build('calendar', 'v3', credentials=credentials)
 
-            await log_to_godot(
-                level="INFO",
-                message="Google services initialized successfully",
-                component="sergey",
-                data={"services": ["drive", "sheets", "docs", "slides", "calendar"]},
-                godot_url=self.godot_url
-            )
+            await jlogger.log("INFO", "Google services initialized successfully", "sergey", data={"services": ["drive", "sheets", "docs", "slides", "calendar"]})
             logger.info("Sergey Google Workspace MAD initialized successfully")
 
         except Exception as e:
             error_msg = f"Failed to initialize Google services: {str(e)}"
             logger.error(error_msg, exc_info=True)
-            await log_to_godot(
-                level="ERROR",
-                message=error_msg,
-                component="sergey",
-                data={"error": str(e)},
-                godot_url=self.godot_url
-            )
+            await jlogger.log("ERROR", error_msg, "sergey", data={"error": str(e)})
             raise
 
     # ============ GOOGLE SHEETS OPERATIONS ============
@@ -102,16 +87,16 @@ class SergeyWorkspace:
         if not self.google_sheets_service:
             raise MCPToolError("Google Sheets service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Reading sheet {sheet_id}", component="sergey", data={"sheet_id": sheet_id, "range": range_name}, godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Reading sheet {sheet_id}", "sergey", data={"sheet_id": sheet_id, "range": range_name})
 
             result = await asyncio.to_thread(self._sheets_read_sync, sheet_id, range_name)
 
             values = result.get("values", [])
-            await log_to_godot(level="INFO", message=f"Successfully read {len(values)} rows from sheet", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Successfully read {len(values)} rows from sheet", "sergey")
             return {"sheet_id": sheet_id, "range": range_name, "values": values, "row_count": len(values)}
         except HttpError as e:
             error_msg = f"Google Sheets read error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"sheet_id": sheet_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"sheet_id": sheet_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _sheets_write_sync(self, sheet_id: str, range_name: str, values: list) -> dict:
@@ -125,15 +110,15 @@ class SergeyWorkspace:
         if not self.google_sheets_service:
             raise MCPToolError("Google Sheets service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Writing to sheet {sheet_id}", component="sergey", data={"sheet_id": sheet_id, "range": range_name, "rows": len(values)}, godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Writing to sheet {sheet_id}", "sergey", data={"sheet_id": sheet_id, "range": range_name, "rows": len(values)})
 
             result = await asyncio.to_thread(self._sheets_write_sync, sheet_id, range_name, values)
 
-            await log_to_godot(level="INFO", message=f"Successfully wrote {result.get('updatedCells')} cells", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Successfully wrote {result.get('updatedCells')} cells", "sergey")
             return {"sheet_id": sheet_id, "updated_cells": result.get("updatedCells"), "updated_range": result.get("updatedRange")}
         except HttpError as e:
             error_msg = f"Google Sheets write error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"sheet_id": sheet_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"sheet_id": sheet_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _sheets_create_sync(self, title: str) -> dict:
@@ -145,15 +130,15 @@ class SergeyWorkspace:
         if not self.google_sheets_service:
             raise MCPToolError("Google Sheets service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Creating new sheet: {title}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Creating new sheet: {title}", "sergey")
 
             result = await asyncio.to_thread(self._sheets_create_sync, title)
 
-            await log_to_godot(level="INFO", message="Successfully created sheet", component="sergey", data={"sheet_id": result.get("spreadsheetId"), "title": title}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully created sheet", "sergey", data={"sheet_id": result.get("spreadsheetId"), "title": title})
             return {"sheet_id": result.get("spreadsheetId"), "title": title, "url": result.get("spreadsheetUrl")}
         except HttpError as e:
             error_msg = f"Google Sheets create error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"title": title, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"title": title, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     # ============ GOOGLE DOCS OPERATIONS ============
@@ -171,15 +156,15 @@ class SergeyWorkspace:
         if not self.google_docs_service or not self.google_drive_service:
             raise MCPToolError("Google Docs/Drive services not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Creating new document: {title}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Creating new document: {title}", "sergey")
 
             doc = await asyncio.to_thread(self._docs_create_sync, title, content)
 
-            await log_to_godot(level="INFO", message="Successfully created document", component="sergey", data={"doc_id": doc['id'], "title": title}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully created document", "sergey", data={"doc_id": doc['id'], "title": title})
             return {"doc_id": doc['id'], "title": doc['name'], "url": doc['webViewLink']}
         except HttpError as e:
             error_msg = f"Google Docs create error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"title": title, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"title": title, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _docs_read_sync(self, doc_id: str) -> dict:
@@ -190,7 +175,7 @@ class SergeyWorkspace:
         if not self.google_docs_service:
             raise MCPToolError("Google Docs service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Reading document {doc_id}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Reading document {doc_id}", "sergey")
 
             document = await asyncio.to_thread(self._docs_read_sync, doc_id)
 
@@ -202,11 +187,11 @@ class SergeyWorkspace:
                             content_parts.append(para_elem['textRun'].get('content', ''))
             text_content = ''.join(content_parts)
 
-            await log_to_godot(level="INFO", message="Successfully read document", component="sergey", data={"doc_id": doc_id, "length": len(text_content)}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully read document", "sergey", data={"doc_id": doc_id, "length": len(text_content)})
             return {"doc_id": doc_id, "title": document.get('title'), "content": text_content, "revision_id": document.get('revisionId')}
         except HttpError as e:
             error_msg = f"Google Docs read error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"doc_id": doc_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"doc_id": doc_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _docs_get_end_index_sync(self, doc_id: str) -> int:
@@ -240,7 +225,7 @@ class SergeyWorkspace:
             return {"doc_id": doc_id, "replies": len(result.get('replies', [])), "status": "success"}
         except HttpError as e:
             error_msg = f"Google Docs update error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"doc_id": doc_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"doc_id": doc_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     async def docs_create_from_markdown(self, title: str, markdown_content: str) -> dict:
@@ -285,7 +270,7 @@ class SergeyWorkspace:
             return doc_info
         except HttpError as e:
             error_msg = f"Google Docs markdown creation error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"title": title, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"title": title, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     # ============ GOOGLE SLIDES OPERATIONS ============
@@ -299,15 +284,15 @@ class SergeyWorkspace:
         if not self.google_slides_service:
             raise MCPToolError("Google Slides service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Creating new presentation: {title}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Creating new presentation: {title}", "sergey")
 
             presentation = await asyncio.to_thread(self._slides_create_sync, title)
 
-            await log_to_godot(level="INFO", message="Successfully created presentation", component="sergey", data={"presentation_id": presentation.get("presentationId"), "title": title}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully created presentation", "sergey", data={"presentation_id": presentation.get("presentationId"), "title": title})
             return {"presentation_id": presentation.get("presentationId"), "title": title, "url": f"https://docs.google.com/presentation/d/{presentation.get('presentationId')}/edit"}
         except HttpError as e:
             error_msg = f"Google Slides create error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"title": title, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"title": title, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _slides_add_slide_sync(self, presentation_id: str, title_text: str, body_text: Optional[str]) -> dict:
@@ -349,15 +334,15 @@ class SergeyWorkspace:
         if not self.google_slides_service:
             raise MCPToolError("Google Slides service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Adding slide to presentation {presentation_id}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Adding slide to presentation {presentation_id}", "sergey")
 
             result = await asyncio.to_thread(self._slides_add_slide_sync, presentation_id, title, body)
 
-            await log_to_godot(level="INFO", message="Successfully added slide", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully added slide", "sergey")
             return {"presentation_id": presentation_id, "status": "success", "replies_count": len(result.get('replies', []))}
         except HttpError as e:
             error_msg = f"Google Slides add slide error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"presentation_id": presentation_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"presentation_id": presentation_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _slides_read_sync(self, presentation_id: str) -> dict:
@@ -368,7 +353,7 @@ class SergeyWorkspace:
         if not self.google_slides_service:
             raise MCPToolError("Google Slides service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Reading presentation {presentation_id}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Reading presentation {presentation_id}", "sergey")
 
             presentation = await asyncio.to_thread(self._slides_read_sync, presentation_id)
 
@@ -385,7 +370,7 @@ class SergeyWorkspace:
                             slide_data['content'] = text_content[:100]  # First 100 chars
                 slide_info.append(slide_data)
 
-            await log_to_godot(level="INFO", message="Successfully read presentation", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully read presentation", "sergey")
             return {
                 "presentation_id": presentation_id,
                 "title": presentation.get('title'),
@@ -394,7 +379,7 @@ class SergeyWorkspace:
             }
         except HttpError as e:
             error_msg = f"Google Slides read error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"presentation_id": presentation_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"presentation_id": presentation_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     # ============ GOOGLE CALENDAR OPERATIONS ============
@@ -419,7 +404,7 @@ class SergeyWorkspace:
         if not self.google_calendar_service:
             raise MCPToolError("Google Calendar service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message="Listing calendar events", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", "Listing calendar events", "sergey")
 
             # Default to next 7 days if no time range specified
             if not time_min:
@@ -442,11 +427,11 @@ class SergeyWorkspace:
                 }
                 event_list.append(event_data)
 
-            await log_to_godot(level="INFO", message=f"Found {len(events)} events", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Found {len(events)} events", "sergey")
             return {"events": event_list, "count": len(events)}
         except HttpError as e:
             error_msg = f"Google Calendar list error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _calendar_create_sync(self, summary: str, start_time: str, end_time: str, description: Optional[str], location: Optional[str], attendees: Optional[List[str]]) -> dict:
@@ -474,11 +459,11 @@ class SergeyWorkspace:
         if not self.google_calendar_service:
             raise MCPToolError("Google Calendar service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Creating calendar event: {summary}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Creating calendar event: {summary}", "sergey")
 
             event = await asyncio.to_thread(self._calendar_create_sync, summary, start_time, end_time, description, location, attendees)
 
-            await log_to_godot(level="INFO", message="Successfully created event", component="sergey", data={"event_id": event.get('id'), "summary": summary}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully created event", "sergey", data={"event_id": event.get('id'), "summary": summary})
             return {
                 "event_id": event.get('id'),
                 "summary": summary,
@@ -487,7 +472,7 @@ class SergeyWorkspace:
             }
         except HttpError as e:
             error_msg = f"Google Calendar create error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"summary": summary, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"summary": summary, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _calendar_delete_sync(self, event_id: str) -> None:
@@ -500,15 +485,15 @@ class SergeyWorkspace:
         if not self.google_calendar_service:
             raise MCPToolError("Google Calendar service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Deleting calendar event: {event_id}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Deleting calendar event: {event_id}", "sergey")
 
             await asyncio.to_thread(self._calendar_delete_sync, event_id)
 
-            await log_to_godot(level="INFO", message="Successfully deleted event", component="sergey", data={"event_id": event_id}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully deleted event", "sergey", data={"event_id": event_id})
             return {"event_id": event_id, "status": "deleted"}
         except HttpError as e:
             error_msg = f"Google Calendar delete error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"event_id": event_id, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"event_id": event_id, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     # ============ GOOGLE DRIVE OPERATIONS ============
@@ -524,16 +509,16 @@ class SergeyWorkspace:
         if not self.google_drive_service:
             raise MCPToolError("Google Drive service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message="Listing Drive files", component="sergey", data={"query": query}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Listing Drive files", "sergey", data={"query": query})
 
             results = await asyncio.to_thread(self._drive_list_sync, query, page_size)
 
             files = results.get('files', [])
-            await log_to_godot(level="INFO", message=f"Found {len(files)} files", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Found {len(files)} files", "sergey")
             return {"files": files, "count": len(files), "next_page_token": results.get('nextPageToken')}
         except HttpError as e:
             error_msg = f"Google Drive list error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"query": query, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"query": query, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _drive_upload_sync(self, file_path: str, folder_id: Optional[str]) -> dict:
@@ -555,15 +540,15 @@ class SergeyWorkspace:
             raise MCPToolError(f"File not found: {file_path}", code=-32602, data={"file_path": file_path})
         try:
             file_name = os.path.basename(file_path)
-            await log_to_godot(level="INFO", message=f"Uploading file: {file_name}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Uploading file: {file_name}", "sergey")
 
             file = await asyncio.to_thread(self._drive_upload_sync, file_path, folder_id)
 
-            await log_to_godot(level="INFO", message="Successfully uploaded file", component="sergey", data={"file_id": file['id'], "name": file_name}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully uploaded file", "sergey", data={"file_id": file['id'], "name": file_name})
             return {"file_id": file['id'], "name": file['name'], "url": file.get('webViewLink')}
         except HttpError as e:
             error_msg = f"Google Drive upload error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"file": file_path, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"file": file_path, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
     def _drive_create_folder_sync(self, folder_name: str, parent_folder_id: Optional[str]) -> dict:
@@ -579,15 +564,15 @@ class SergeyWorkspace:
         if not self.google_drive_service:
             raise MCPToolError("Google Drive service not initialized", code=-32603)
         try:
-            await log_to_godot(level="INFO", message=f"Creating folder: {folder_name}", component="sergey", godot_url=self.godot_url)
+            await jlogger.log("INFO", f"Creating folder: {folder_name}", "sergey")
 
             folder = await asyncio.to_thread(self._drive_create_folder_sync, folder_name, parent_folder_id)
 
-            await log_to_godot(level="INFO", message="Successfully created folder", component="sergey", data={"folder_id": folder['id'], "name": folder_name}, godot_url=self.godot_url)
+            await jlogger.log("INFO", "Successfully created folder", "sergey", data={"folder_id": folder['id'], "name": folder_name})
             return {"folder_id": folder['id'], "name": folder['name'], "url": folder.get('webViewLink')}
         except HttpError as e:
             error_msg = f"Google Drive folder creation error: {e.reason}"
-            await log_to_godot(level="ERROR", message=error_msg, component="sergey", data={"folder": folder_name, "error": str(e)}, godot_url=self.godot_url)
+            await jlogger.log("ERROR", error_msg, "sergey", data={"folder": folder_name, "error": str(e)})
             raise MCPToolError(error_msg, code=e.resp.status)
 
 # Global workspace instance

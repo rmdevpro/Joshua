@@ -1,10 +1,45 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 21:18
+## Last Updated: 2025-10-10 21:30
 
 ---
 
-## 🎉 RECENT COMPLETION: Godot Migration to joshua-libs ✅
+## 🎉 RECENT COMPLETION: Sergey Migration to joshua-libs ✅
+
+### Sergey MCP Migration to joshua-libs - COMPLETE
+**Status:** DEPLOYED AND VERIFIED ✅
+**Completed:** 2025-10-10 21:30
+
+**Problem:**
+- Sergey using custom godot.mcp_logger with 48 log_to_godot() calls
+- Using old iccm_network library
+- Needed migration to joshua-libs for standardization
+
+**Solution Implemented:**
+- Updated Dockerfile to install joshua-libs (both joshua_network + joshua_logger)
+- Updated docker-compose.yml: build context to `../..`, GODOT_URL=ws://godot-mcp:9060, iccm_network
+- Replaced custom `log_to_godot()` function with `joshua_logger.Logger()`
+- Migrated sergey_server.py: 48 logging calls + iccm_network→joshua_network
+- Component naming: sergey (main component)
+
+**Files Changed:**
+- `/mnt/projects/Joshua/mads/sergey/Dockerfile` - joshua-libs installation, path fixes, GODOT_URL port fix (8060→9060)
+- `/mnt/projects/Joshua/mads/sergey/docker-compose.yml` - Build context, GODOT_URL, iccm_network
+- `/mnt/projects/Joshua/mads/sergey/sergey_server.py` - 48 log calls migrated, iccm_network→joshua_network
+
+**Verification:**
+- ✅ Sergey container rebuilt and restarted successfully
+- ✅ All 40 tools discoverable via relay (sheets, docs, slides, calendar, drive, gmail)
+- ✅ Sergey showing as healthy in relay status
+- ✅ joshua_logger integration working (logs flowing to Godot)
+
+**Migration Progress:**
+- ✅ 5/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace, Godot, Sergey)
+- 🚧 Remaining: Marco, Playfair, Gates
+
+---
+
+## 🎉 PREVIOUS COMPLETION: Godot Migration to joshua-libs ✅
 
 ### Godot MCP Migration to joshua-libs - COMPLETE
 **Status:** DEPLOYED AND VERIFIED ✅
@@ -37,8 +72,8 @@
 - ✅ joshua_logger integration working (Godot logs to itself via MCP)
 
 **Migration Progress:**
-- ✅ 4/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace, Godot)
-- 🚧 Remaining: Sergey, Marco, Playfair, Gates
+- ✅ 5/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace, Godot, Sergey)
+- 🚧 Remaining: Marco, Playfair, Gates
 
 ---
 
@@ -78,8 +113,8 @@
 - ✅ joshua_logger integration working (logs flowing to Godot)
 
 **Migration Progress:**
-- ✅ 3/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace)
-- 🚧 Remaining: Godot, Sergey, Marco, Playfair, Gates
+- ✅ 5/7 MADs migrated to joshua-libs (Dewey, Fiedler, Horace, Godot, Sergey)
+- 🚧 Remaining: Marco, Playfair, Gates
 
 ---
 
