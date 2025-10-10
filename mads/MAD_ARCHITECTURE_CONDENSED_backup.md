@@ -21,17 +21,13 @@ The Thought Engine is the brain of the system. It cannot act on its own. It need
 
 The Imperator is the an LLM that provides understanding and reasoning capabilities. Each MAD has its own Imperator instance, which processes the prose content that the DTR routes to it. The Imperator interprets intent, maintains context awareness, and generates appropriate responses. It handles the aspects of communication that require semantic understanding rather than pattern matching. Each Imperator is selected from the list of every LLM available to it, matched optimally to fit the domain of the MAD.
 
-### Consulting LLMs
-
-While the Imperator is mandatory, MADs can request temporary consulting teams of additional LLMs through Fiedler. When the Imperator recognizes it needs specialized expertise, verification, or parallel processing, it sends a conversation request to Fiedler. Fiedler, knowing the entire LLM landscape (capabilities, availability, costs, recent updates), assembles the optimal consulting team and provisions them to the requesting MAD's Thinking Engine. These might be specialists for domains, validators for critical decisions, or simply additional instances for consensus. This creates dynamic resource allocation - consulting teams form on-demand and release when complete.
-
 ### DTR (Decision Tree Router)
 
 The DTR is a machine learning decision tree classifier that routes incoming conversation content to where it needs to go.  The DTR learns optimal routing based on features extracted from the message structure, syntax patterns, and content markers.  Measage content can be categorizes into three classes: *deterministic* such as commands and code to be executed; *fixed* such as data files or images, and *prose* which provides base guidance for routing.  As the system processes more messages, the decision tree refines its routing through incremental learning, improving routing accuracy. This allows the majority of structured content (deterministic and fixed) to bypass the computationally expensive LLM processing path.
 
-### LPPM (Learned Prose-to-Process Mapper)
+### DER (Decision Engineering Recommender)
 
-The LPPM is a fine-tuned neural network that learns to map prose conversations to process orchestration patterns. Unlike a simple classifier, it understands the implicit processes that emerge from usage - learning that certain prose patterns trigger specific multi-step workflows. The LPPM sits between the lightning-fast DTR and the deliberative LLMs, handling learned patterns that don't need full reasoning but are too complex for simple routing. It orchestrates known processes like Development Cycles, determining when the Imperator needs to engage versus when steps can execute deterministically. This creates a three-tier cognitive architecture: microsecond routing (DTR), millisecond pattern mapping (LPPM), and second-level reasoning (LLMs).
+The DER is a recommendation system that learns from the Imperator's decision history. Using collaborative filtering techniques, it identifies patterns where similar input contexts lead to identical decisions. The DER builds a feature matrix of input characteristics and decision outcomes, employing methods like matrix factorization or deep learning embeddings to predict when a prose input can be safely converted to a deterministic route. This recommendation system operates autonomously, continuously updating its model as new decision patterns emerge.  It takes prose and turn is into decisions that are communicated to the Action Engine.  When deployed and trained, it takes contents off the Imperators hands that is better handled deterministocally rather than conextually.
 
 ### CET (Context Engineering Transformer)
 
@@ -39,23 +35,10 @@ The CET is a transformer neural network that builds optimized context from multi
 
 The CET's transformer architecture learns to predict exactly what context elements are needed for specific tasks, delivering the right context at the right time for the right purpose while minimizing unnecessary information. This embodies ICCM (Intelligent Conversation and Context Management), a new architectural discipline that treats context not as a system limitation but as a fundamental carrier of thought to be optimized within constraints. The CET learns these optimization patterns through attention mechanisms that identify which combinations of sources yield successful outcomes.
 
-## Three-Tier Cognitive Architecture
+Conversation Flow
 
-The Thinking Engine implements a progressive filtering system with three tiers of increasing cost and capability:
-
-1. **DTR (Microseconds)**: Lightning-fast routing of deterministic and fixed content
-2. **LPPM (Milliseconds)**: Pattern matching and process orchestration for learned workflows
-3. **Imperator + Consulting (Seconds)**: Full reasoning for novel situations requiring true intelligence
-
-This creates massive efficiency - the DTR handles 60-80% of traffic, the LPPM another 15-30%, leaving only 5-10% requiring expensive LLM reasoning. The system becomes more efficient over time as both the DTR and LPPM learn.
-
-## Conversation Flow
-
-Incoming: 
-Convesation Bus -> Action Engine → MCP Server → DTR → LPPM → CET → Imperator
-
-Outgoing: 
-Convesation Bus <- Action Engine ← MCP Server ← CET ← Imperator
+Incoming: Action Engine-> MCP Server-> DTR -> DER -> CET -> Imperator
+Outgoing: Action Engine <- MCP Server <- CET <- Imperator
 
 ## Action Engine Components
 
@@ -94,18 +77,6 @@ Several MAD implementations have been developed for different purposes:
 
 Different deployments will require different MAD types based on their specific needs.
 
-## MAD Lifecycle Patterns: Persistent and Ephemeral
-
-The MAD architecture supports two distinct lifecycle models, each optimized for different resource and intelligence patterns:
-
-**Persistent MADs** (Rogers, Dewey, Fiedler, Horace) run continuously as infrastructure services, maintaining session state and providing always-available capabilities to the ecosystem. These consume constant resources but enable immediate response and persistent context management.
-
-**Ephemeral MADs (eMADs)** instantiate on-demand for specific tasks and terminate upon completion, achieving massive resource efficiency by existing only when needed. The architectural innovation is that while eMAD instances are temporary, they maintain persistent role-based ML models shared across all instances of that role type. When a PM eMAD spins up, it loads the latest PM model trained by all previous PM instances. Its execution contributes training data back to the model, then the instance terminates while the improved model persists. This enables unlimited concurrent instances (e.g., 50 simultaneous Senior Dev eMADs during high load), collective learning across all instances, and resource costs that scale precisely with actual workload rather than anticipated capacity.
-
-## Conversation Bus Architecture
-
-The MAD ecosystem operates on a conversation bus - essentially a message bus architecture where MADs publish and subscribe to conversation streams. Unlike traditional message buses with fixed schemas and rigid protocols, the conversation bus handles free-form messages containing any mix of deterministic commands, fixed data, or prose. This bus is the only communication mechanism between MADs - no element of the ecosystem sits outside a MAD or communicates outside of conversations.
-
 ## Conversation as Memory and Action
 
 Conversation is at the core of the MAD ecosystem.  We store conversations as an infinte stream (within storage limits) that represent most of the memories of the system.  MADs join and leave conversations as needed and are able to retrieve contents of any conversation they paricipated in.  This replicates the way humans remember with the added benefits of perfect recall and near infite memory.  These also provide the basis for conituned training of the intelligents systems within the ecosystem.
@@ -118,28 +89,12 @@ Another example: When unusual activity occurs, any MAD can mention it to Sentine
 
 This architecture is designed for research lab environments where the goal is to explore how autonomous agents can effectively collaborate through conversation. The focus is on making it work and observing how the system behaves and evolves over time.
 
-## Key Innovations
+## Key Innovation
 
-The architecture introduces several fundamental innovations:
+The primary innovation is the hybrid approach to communication. Rather than forcing everything through either rigid APIs or expensive LLM processing, the DTR enables efficient routing based on content type. This allows the system to maintain the flexibility of free-form conversation while achieving the efficiency of deterministic execution where appropriate.
 
-1. MADs:  Modular domain specifc semi automnoumous components the form the basis of the ecosystem. They not only have the power to act winthin their domain, but to think, learn and continuously improve. 
-
-2. **Three-Tier Cognitive Filtering**: Progressive intelligence layers (DTR → LPPM → LLMs) create massive efficiency by routing content to the minimum necessary cognitive level.
-
-3. **Conversation Bus with Internal Optimization**: MADs communicate via a free-form conversation bus while internally optimizing processing through learned routing and pattern matching.
-
-4. **Context as Carrier of Thought**: The CET embodies ICCM principles - treating context not as a limitation but as a fundamental carrier that must be optimized for each specific purpose.
-
-5. **Self-Improving Architecture**: Both the DTR and LPPM learn continuously, gradually converting prose patterns to deterministic routes while maintaining flexibility for novel situations.
-
-6. LLM Usage: LLMs are used throughout the system as managers, creators, testers, translators, decipheres, and many other uses to super power the thinking portion of the infrastructure.
-
-7. LLM Teaming: We team LLMs together in multiple ways to reduce halucination, increase spead, provider better judgement and improve content.  They act as true teams very much in the human sense.
-
-8. Conversation Bus: A universal carrier of all messageing in the system from human cat to logging.
-
-The system achieves the flexibility of natural language communication with the efficiency of deterministic execution, becoming more efficient over time without losing adaptability.
+As the system operates, it becomes more efficient without losing flexibility. Patterns that emerge through use gradually shift from prose to deterministic routing, reducing costs and latency while maintaining the ability to handle novel situations through semantic understanding.
 
 ---
 
-*v1.2 - Three-tier cognitive architecture with LPPM and consulting LLMs*
+*v1.1 - With DTR for hybrid communication*

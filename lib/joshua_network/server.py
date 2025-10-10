@@ -125,6 +125,10 @@ class Server:
         try:
             if method == "initialize":
                 result = await self._handle_initialize(params)
+            elif method == "notifications/initialized":
+                # MCP protocol notification - acknowledge silently
+                self.logger.debug("Received notifications/initialized")
+                return None
             elif method == "tools/list":
                 result = await self._handle_tools_list()
             elif method == "tools/call":

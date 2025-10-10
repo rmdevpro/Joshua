@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  sergey-mcp:
+    build: .
+    container_name: sergey-mcp
+    restart: unless-stopped
+    ports:
+      - "8095:8095"
+    volumes:
+      # Mount iccm-network library
+      - ../../../libs/iccm-network:/app/iccm-network:ro
+      # Mount Google service account credentials
+      - ./config:/config:ro
+      # Working directory for uploads/downloads
+      - /mnt/irina_storage/sergey:/data
+    environment:
+      - SERGEY_PORT=8095
+      - GOOGLE_SERVICE_ACCOUNT_PATH=/config/google-service-account-credentials.json
+      - GODOT_URL=ws://godot-mcp:8060
+      - PYTHONPATH=/app:/app/iccm-network
+      - LOG_LEVEL=info
+    networks:
+      - joshua_network
+    healthcheck:
+      test: ["CMD", "python", "-c", "import websocket; ws = websocket.create_connection('ws://localhost:8095'); ws.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  joshua_network:
+    external: true

@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  # Infrastructure Services
+  redis:
+    image: redis:7-alpine
+    container_name: sessionmanager-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - sessionmanager-network
+
+  mongodb:
+    image: mongo:6
+    container_name: sessionmanager-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin123
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - sessionmanager-network
+
+  # Blue Deployment
+  sessionmanager-blue:
+    build: .
+    container_name: sessionmanager-blue
+    environment:
+      - DEPLOYMENT_COLOR=blue
+      - REDIS_URL=redis://redis:6379
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - S3_BUCKET_NAME=session-archive
+      - S3_REGION=us-east-1
+      - JWT_SECRET=dev-secret-change-in-production
+      - AWS_ACCESS_KEY_ID=test-key
+      - AWS_SECRET_ACCESS_KEY=test-secret
+    ports:
+      - "8001:8000"
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - sessionmanager-network
+    labels:
+      - "color=blue"
+
+  # Green Deployment
+  sessionmanager-green:
+    build: .
+    container_name: sessionmanager-green
+    environment:
+      - DEPLOYMENT_COLOR=green
+      - REDIS_URL=redis://redis:6379
+      - MONGODB_URL=mongodb://admin:admin123@mongodb:27017
+      - S3_BUCKET_NAME=session-archive
+      - S3_REGION=us-east-1
+      - JWT_SECRET=dev-secret-change-in-production
+      - AWS_ACCESS_KEY_ID=test-key
+      - AWS_SECRET_ACCESS_KEY=test-secret
+    ports:
+      - "8002:8000"
+    depends_on:
+      - redis
+      - mongodb
+    networks:
+      - sessionmanager-network
+    labels:
+      - "color=green"
+
+  # Nginx Load Balancer for Blue/Green switching
+  nginx:
+    image: nginx:alpine
+    container_name: sessionmanager-router
+    ports:
+      - "8000:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - sessionmanager-blue
+      - sessionmanager-green
+    networks:
+      - sessionmanager-network
+
+networks:
+  sessionmanager-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+  mongo-data:

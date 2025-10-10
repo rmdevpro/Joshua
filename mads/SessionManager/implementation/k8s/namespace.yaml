@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sessionmanager
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sessionmanager-blue
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sessionmanager-green

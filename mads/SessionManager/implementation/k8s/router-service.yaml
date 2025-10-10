@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sessionmanager
+  namespace: sessionmanager
+  annotations:
+    description: "Main router service - point to blue or green via selector"
+spec:
+  selector:
+    app: sessionmanager
+    version: blue  # SWITCH THIS TO 'green' for green deployment
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sessionmanager-internal
+  namespace: sessionmanager
+spec:
+  selector:
+    app: sessionmanager
+    version: blue  # SWITCH THIS TO 'green' for green deployment
+  ports:
+  - port: 80
+    targetPort: 8000
+    protocol: TCP
+  type: ClusterIP

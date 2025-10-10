@@ -3,8 +3,8 @@ version: '3.8'
 services:
   fiedler:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../../
+      dockerfile: mads/fiedler/Dockerfile
     image: fiedler-mcp:latest
     container_name: fiedler-mcp
     restart: unless-stopped
@@ -50,20 +50,20 @@ services:
     # Volumes
     volumes:
       # Output directory (bind mount to host for easy access)
-      - ./fiedler_output:/app/fiedler_output
+      - ../../mads/fiedler/fiedler_output:/app/fiedler_output
 
       # Horace storage mount for default output
       - irina_storage_files:/mnt/irina_storage/files
 
       # Allowed files directory (read-only)
-      - ./allowed_files:/app/allowed_files:ro
+      - ../../mads/fiedler/allowed_files:/app/allowed_files:ro
 
       # Direct access to project files (read-only) - Change 1
       - /mnt/projects:/mnt/projects:ro
 
       # Client scripts (read-only)
-      - /mnt/projects/Joshua/mads/fiedler/tools/gemini_client.py:/app/clients/gemini_client.py:ro
-      - /mnt/projects/ICCM/tools/grok_client.py:/app/clients/grok_client.py:ro
+      - ../../mads/fiedler/tools/gemini_client.py:/app/clients/gemini_client.py:ro
+      - ../../tools/grok_client.py:/app/clients/grok_client.py:ro
 
       # State persistence
       - fiedler_state:/root/.fiedler
