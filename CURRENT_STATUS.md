@@ -1,14 +1,14 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 19:10
+## Last Updated: 2025-10-10 18:30
 
 ---
 
-## 🚧 CURRENT WORK: joshua_logger Backup Logging Implementation - COMPLETE ✅
+## 🚧 CURRENT WORK: Relay Tool Response Investigation - IN PROGRESS
 
-### joshua_logger Local Backup Logging - IMPLEMENTED ✅
-**Status:** IMPLEMENTED - Ready for restart
-**Completed:** 2025-10-10 19:10
+### MCP Relay Tool Response Issue - INVESTIGATING
+**Status:** DIAGNOSING
+**Started:** 2025-10-10 18:12
 
 **Problem:**
 - joshua_logger was rebuilt SPECIFICALLY to add local backup logging when Godot is unreachable
@@ -37,14 +37,39 @@
 - ✅ Verified JSONL format and data structure
 - ✅ Confirmed logs written to `/tmp/joshua_logs/test-component/2025-10-10.jsonl`
 
-**Next Step:**
-🔴 **RESTART CLAUDE CODE** - Relay will pick up new logger with backup logging
+**Testing After Restart:**
+- ✅ Relay logs to backup files when Godot is unreachable - CONFIRMED WORKING
+- ✅ Logs available for diagnosis - `/tmp/joshua_logs/mcp-relay/2025-10-10.jsonl`
+- ✅ No more silent log loss - CONFIRMED
 
-**Expected After Restart:**
-- ✅ Relay will log to backup files when Godot is unreachable
-- ✅ Logs will be available for diagnosis even when Godot is down
-- ✅ Relay tools should work (pending investigation of why they're still failing)
-- ✅ No more silent log loss
+**New Issue Discovered:**
+- Relay tools (`relay_get_status`, `relay_list_servers`) return no output to Claude Code
+- Backup logs show tool calls ARE received by relay
+- Tool handlers execute successfully (tested standalone)
+- Responses generated but not reaching Claude Code
+- Added additional logging to diagnose response path
+
+**Files Changed:**
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - Added response logging at line 736
+
+**Next Step:**
+🔴 **RESTART CLAUDE CODE** - Pick up new relay logging to diagnose response issue
+
+---
+
+### joshua_logger Local Backup Logging - COMPLETE ✅
+**Status:** IMPLEMENTED AND VERIFIED
+**Completed:** 2025-10-10 19:10
+
+**Solution:**
+- Added local filesystem backup logging to `/mnt/projects/Joshua/lib/joshua_logger/logger.py`
+- Logs written to: `/tmp/joshua_logs/{component}/{YYYY-MM-DD}.jsonl`
+- JSONL format for easy parsing
+
+**Verification:**
+- ✅ Tested with unreachable Godot - backup logs created successfully
+- ✅ Relay using backup logging (confirmed in production)
+- ✅ Logs available at `/tmp/joshua_logs/mcp-relay/2025-10-10.jsonl`
 
 ---
 
