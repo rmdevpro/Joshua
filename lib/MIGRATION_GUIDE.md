@@ -525,6 +525,35 @@ git push
 
 ---
 
+### Step 6: Run Checkpoint Process
+
+**Goal:** Document completion and update project status
+
+**REQUIRED:** After completing each MAD migration, follow the checkpoint process from `/mnt/projects/Joshua/processes/Checkpoint_Process.md`
+
+**Quick Checklist:**
+
+1. **Update CURRENT_STATUS.md:**
+   - Add migration completion to Recent Completions
+   - Document what was changed
+   - Update component status table if applicable
+
+2. **Update Project Board:**
+   - Check off completed MAD in "Migrate all MADs to joshua-libs standard" item
+   - Update progress percentage
+
+3. **Verify Git State:**
+   - All changes committed and pushed
+   - Working directory clean
+
+4. **Update Migration Tracking:**
+   - Update this document's MAD Migration Tracking section
+   - Mark MAD as complete with commit hash
+
+**Then proceed to next MAD migration.**
+
+---
+
 ## Common Issues and Solutions
 
 ### Issue: Build fails with "ModuleNotFoundError: No module named 'joshua_network'"
