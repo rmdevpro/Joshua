@@ -5,7 +5,6 @@ Migrated to standardized libraries for MCP protocol compliance.
 """
 import asyncio
 import json
-import logging
 import sys
 from typing import Any, Dict
 
@@ -18,10 +17,8 @@ from dewey import config
 from dewey.database import db_pool
 from dewey import tools
 
-logger = logging.getLogger(__name__)
-
 # Initialize joshua_logger for centralized logging
-joshua_logger = Logger()
+logger = Logger()
 
 # MCP tool definitions
 TOOL_DEFINITIONS = {
@@ -111,7 +108,7 @@ async def wrap_tool_handler(tool_name: str, **arguments):
     Wrapper to call Dewey tools and format responses for MCP protocol.
     Logs tool calls and handles errors appropriately.
     """
-    await joshua_logger.log('TRACE', f'Tool call: {tool_name}', 'dewey-mcp', data={'arguments': arguments})
+    await logger.log('TRACE', f'Tool call: {tool_name}', 'dewey-mcp', data={'arguments': arguments})
 
     try:
         # Get the tool function from tools module
@@ -125,7 +122,7 @@ async def wrap_tool_handler(tool_name: str, **arguments):
         else:
             result = tool_func(**arguments)
 
-        await joshua_logger.log('TRACE', f'Tool completed: {tool_name}', 'dewey-mcp', data={'success': True})
+        await logger.log('TRACE', f'Tool completed: {tool_name}', 'dewey-mcp', data={'success': True})
 
         # Format result for MCP protocol
         return {
@@ -138,11 +135,11 @@ async def wrap_tool_handler(tool_name: str, **arguments):
         }
 
     except tools.ToolError as e:
-        await joshua_logger.log('ERROR', f'Tool error: {tool_name}', 'dewey-mcp', data={'error': str(e), 'code': e.code})
+        await logger.log('ERROR', f'Tool error: {tool_name}', 'dewey-mcp', data={'error': str(e), 'code': e.code})
         raise
 
     except Exception as e:
-        await joshua_logger.log('ERROR', f'Tool execution failed: {tool_name}', 'dewey-mcp', data={'error': str(e), 'type': type(e).__name__})
+        await logger.log('ERROR', f'Tool execution failed: {tool_name}', 'dewey-mcp', data={'error': str(e), 'type': type(e).__name__})
         raise tools.ToolError(f"Tool execution failed: {str(e)}", code=-32603)
 
 
@@ -163,9 +160,8 @@ async def main():
     """Main entry point for Dewey MCP Server."""
     # Initialize async database
     await db_pool.initialize()
-    logger.info("Database connection pool initialized")
 
-    await joshua_logger.log('INFO', 'Dewey MCP server starting', 'dewey-mcp', data={'version': '1.0.0'})
+    await logger.log('INFO', 'Dewey MCP server starting', 'dewey-mcp', data={'version': '1.0.0'})
 
     # Create joshua_network.Server instance
     server = Server(
@@ -173,26 +169,23 @@ async def main():
         version="1.0.0",
         port=config.MCP_PORT,
         tool_definitions=TOOL_DEFINITIONS,
-        tool_handlers=TOOL_HANDLERS,
-        logger=logger
+        tool_handlers=TOOL_HANDLERS
     )
 
     # Start the server
     await server.start()
-    logger.info(f"Dewey MCP Server running on {config.MCP_HOST}:{config.MCP_PORT}")
 
-    await joshua_logger.log('INFO', 'Dewey MCP server operational', 'dewey-mcp', data={'host': config.MCP_HOST, 'port': config.MCP_PORT})
+    await logger.log('INFO', 'Dewey MCP server operational', 'dewey-mcp', data={'host': config.MCP_HOST, 'port': config.MCP_PORT})
 
     # Run forever
     try:
         await asyncio.Future()
     except KeyboardInterrupt:
-        logger.info("Shutting down...")
-        await joshua_logger.log('INFO', 'Dewey MCP server shutting down', 'dewey-mcp')
+        await logger.log('INFO', 'Dewey MCP server shutting down', 'dewey-mcp')
     finally:
         await server.stop()
         await db_pool.close()
-        logger.info("Dewey MCP Server stopped")
+        await logger.log('INFO', 'Dewey MCP server stopped', 'dewey-mcp')
 
 
 if __name__ == "__main__":

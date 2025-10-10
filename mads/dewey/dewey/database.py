@@ -2,14 +2,14 @@
 """
 Async PostgreSQL connection pooling and query execution for Dewey.
 """
-import logging
 from contextlib import asynccontextmanager
 
 import asyncpg
 
 from dewey import config
+from joshua_logger import Logger
 
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 class Database:
     """Manages the async PostgreSQL connection pool."""
@@ -18,7 +18,7 @@ class Database:
     async def initialize(self):
         """Initializes the async connection pool."""
         if self._pool is None:
-            logger.info(f"Initializing async database connection pool for '{config.DB_NAME}' on {config.DB_HOST}:{config.DB_PORT}")
+            await logger.log("INFO", f"Initializing async database connection pool for '{config.DB_NAME}' on {config.DB_HOST}:{config.DB_PORT}", "dewey-database")
             try:
                 self._pool = await asyncpg.create_pool(
                     host=config.DB_HOST,
@@ -30,9 +30,9 @@ class Database:
                     max_size=config.DB_POOL_MAX_CONN,
                     ssl='prefer',
                 )
-                logger.info("Async database connection pool initialized successfully.")
+                await logger.log("INFO", "Async database connection pool initialized successfully", "dewey-database")
             except Exception as e:
-                logger.critical(f"Failed to connect to PostgreSQL: {e}")
+                await logger.log("ERROR", f"Failed to connect to PostgreSQL: {e}", "dewey-database")
                 raise
 
     async def close(self):
@@ -40,7 +40,7 @@ class Database:
         if self._pool:
             await self._pool.close()
             self._pool = None
-            logger.info("Database connection pool closed.")
+            await logger.log("INFO", "Database connection pool closed", "dewey-database")
 
     @asynccontextmanager
     async def acquire(self):

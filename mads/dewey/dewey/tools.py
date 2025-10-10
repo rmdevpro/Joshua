@@ -3,15 +3,16 @@
 Implementation of all 15 Dewey MCP tools with async database operations.
 Updated to include 4 Godot logging tools.
 """
-import logging
 import json
 import os
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from dewey.database import db_pool
+from joshua_logger import Logger
 
-logger = logging.getLogger(__name__)
+# Initialize joshua_logger for centralized logging
+logger = Logger()
 
 # Configuration limits removed - let PostgreSQL handle size constraints
 # If issues arise, will be logged as bugs and handled appropriately
@@ -62,7 +63,7 @@ async def dewey_get_conversation(conversation_id: str) -> dict:
             conv_id
         )
 
-    logger.info(f"Retrieved conversation {conversation_id} with {len(messages)} messages.")
+    await logger.log("INFO", f"Retrieved conversation {conversation_id} with {len(messages)} messages", "dewey-tools")
     return {
         "conversation_id": str(conv['id']),
         "session_id": conv['session_id'],
@@ -105,7 +106,7 @@ async def dewey_list_conversations(session_id: str = None, limit: int = 20, offs
         # Get total count
         total = await conn.fetchval(count_sql, *params[:1] if session_id else [])
 
-    logger.info(f"Listed {len(conversations)} conversations (total: {total}).")
+    await logger.log("INFO", f"Listed {len(conversations)} conversations (total: {total})", "dewey-tools")
     return {
         "conversations": _serialize_item(conversations),
         "total": total,
@@ -171,7 +172,7 @@ async def dewey_search(query: str, session_id: str = None, start_date: str = Non
         results = await conn.fetch(base_sql, *params)
         total = await conn.fetchval(count_sql, *params[:len(params)-2])
 
-    logger.info(f"Search for '{query}' returned {len(results)} results (total: {total}).")
+    await logger.log("INFO", f"Search for '{query}' returned {len(results)} results (total: {total})", "dewey-tools")
     return {
         "results": _serialize_item(results),
         "total": total,
@@ -192,7 +193,7 @@ async def dewey_get_startup_context(name: str = None) -> dict:
     if not result:
         return None
 
-    logger.info(f"Retrieved startup context '{result['name']}'.")
+    await logger.log("INFO", f"Retrieved startup context '{result['name']}'", "dewey-tools")
     return _serialize_item(dict(result))
 
 async def dewey_list_startup_contexts(include_content: bool = False) -> dict:
@@ -203,7 +204,7 @@ async def dewey_list_startup_contexts(include_content: bool = False) -> dict:
         else:
             contexts = await conn.fetch("SELECT id, name, is_active, created_at, updated_at FROM startup_contexts ORDER BY name;")
 
-    logger.info(f"Listed {len(contexts)} startup contexts.")
+    await logger.log("INFO", f"Listed {len(contexts)} startup contexts", "dewey-tools")
     return {"contexts": _serialize_item(contexts)}
 
 # --- Godot Logging Tools ---
@@ -256,7 +257,7 @@ async def dewey_store_logs_batch(logs: list) -> dict:
         for data in insert_data:
             await conn.execute(query, *data)
 
-    logger.info(f"Batch stored {len(insert_data)} logs")
+    await logger.log("INFO", f"Batch stored {len(insert_data)} logs", "dewey-tools")
     return {"status": "ok", "inserted_count": len(insert_data)}
 
 async def dewey_query_logs(
@@ -318,7 +319,7 @@ async def dewey_query_logs(
         rows = await conn.fetch(final_query, *params)
         results = [_serialize_item(dict(row)) for row in rows]
 
-    logger.info(f"Queried logs: {len(results)} results")
+    await logger.log("INFO", f"Queried logs: {len(results)} results", "dewey-tools")
     return results
 
 async def dewey_clear_logs(before_time: str = None, component: str = None, level: str = None) -> dict:
@@ -354,7 +355,7 @@ async def dewey_clear_logs(before_time: str = None, component: str = None, level
     # Extract count from result string "DELETE N"
     deleted_count = int(result.split()[-1]) if result.startswith("DELETE") else 0
 
-    logger.info(f"Cleared {deleted_count} logs")
+    await logger.log("INFO", f"Cleared {deleted_count} logs", "dewey-tools")
     return {"status": "ok", "deleted_count": deleted_count}
 
 async def dewey_get_log_stats() -> dict:
@@ -383,5 +384,5 @@ async def dewey_get_log_stats() -> dict:
         size = await conn.fetchval("SELECT pg_size_pretty(pg_total_relation_size('logs'));")
         stats["estimated_db_size"] = size
 
-    logger.info("Retrieved log statistics")
+    await logger.log("INFO", "Retrieved log statistics", "dewey-tools")
     return stats
