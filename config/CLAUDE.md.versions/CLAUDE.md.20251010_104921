@@ -1,0 +1,226 @@
+# Claude Code Session Instructions
+
+## 🔴🔴🔴 RULE #1: DO NOT CHANGE WORKING SYSTEMS 🔴🔴🔴
+
+**DIAGNOSE BUT DON'T CHANGE - USER APPROVAL REQUIRED**
+
+**Working systems include:**
+- **MCP Relay**: `/home/aristotle9/mcp-relay/` (battle-tested, works perfectly)
+- **Production containers**: dewey-mcp, fiedler-mcp, horace-mcp, etc.
+- **Core libraries**: joshua_network, joshua_logger, etc.
+- **Any system currently functioning as documented**
+
+**You MAY:**
+- ✅ Diagnose issues (read logs, check status, inspect configs)
+- ✅ Use tools (relay_get_status, relay_reconnect_server, etc.)
+- ✅ Restart containers if needed (`docker restart <container-name>`)
+- ✅ Read configuration files to understand behavior
+- ✅ Propose fixes and ask for user approval
+
+**You MUST NOT (without user approval):**
+- ❌ Edit configuration files
+- ❌ Modify working code
+- ❌ Change system architecture
+- ❌ Update dependencies
+- ❌ "Fix" things that aren't broken
+
+**Examples:**
+- Relay not showing tools? → Diagnose backend health, DON'T edit relay
+- Container not connecting? → Fix THE CONTAINER, not the relay
+- Tool error? → Check tool implementation, DON'T change relay config
+
+**VIOLATION OF THIS RULE WILL BREAK WORKING SYSTEMS**
+
+---
+
+## System Information
+- OS: Linux Ubuntu 24.04
+- Node.js: v22.19.0 (via NVM)
+- Working Directory: /home/aristotle9
+- API Keys: /mnt/projects/keys.txt
+- sudo Password: Edgar01760
+
+**CRITICAL: REMOTE MOUNTS REQUIRED FOR OPERATION**
+
+### 1. Projects Mount (/mnt/projects)
+- **Source:** `aristotle9@192.168.1.210:/mnt/projects` (SSHFS)
+- **Purpose:** Git repositories, code, documentation
+
+### 2. Working Storage Mount (/mnt/irina_storage)
+- **Source:** `192.168.1.210:/mnt/irina_storage` (NFS)
+- **Purpose:** ZFS working files - components write/read operational files
+- **Managed by:** Horace NAS Gateway
+
+**For complete file system architecture details:** See `/mnt/projects/Joshua/knowledge-base/File_System_Architecture.md`
+
+---
+
+## 🚀 GIT REPOSITORIES
+
+**ALL GIT REPOSITORIES ARE ACCESSIBLE VIA /mnt/projects/ MOUNT**
+
+**For ANY Git operations:**
+```bash
+# Now that /mnt/projects is mounted, use SSH for git commands:
+sshpass -p "Edgar01760" ssh -o StrictHostKeyChecking=no aristotle9@192.168.1.210 "cd /mnt/projects/Joshua && git [command]"
+```
+
+**Key Git Repositories:**
+- **Main Joshua Repo**: `/mnt/projects/Joshua/` (mounted from 192.168.1.210, https://github.com/rmdevpro/ICCM)
+- **All subprojects**: Located under `/mnt/projects/` (mounted filesystem)
+
+**File Operations:**
+- **Use Read/Write/Edit tools on /mnt/projects/** - they work directly on the mounted filesystem
+- All changes are immediately visible on the remote machine (192.168.1.210)
+- No need for SCP - just write directly to `/mnt/projects/Joshua/...`
+
+**Git Operations:**
+- Git commands still require SSH (git runs on remote machine)
+- File edits via Read/Write/Edit work on mounted filesystem
+
+---
+
+## 🚨 MCP RELAY & TROUBLESHOOTING
+
+**Relay works perfectly - if tools aren't available, the problem is elsewhere.**
+
+**Quick troubleshooting:**
+- Check relay status: `mcp__iccm__relay_get_status`
+- Restart backend (not relay): `docker restart <backend>-mcp`
+- Reconnect: `mcp__iccm__relay_reconnect_server`
+
+**For detailed troubleshooting:** See `/mnt/projects/Joshua/knowledge-base/Relay_Troubleshooting.md`
+
+---
+
+## 📚 DOCUMENTATION STRUCTURE
+
+**ALWAYS read these on session startup (via /mnt/projects mount):**
+1. `/mnt/projects/Joshua/CURRENT_STATUS.md` - **Current work and next steps**
+2. **GitHub Issues** via SSH: `sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua && gh issue list"` - **Active bugs and tasks**
+3. `/mnt/projects/Joshua/diagrams/General Architecture.PNG` - **System architecture diagram**
+4. `/mnt/projects/Joshua/TECHNICAL_ARCHITECTURE.md` - **Technical architecture**
+5. `/mnt/projects/Joshua/processes/Multi-Agent_Development_Flow_v1.0.png` - **Development process**
+6. `/mnt/projects/Joshua/processes/Deployment_Flow_v1.0.png` - **Deployment process**
+
+**Supporting documentation:**
+- Module-specific docs (README.md, requirements) - Read as needed for current work
+- Git history (`git log`) - Detailed change log with all code modifications
+
+**Supporting documentation continued:**
+- `/mnt/projects/Joshua/knowledge-base/` - Reference documentation for common issues and procedures
+
+**Documentation hierarchy:**
+- **CURRENT_STATUS.md** = Where we are, what's next
+- **GitHub Issues** = What's broken, what needs doing (bugs, features, tech debt)
+- **CURRENT_ARCHITECTURE_OVERVIEW.md** = How it's configured
+- **Git commits** = What changed (detailed technical history)
+
+**Bug tracking:**
+- See `/mnt/projects/Joshua/processes/GitHub_Issue_Management.md`
+- Quick: `gh issue list --assignee @me --state open`
+- Close via commit: Use `fixes #N` in message
+
+---
+
+## 📋 SESSION MANAGEMENT
+
+**Checkpoint Process** (major milestones, end of session, before restart):
+- See `/mnt/projects/Joshua/processes/Checkpoint_Process.md`
+- Steps: Update STATUS → Update docs → Check git → Update issues → Commit/push → Backup sessions (if restarting)
+- **When**: Completing features, end of day, before Claude Code restart, after critical fixes
+
+**Session Recovery** (starting new session, after restart):
+- See `/mnt/projects/Joshua/processes/Session_Recovery.md`
+- Steps: Read STATUS → Check git → Read docs → Check issues → Retrieve conversation from Dewey
+- **When**: Session startup, resuming after restart, continuing previous work
+
+**Session Backup** (technical reference):
+- See `/mnt/projects/Joshua/knowledge-base/Session_Backup_Recovery.md`
+- How to backup Claude Code sessions to Godot/Dewey
+- Sessions stored: `~/.claude/projects/-home-aristotle9/*.jsonl`
+- Container path: `/host/home/aristotle9/.claude/...`
+
+---
+
+## 🛠️ COMPONENT MODIFICATION
+
+**Never break working systems - use blue/green deployment.**
+
+**Process:** See `/mnt/projects/Joshua/processes/Component_Modification.md`
+
+**Summary:**
+1. Get user approval first
+2. Build changes in parallel (GREEN)
+3. Test GREEN, keep BLUE running
+4. Only promote after verification
+
+---
+
+## ⚠️ TOOL-FIRST POLICY
+
+**Use provided MCP tools - NEVER bypass with direct file edits**
+
+**When tools fail:**
+1. Diagnose why (logs, status, connections)
+2. Fix root cause
+3. Retry tool
+4. Never bypass without user permission
+
+---
+
+## 📝 FILE EDITING
+
+**Use native `Edit` tool** - Shows visual diff (red/green)
+**NOT** `mcp__desktop-commander__edit_block` - No visual feedback
+
+---
+
+## 🧪 TESTING PROTOCOL
+
+**CRITICAL: Never declare victory without testing**
+
+**Bugs are NOT resolved until:**
+1. Fix has been applied
+2. System has been restarted (if required)
+3. Test has been executed successfully
+4. Results verified and documented
+
+**Do NOT say "fixed" or "resolved" - say "applied fix, awaiting test"**
+
+---
+
+## 🔄 CYCLE INITIALIZATION
+
+**⚠️ CRITICAL: File System for MADs**
+Before sending files to any MAD (Fiedler, Gates, etc.), read:
+- `/mnt/projects/Joshua/knowledge-base/File_System_Architecture.md` - **Section: "MADs Cannot Access Local /tmp/ Directory"**
+- **TL;DR**: MADs can't see `/tmp/` - use `/mnt/irina_storage/files/temp/` instead
+
+**Before starting Development or Deployment cycle:**
+
+1. Read the appropriate process document:
+   - **Development**: `/mnt/projects/Joshua/processes/Multi-Agent_Development_Flow_v1.0.png` (or .md)
+   - **Deployment**: `/mnt/projects/Joshua/processes/Deployment_Flow_v1.0.png` (or .md)
+2. Create TodoWrite list mapping ALL steps including:
+   - Decision points (as pending items to evaluate)
+   - Document/push/record steps at correct locations
+   - Loop-back points for iterations
+   - **Progress checkpoints** every 3-5 steps
+3. Show todo list to user for approval
+4. Proceed with execution
+
+## ⏱️ ERROR HANDLING
+
+**Protocol:** See `/mnt/projects/Joshua/knowledge-base/Error_Handling_Protocol.md`
+
+**Quick rules:**
+1. First failure → Try ONE alternative
+2. Second failure (same op) → STOP, it's a bug
+3. Never loop retrying same thing
+4. Systematic errors (2+ tools) → Escalate immediately
+5. Progress checkpoints every 3-5 steps
+
+---
+
+*This file ensures consistent behavior across all Claude Code sessions*
