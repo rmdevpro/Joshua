@@ -82,22 +82,26 @@ The architecture evolves through versions, with each MAD progressing at its own 
 Several MAD implementations exist at various stages of evolution:
 
 **Infrastructure MADs:**
+
 - **Rogers (V0 → V1)**: Conversation Manager - manages "forever conversations" through session management and data storage, breaking the constraints of conversation windows
 - **Fiedler (V0 → V1)**: LLM Orchestra Conductor - orchestrates over 20 LLMs to be used widely across the ecosystem
 - **Grace (V0 → V1)**: User Interface - provides users the ability to interact with the ecosystem through conversation
 
 **Service MADs:**
+
 - **Dewey (V0 → V1)**: The Librarian - functions as a DBA that manages the data lake (Winnipesaukee, Winne for short)
 - **Horace (V0 → V1)**: The NAS Gateway - manages file systems and storage operations
 - **Marco (V0 → V1)**: The Web Explorer - provides web surfing capabilities of all sorts to the ecosystem
 
 **Document MADs:**
+
 - **Brin (V0 → V1)**: Google Docs Specialist - creates and manipulates Google Workspace documents
 - **Gates (V0 → V1)**: Microsoft Office Specialist - creates and manipulates Word, Excel, and PowerPoint documents
 - **Stallman (V0 → V1)**: OpenDocument Specialist - creates and manipulates LibreOffice and open source document formats
 - **Playfair (V0 → V1)**: The Chart Master - creates charts and graphs of various types and formats
 
 **Development & Operations MADs:**
+
 - **Hopper (V0 → V1)**: The Software Engineer - coordinates autonomous software development through PM-led teams
 - **McNamara (V0 → V1)**: Security Operations Coordinator - provides security monitoring and coordinates security eMAD teams
 - **Turing (V0 → V1)**: Secrets Manager - manages cryptographic secrets, API keys, and credentials
