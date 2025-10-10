@@ -1,59 +1,44 @@
 # Security & Permissions Baseline Requirements
 
 ## Version: 1.0
-## Status: Draft
-## Created: 2025-10-10
+## Status: Approved
 
 ---
 
 ## Overview
-This document defines the V1 baseline security and permissions model for the MAD ecosystem. The focus for V1 is on establishing minimal, essential controls for authentication and access. A comprehensive Role-Based Access Control (RBAC) system is deferred to a future version.
+This document establishes the baseline security requirements for the MAD (**[CORRECTED]** Multipurpose Agentic Duo) V1 ecosystem. The primary security boundary is the conversational interface itself.
 
 ---
 
 ## Requirements
 
-### 1. Authentication
-#### Requirement 1.1: MAD Authentication to Rogers
+### 1. Authentication & Authorization
+#### Requirement 1.1: MAD Identity
 **Priority:** High
-**Description:** Every MAD instance MUST authenticate with the Rogers messaging bus upon connection using a token-based mechanism. Rogers shall be the central authentication authority.
-**Example:** `@Rogers #auth id=MAD_01 token=<crypto_token>`
+**Description:** Every MAD instance MUST have a unique, verifiable identity registered with Rogers. Unauthenticated MADs are not permitted to join the message bus.
 
-### 2. Authorization and Access Control
-#### Requirement 2.1: Conversation-Level Access Control
-**Priority:** High
-**Description:** Access to resources MUST be controlled at the conversation level. Rogers will maintain an Access Control List (ACL) for each conversation. A MAD can only join a conversation if it is on the ACL or receives an explicit invitation.
-**Example:** `@Rogers #invite user=@MAD_C conversation=ProjectAlpha`
-
-#### Requirement 2.2: Data Isolation Between Conversations
-**Priority:** High
-**Description:** The system MUST ensure strict data isolation between conversations. A MAD that is not a participant in a conversation must have no ability to access its messages or history.
-
-### 3. Privilege Levels
-#### Requirement 3.1: Baseline MAD Privilege Levels
+#### Requirement 1.2: Role-Based Access Control (RBAC)
 **Priority:** Medium
-**Description:** A basic privilege model MUST be implemented distinguishing between 'user-level' MADs and 'system-level' MADs (like Hopper, Fiedler, Rogers). System-level MADs have elevated permissions, such as creating new conversations or inviting other MADs.
+**Description:** The system SHOULD support RBAC for controlling which MADs can perform certain actions or talk to specific Helper MCPs. For V1, this may be implemented as simple allow/deny lists managed by Rogers.
+
+### 2. Data Security
+#### Requirement 2.1: Encryption in Transit
+**Priority:** High
+**Description:** All communication between MADs and the Rogers messaging bus MUST be encrypted using industry-standard protocols (e.g., TLS 1.3).
+
+#### Requirement 2.2: Sandboxing
+**Priority:** High
+**Description:** Any MAD component that executes external code or accesses the file system, such as the `CodeExecutor` Helper MCP, MUST operate within a secure, sandboxed environment to prevent privilege escalation or system compromise. **[CORRECTED]** This is a critical function of the `ActionEngine` in such MADs.
+
+### 3. Auditability
+#### Requirement 3.1: Immutable Ledger
+**Priority:** High
+**Description:** The conversation history stored in Rogers MUST be treated as an immutable ledger. Messages cannot be altered or deleted, providing a complete and tamper-evident audit trail of all system activity.
 
 ---
 
 ## Success Criteria
-- ✅ A MAD with an invalid token is rejected by Rogers, and the attempt is logged.
-- ✅ A MAD that is not on a conversation's ACL is denied access when it attempts to join.
-- ✅ A system-level MAD like Hopper can create a new private conversation for an eMAD it spawns and successfully invite the eMAD to it.
-
----
-
-## Dependencies
-- Rogers Messaging Bus Requirements
-
----
-
-## Notes
-This is a V1 baseline. The full, enterprise-grade Role-Based Access Control (RBAC) system is explicitly deferred to V5. The V1 goal is to prevent inadvertent access and establish a foundation for future security enhancements.
-
----
-
-*Requirements v1.0 - Securing the conversation.*
-
----
----
+- ✅ An unauthorized MAD is prevented from connecting to Rogers.
+- ✅ The `CodeExecutor` MCP is proven to be unable to access files outside of its designated working directory.
+- ✅ An administrator can reconstruct the exact sequence of events leading to a specific outcome by reviewing the Rogers message history.
+```

@@ -1,0 +1,76 @@
+digraph MAD_ThoughtEngine_Evolution {
+    graph [
+        label="ThoughtEngine Evolution (V1-V4+)",
+        labelloc=t,
+        fontname="Arial",
+        fontsize=18, // Increased from 16
+        rankdir="TB",
+        splines=line,
+        nodesep=0.5,
+        ranksep=1.2  // Added to ensure even vertical spacing
+    ];
+    node [
+        fontname="Arial",
+        fontsize=12, // Increased from 10
+        shape=box,
+        style="filled,rounded"
+    ];
+    edge [
+        fontname="Arial",
+        fontsize=10 // Increased from 9
+    ];
+
+    subgraph cluster_pipeline {
+        label="Progressive Cognitive Filtering Pipeline";
+        style=invis;
+        Input [shape=cds, label="Raw Input from\nActionEngine (MCP Server)"];
+        
+        // Applied varied color palette to distinguish stages
+        subgraph cluster_v1 {
+            label="V1";
+            style="rounded";
+            bgcolor="#E3F2FD"; // Light Blue
+            v1_imp [label="Imperator"];
+        }
+    
+        subgraph cluster_v2 {
+            label="V2";
+            style="rounded";
+            bgcolor="#E8F5E9"; // Light Green
+            v2_dtr [label="DTR\n(Dialogue Turn Recognizer)"];
+            v2_imp [label="Imperator"];
+            v2_dtr -> v2_imp [label="filtered input"];
+        }
+    
+        subgraph cluster_v3 {
+            label="V3";
+            style="rounded";
+            bgcolor="#FFFDE7"; // Light Yellow
+            v3_lppm [label="LPPM\n(Learned Prompt Pattern Matcher)"];
+            v3_dtr [label="DTR"];
+            v3_imp [label="Imperator"];
+            v3_lppm -> v3_dtr -> v3_imp;
+        }
+    
+        subgraph cluster_v4 {
+            label="V4+";
+            style="rounded";
+            bgcolor="#FFE0B2"; // Light Orange
+            v4_cet [label="CET\n(Cognitive Event Tagger)"];
+            v4_lppm [label="LPPM"];
+            v4_dtr [label="DTR"];
+            v4_imp [label="Imperator"];
+            v4_cet -> v4_lppm -> v4_dtr -> v4_imp;
+        }
+        
+        Input -> v1_imp;
+        Input -> v2_dtr;
+        Input -> v3_lppm;
+        Input -> v4_cet;
+    }
+
+    // Invisible edges to enforce ranking
+    v1_imp -> v2_dtr [style=invis];
+    v2_imp -> v3_lppm [style=invis];
+    v3_imp -> v4_cet [style=invis];
+}

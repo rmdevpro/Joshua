@@ -1,81 +1,48 @@
 # Helper MCP Infrastructure Requirements
 
 ## Version: 1.0
-## Status: Draft
-## Created: 2025-10-10
+## Status: Approved
 
 ---
 
 ## Overview
-This document specifies requirements for Helper MCPs (Master Control Programs). Helper MCPs are persistent, conversational MADs that provide core, system-wide services, acting as the LLM-native replacement for a traditional microservices architecture.
+This document outlines the requirements for creating and operating Helper MCPs (Master Control Programs). Helper MCPs are persistent, specialized MADs that provide core infrastructure services to the entire MAD (**[CORRECTED]** Multipurpose Agentic Duo) ecosystem through the standard conversational interface.
 
 ---
 
 ## Requirements
 
-### 1. Service Model
-#### Requirement 1.1: Conversational Service Interface
+### 1. Service Definition
+#### Requirement 1.1: Conversational API
 **Priority:** High
-**Description:** All Helper MCPs MUST expose their functionality exclusively through the MAD conversational interface. They shall not expose any traditional API endpoints (e.g., REST, gRPC). A client "uses" a Helper MCP by talking to it.
+**Description:** Every Helper MCP MUST expose its functionality exclusively through a natural language conversational API. There will be no traditional REST/RPC endpoints.
 
-#### Requirement 1.2: V1 Helper MCP Implementations
+#### Requirement 1.2: Service Discovery
 **Priority:** High
-**Description:** The V1 system MUST include the following persistent Helper MCPs:
-- **Sequential Thinking MAD:** To perform chain-of-thought style reasoning.
-- **Code Execution MAD:** To securely execute code snippets.
-- **Reflection Server MAD:** To analyze and critique its own or another MAD's output.
-- **RAG Service MAD:** To perform Retrieval-Augmented Generation against a knowledge base.
+**Description:** All active Helper MCPs MUST be discoverable through Rogers. A client MAD should be able to query Rogers to get a list of available services (e.g., `"@Rogers #list services"`).
 
-### 2. Discovery and Interaction
-#### Requirement 2.1: Service Discovery via Rogers
+### 2. Architectural Constraints
+#### Requirement 2.1: Standard MAD Composition
 **Priority:** High
-**Description:** Helper MCPs MUST register with Rogers. Client MADs MUST be able to discover available Helper MCPs by querying Rogers.
-**Example:** Client sends `@Rogers #find_service type=RAG`, Rogers replies with the MCP's handle.
+**[CORRECTED]** **Description:** Helper MCPs MUST adhere to the standard MAD architecture, possessing both an `ActionEngine` (for executing the specialized task) and a `ThoughtEngine` (for understanding requests and formatting responses). This ensures they are first-class citizens in the ecosystem.
 
-#### Requirement 2.2: Conversational Request/Response Pattern
-**Priority:** High
-**Description:** Interactions with Helper MCPs MUST follow a conversational request/response pattern. The client sends a request, and the MCP responds in a subsequent message, using tags to indicate status.
-**Example Flow:**
-1.  Client: `@CodeExecutor Please run this python: [code: print('hello')] #trace-id:123`
-2.  MCP: `@ClientMAD Request received. #ack #trace-id:123`
-3.  MCP: `@ClientMAD Execution complete. Output: "hello" #status:done #trace-id:123`
+#### Requirement 2.2: High Availability
+**Priority:** Medium
+**Description:** Critical Helper MCPs (e.g., CodeExecutor, Fiedler) SHOULD be deployed in a high-availability configuration to ensure system resilience.
 
-### 3. Concurrency
-#### Requirement 3.1: Concurrent Request Handling
+### 3. Example V1 Helper MCPs
+#### Requirement 3.1: CodeExecutor MCP
 **Priority:** High
-**Description:** Each Helper MCP MUST be able to handle concurrent conversations and requests from multiple different client MADs simultaneously, maintaining context for each conversation independently.
+**Description:** A Helper MCP named `CodeExecutor` MUST be provided to execute arbitrary code (e.g., Python, shell scripts) in a sandboxed environment and return the results.
 
-**REVISED:**
-### 4. Error Handling
-#### Requirement 4.1: Standardized Error Reporting
+#### Requirement 3.2: RAG MCP
 **Priority:** High
-**Description:** Helper MCPs MUST return `#error` tags with human-readable explanations for failed operations. This ensures that failures are visible, auditable, and actionable within the conversational context.
-**Example:** `@ClientMAD Request failed. #error #reason:"Could not execute script due to syntax error on line 5" #trace-id:123`
+**Description:** A Helper MCP named `RAG` MUST be provided to perform Retrieval-Augmented Generation over a specified corpus of documents.
 
 ---
 
 ## Success Criteria
-- ✅ All four specified V1 Helper MCPs are deployed and discoverable via Rogers.
-- ✅ A MAD can successfully send a Python script to the Code Execution MAD and receive the output in a reply message.
-- ✅ Two different MADs can talk to the RAG Service MAD at the same time without their requests interfering.
-**REVISED:**
-- ✅ When a script sent to the Code Execution MAD fails, it returns a message with an `#error` tag and a clear explanation.
-
----
-
-## Dependencies
-- MAD Base Architecture Requirements
-- Rogers Messaging Bus Requirements
-- LLM Client Library Requirements
-
----
-
-## Notes
-This conversational approach to infrastructure is a core tenet of the MAD architecture.
-
----
-
-*Requirements v1.0 - Infrastructure that talks back.*
-
----
----
+- ✅ The `CodeExecutor` MCP can receive a Python script via a message, execute it, and return the `stdout`.
+- ✅ A developer can create a new Helper MCP that registers with Rogers and becomes available to other MADs.
+- ✅ **[CORRECTED]** The architecture of a Helper MCP clearly shows the separation between its `ActionEngine` (the service logic) and its `ThoughtEngine` (the conversational front-end).
+```

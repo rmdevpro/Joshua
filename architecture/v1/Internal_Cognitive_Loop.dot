@@ -1,0 +1,54 @@
+digraph Internal_Cognitive_Loop {
+    graph [
+        label="MAD Internal Cognitive Loop",
+        labelloc=t,
+        fontname="Arial",
+        fontsize=18, // Increased from 16
+        rankdir=TB,
+        splines=ortho,
+        nodesep=0.8, // Increased from 0.5 for more space
+        ranksep=1.0  // Added to improve vertical alignment and spacing
+    ];
+    
+    node [
+        shape=box, 
+        style="rounded,filled", 
+        fontname="Arial", 
+        fontsize=12 // Increased from 10
+    ];
+
+    edge [
+        fontname="Arial",
+        fontsize=10,
+        penwidth=2.0 // Thickened arrows for better visibility
+    ];
+    
+    subgraph cluster_mad {
+        label="Inside a Single MAD";
+        bgcolor="#F5F5F5";
+        
+        subgraph cluster_action {
+            label="ActionEngine";
+            bgcolor="#E3F2FD";
+            mcp [label="MCP Server", fillcolor="#BBDEFB"];
+            tools [label="Tools / Resources", fillcolor="#FFFFFF"];
+        }
+        
+        subgraph cluster_thought {
+            label="ThoughtEngine";
+            bgcolor="#E8F5E9";
+            imp [label="Imperator", fillcolor="#C8E6C9"];
+        }
+    }
+    
+    rogers_in [label="Rogers Bus (In)", shape=cds, fillcolor="#FFEBCC"];
+    rogers_out [label="Rogers Bus (Out)", shape=cds, fillcolor="#FFEBCC"];
+    
+    // Sequence of events
+    rogers_in -> mcp [label="1. Receives message"];
+    mcp -> imp [label="2. Forwards for analysis\n'What should I do?'"];
+    imp -> mcp [label="3. Returns plan\n'Execute tool X with param Y'"];
+    mcp -> tools [label="4. Executes plan"];
+    tools -> mcp [label="5. Returns result"];
+    mcp -> rogers_out [label="6. Sends response message"];
+}

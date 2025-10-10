@@ -1,79 +1,44 @@
 # Rogers Messaging Bus Requirements
 
 ## Version: 1.0
-## Status: Draft
-## Created: 2025-10-10
+## Status: Approved
 
 ---
 
 ## Overview
-This document outlines the requirements for Rogers, the central messaging bus and nervous system of the MAD V1 ecosystem. Rogers is responsible for managing conversations, routing messages, and persisting all state and history.
+This document details the requirements for Rogers, the central messaging bus of the MAD (**[CORRECTED]** Multipurpose Agentic Duo) ecosystem. Rogers is a specialized, persistent MAD responsible for routing all conversations, persisting history, and managing system state.
 
 ---
 
 ## Requirements
 
-### 1. Core Abstractions
-#### Requirement 1.1: Conversation as a First-Class Object
+### 1. Core Architecture
+#### Requirement 1.1: ActionEngine-Only Implementation
 **Priority:** High
-**Description:** Rogers MUST treat the "conversation" as its primary data object. It must provide functionalities to create, join, leave, and archive conversations. Each conversation shall have a unique identifier and an access control list.
-**Example:** `@Rogers #create_conversation name=ProjectAlpha`
+**[CORRECTED]** **Description:** Rogers is a unique architectural exception. It MUST be implemented as an `ActionEngine`-only MAD. It has no `ThoughtEngine`, as its functions of routing, persistence, and state management are purely deterministic and do not require cognitive processing.
 
-### 2. Message Handling
-**REVISED:**
-#### Requirement 2.1: @mention-based Routing
+#### Requirement 1.2: Message Persistence
 **Priority:** High
-**Description:** Rogers MUST route messages to the appropriate MAD participant(s) based on `@mention` handles within the message content. Messages without explicit @mentions MUST be rejected by Rogers with an `#error` tag returned to the sender. This enforces Tenet 1 by preventing unintentional broadcast behavior.
+**Description:** Rogers MUST durably persist every message that passes through it. This conversational history is the source of truth for all system state and is critical for auditability and context reconstruction for eMADs.
 
-**REVISED:**
-#### Requirement 2.2: Tag-based Filtering Support
+### 2. Routing and Delivery
+#### Requirement 2.1: @-Mention Routing
+**Priority:** High
+**Description:** Rogers MUST route messages to their intended recipient(s) based on `@-mentions` in the message body (e.g., `@Fiedler`, `@Dewey`).
+
+#### Requirement 2.2: Guaranteed Delivery
 **Priority:** Medium
-**Description:** Rogers MUST provide a mechanism for clients to subscribe to or filter messages within a conversation based on the presence of specific tags (e.g., `#error`, `#human`, `#metric`).
+**Description:** Rogers SHOULD provide at-least-once delivery guarantees for messages to ensure reliable communication between MADs.
 
-### 3. State Persistence
-#### Requirement 3.1: Universal State Persistence
+### 3. State Management
+#### Requirement 3.1: Conversation State
 **Priority:** High
-**Description:** All conversational history and MAD state MUST be durably persisted by Rogers. Rogers is the single source of truth for the state of the entire system. MADs themselves are to be treated as stateless compute units.
-
-### 4. Identity and Guarantees
-#### Requirement 4.1: Identity and Authentication
-**Priority:** High
-**Description:** Rogers MUST be able to reliably identify the sender of every message and authenticate MADs as they connect to the bus.
-
-#### Requirement 4.2: Message Delivery Guarantees
-**Priority:** High
-**Description:** Rogers MUST guarantee at-least-once delivery for all messages to their intended recipients within a conversation.
-
-#### Requirement 4.3: Message Ordering
-**Priority:** High
-**Description:** Within a single conversation, Rogers MUST guarantee that messages are persisted and delivered in the order they were received.
-
-### 5. Access Control
-#### Requirement 5.1: Conversation Access Control
-**Priority:** High
-**Description:** Rogers MUST enforce access control on conversations. A MAD must be explicitly permitted to join a conversation before it can send or receive messages within it.
+**Description:** Rogers MUST manage the state of all conversations, including tracking participants, message sequences, and topic threads (identified by hashtags, e.g., `#code-review-123`).
 
 ---
 
 ## Success Criteria
-- ✅ A message sent by MAD-A to `@MAD-B` is delivered only to MAD-B with a latency of <100ms.
-- ✅ If a MAD crashes and restarts, it can retrieve its full conversation history from Rogers.
-- ✅ An unauthorized MAD is prevented from joining a private conversation.
-- ✅ Message history is stored durably and survives a restart of the Rogers service.
-
----
-
-## Dependencies
-- Security & Permissions Baseline Requirements
-
----
-
-## Notes
-Rogers is the most critical single component in the V1 architecture. Its implementation is ActionEngine-only.
-
----
-
-*Requirements v1.0 - The one conversation to rule them all.*
-
----
----
+- ✅ Rogers correctly routes a message from `MAD-A` to `MAD-B` based on an `@-mention`.
+- ✅ A terminated eMAD's entire conversation history can be retrieved from Rogers.
+- ✅ **[CORRECTED]** Architectural review confirms that the Rogers implementation contains only `ActionEngine` components and no `ThoughtEngine`.
+```

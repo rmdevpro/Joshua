@@ -1,0 +1,68 @@
+digraph MAD_Structure_V1 {
+    graph [
+        label="MAD V1 - Core Architecture",
+        labelloc=t,
+        fontname="Arial",
+        fontsize=18, // Increased from 16
+        rankdir="LR",
+        splines=ortho,
+        nodesep=0.8, // Increased from 0.6
+        ranksep=1.5  // Increased from 1.2
+    ];
+    node [
+        fontname="Arial",
+        fontsize=12, // Increased from 10
+        shape=box,
+        style="filled,rounded",
+        color="#333333",
+        fillcolor="#FFFFFF"
+    ];
+    edge [
+        fontname="Arial",
+        fontsize=10 // Increased from 9
+    ];
+
+    subgraph cluster_mad {
+        label="MAD (Multipurpose Agentic Duo)";
+        bgcolor="#F5F5F5";
+        style="rounded";
+        
+        subgraph cluster_action {
+            label="ActionEngine (Doing)";
+            style="filled,rounded";
+            color="#E3F2FD"; // lightblue
+            
+            MCP [label="MCP Server\n(Internal Bridge)", shape=component, fillcolor="#BBDEFB"];
+            DB [label="Databases", shape=cylinder, fillcolor="#FFFFFF"];
+            Files [label="File System", shape=folder, fillcolor="#FFFFFF"];
+            Tools [label="Execution\nComponents / Tools", shape=cds, fillcolor="#FFFFFF"];
+            
+            MCP -> {DB, Files, Tools} [style=dashed, arrowhead=none, label="manages"];
+        }
+
+        subgraph cluster_thought {
+            label="ThoughtEngine (Thinking)";
+            style="filled,rounded";
+            color="#E8F5E9"; // lightgreen
+            
+            Imperator [label="V1: Imperator LLM", shape=box, fillcolor="#C8E6C9"];
+            OtherCognitive [label="Other Cognitive\nComponents (Future)", style=dashed, color=gray];
+        }
+    }
+
+    // External and Internal Flow
+    ExternalIn [label="External Conversation\n(from Rogers)", shape=cds, fillcolor="#FFEBCC"];
+    ExternalOut [label="External Conversation\n(to Rogers)", shape=cds, fillcolor="#FFEBCC"];
+
+    ExternalIn -> MCP [label="1. Ingress"];
+    // Changed jarring red to neutral dark gray for professionalism
+    MCP -> Imperator [label="2. Internal Messaging\n(Request for thought)", dir=both, color="#424242", fontcolor="#424242", penwidth=2.0];
+    Imperator -> OtherCognitive [style=invis];
+    MCP -> ExternalOut [label="3. Egress / Action"];
+
+    // Explanatory Note
+    {
+        rank=sink;
+        Note [label="Note: The MCP Server is part of the ActionEngine and serves as the sole bridge to the ThoughtEngine.", shape=plaintext, fontsize=10]; // Increased from 9
+    }
+}

@@ -1,62 +1,43 @@
 # Observability & Monitoring Requirements
 
 ## Version: 1.0
-## Status: Draft
-## Created: 2025-10-10
+## Status: Approved
 
 ---
 
 ## Overview
-This document specifies the requirements for observability, monitoring, and debugging within the MAD V1 ecosystem. In keeping with architectural tenets, observability mechanisms MUST be implemented conversationally.
+This document defines the requirements for observability within the MAD (**[CORRECTED]** Multipurpose Agentic Duo) ecosystem. Given the conversational nature of the system, observability is achieved by monitoring the message flow and the health of individual MADs.
 
 ---
 
 ## Requirements
 
-### 1. Tracing
-#### Requirement 1.1: Distributed Tracing via Conversation Tags
+### 1. Logging
+#### Requirement 1.1: Centralized Conversational Logging
 **Priority:** High
-**Description:** The system MUST support distributed tracing of requests across multiple MADs and conversations. A unique trace ID shall be generated at the start of a workflow and propagated as a `#trace-id:[ID]` tag in all related messages.
+**Description:** All conversational messages routed through Rogers MUST be indexed and stored in a centralized, searchable logging platform. This is the primary source for debugging and analysis.
 
-### 2. Health and Metrics
-#### Requirement 2.1: Conversational Health Checks
+#### Requirement 1.2: Component-Level Logging
 **Priority:** High
-**Description:** All MADs MUST respond to a standardized health check message. An operator or automated system can send a message like `@TargetMAD #healthcheck` and expect a reply indicating status, such as `@Operator #ack #status:healthy`.
+**[CORRECTED]** **Description:** Each primary component within a MAD (`ActionEngine` and `ThoughtEngine`) MUST produce structured logs (e.g., JSON) detailing its internal operations, decisions, and errors. For example, the `ThoughtEngine` should log the reasoning process of the `Imperator` LLM, and the `ActionEngine` should log tool invocations.
 
-**REVISED:**
-#### Requirement 2.2: Metric Emission via Tags
+### 2. Metrics
+#### Requirement 2.1: MAD Health Metrics
 **Priority:** High
-**Description:** MADs MUST emit key performance indicators and business metrics by sending messages with a `#metric` tag to a dedicated metrics conversation.
-**Example:** `@MetricsCollector #metric #name:request_latency #value:150ms #source:Dewey`
+**Description:** Every MAD MUST expose a standard set of health metrics, including message processing latency, error rates, and resource utilization (CPU/memory).
 
-### 3. Logging and Debugging
-#### Requirement 3.1: Conversational Logging
+#### Requirement 2.2: LLM Metrics
 **Priority:** High
-**Description:** The primary logging mechanism MUST be conversational. MADs shall log significant events by sending messages to a dedicated logging conversation. The logs themselves are the conversation history, allowing for natural language queries and analysis.
+**Description:** The Fiedler MAD MUST collect and expose detailed metrics for all LLM calls, including token counts, latency, cost per call, and model used. This is critical for performance and cost management.
 
-#### Requirement 3.2: Error Visibility in Conversation
+### 3. Tracing
+#### Requirement 3.1: Conversation-ID Tracing
 **Priority:** High
-**Description:** When a MAD encounters an unrecoverable error while processing a request, it MUST post a message to the original conversation containing an `#error` tag and a description of the failure. This makes errors visible directly within the context of the failed workflow.
+**Description:** All messages related to a single interaction or task (potentially spanning multiple MADs) MUST be correlated with a unique Conversation ID. This allows for distributed tracing of a request as it flows through the system.
 
 ---
 
 ## Success Criteria
-- ✅ By filtering for a single `#trace-id`, an operator can view all messages related to a single user request across multiple MADs.
-- ✅ A monitoring system can ping `@Fiedler #healthcheck` and correctly parse the "healthy" response within 50ms.
-- ✅ A dashboard can be built by consuming messages from the dedicated metrics conversation.
-- ✅ A developer can debug a failed task by reading the conversation history, which includes the specific `#error` message.
-
----
-
-## Dependencies
-- Rogers Messaging Bus Requirements (for tag filtering)
-- MAD CP Interface Library Requirements (for tag parsing)
-
----
-
-## Notes
-This approach treats observability data not as a separate stream of information, but as an integral part of the system's overall conversation.
-
----
-
-*Requirements v1.0 - If you can't talk about it, you can't measure it.*
+- ✅ A developer can trace a user's request from the initial message, through multiple MADs, to the final response using a single Conversation ID.
+- ✅ A dashboard displays the real-time health and message throughput of all active MADs.
+- ✅ **[CORRECTED]** An alert is triggered if the `ThoughtEngine` of a specific MAD shows a spike in processing latency, indicating a potential issue with its cognitive components.

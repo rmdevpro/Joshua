@@ -1,0 +1,55 @@
+digraph MAD_Ecosystem_View {
+    graph [
+        label="MAD Ecosystem - V1 Communication Patterns",
+        labelloc=t,
+        fontname="Arial",
+        fontsize=18, // Increased from 16
+        layout=neato,
+        overlap=false,
+        splines=line // Changed to 'line' to fix perceived misalignment
+    ];
+    node [
+        fontname="Arial",
+        fontsize=11, // Increased from 10
+        shape=box,
+        style="filled,rounded",
+        width=1.5,
+        height=0.8
+    ];
+    edge [
+        fontname="Arial",
+        fontsize=10, // Increased from 9
+        arrowsize=0.8 // Increased from 0.7
+    ];
+
+    // Central Hub
+    Rogers [label="Rogers\nMessaging Bus", shape=octagon, fillcolor="#FFD180", pos="0,0!", pin=true, fontsize=12, width=2.2, height=1.2];
+
+    // MADs
+    UserMAD [label="User-Facing MAD\n(e.g., 'Dewey')", fillcolor="#C5CAE9", pos="-3.5,2.5!"];
+    HelperMCP [label="Helper MCP\n(e.g., 'CodeExecutor')", fillcolor="#B2DFDB", pos="3.5,2.5!"];
+    Fiedler [label="Fiedler\n(LLM Gateway)", fillcolor="#B2DFDB", pos="4,-2.5!"];
+    Hopper [label="Hopper\n(eMAD Factory)", fillcolor="#F8BBD0", pos="-4,-2.5!"];
+    eMAD [label="Ephemeral MAD\n(e.g., 'SeniorDev')", fillcolor="#FFF9C4", pos="-1,-4!"];
+    
+    // External Actors
+    User [label="Human Operator", shape=oval, fillcolor="#FFFFFF", pos="0,4!"];
+    LLM_API [label="External LLM APIs", shape=cylinder, fillcolor="#CFD8DC", pos="6,-2.5!"];
+
+    // Edges showing communication flow through Rogers
+    User -> Rogers [label="sends command"];
+    Rogers -> UserMAD;
+    UserMAD -> Rogers [label="requests code execution"];
+    Rogers -> HelperMCP;
+    HelperMCP -> Rogers [label="returns result"];
+    Rogers -> UserMAD;
+    UserMAD -> Rogers [label="requests LLM call"];
+    Rogers -> Fiedler;
+    Fiedler -> LLM_API [style=dashed, label="external API call"];
+    Fiedler -> Rogers [label="returns completion"];
+    Hopper -> Rogers [label="spawns eMAD"];
+    Rogers -> eMAD;
+    eMAD -> Rogers [label="performs task"];
+    Rogers -> UserMAD [label="delivers final response"];
+    Rogers -> User;
+}

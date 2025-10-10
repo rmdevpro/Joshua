@@ -21,7 +21,7 @@ The system SHALL treat structured and unstructured natural language as the prima
 
 ### Tenet 3: Composition Defines Capability
 
-A MAD's function is defined by the composition of its ThoughtEngine (an Imperator LLM) and its ActionEngine (specialized tools). System-level functionality is achieved by composing conversations between multiple, specialized MADs. We SHALL favor creating new, focused MADs over adding unrelated responsibilities to existing ones.
+**[CORRECTED]** A MAD's function is defined by the composition of its two core containers: the `ThoughtEngine` (the cognitive framework) and the `ActionEngine` (the execution framework). For V1, the `ThoughtEngine`'s primary component is an Imperator LLM, while the `ActionEngine` contains the MCP Server, tools, and resource connectors. System-level functionality is achieved by composing conversations between multiple, specialized MADs. We SHALL favor creating new, focused MADs over adding unrelated responsibilities to existing ones.
 
 ### Tenet 4: Infrastructure is Conversational
 
@@ -30,6 +30,4 @@ Core infrastructure services that enable LLM functionality (e.g., code execution
 ### Tenet 5: State is Ephemeral; History is Persistent
 
 MAD instances, particularly ephemeral MADs (eMADs), are designed to be transient and stateless. All application state, operational history, and learned context MUST be persisted within the conversational record, managed by the Rogers messaging bus. This design ensures resilience, auditability, and allows any MAD to reconstruct context from the conversation history.
-
----
----
+```

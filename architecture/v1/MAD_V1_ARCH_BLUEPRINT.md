@@ -13,12 +13,15 @@ This blueprint provides a high-level structural map of the MAD V1 system. It def
 
 ## Core Components
 
-1.  **MAD (Multi-Agent Demonstrator):** The fundamental unit of agency. Composed of an ActionEngine (tools, deterministic logic) and a ThoughtEngine (Imperator LLM).
-2.  **Rogers (Messaging Bus):** The central nervous system. A specialized, ActionEngine-only MAD that manages all conversations, state, and routing.
-3.  **Imperator (ThoughtEngine):** The cognitive core of a MAD. An LLM responsible for understanding, reasoning, planning, and generating conversational responses.
-4.  **Helper MCPs (Master Control Programs):** Persistent, specialized MADs providing core infrastructure services via conversation (e.g., Code Execution, RAG).
-5.  **eMAD (Ephemeral MAD):** A temporary, role-based MAD instance spawned by a factory (e.g., Hopper) to perform a specific, time-bound task.
-6.  **Fiedler (LLM Gateway):** A specialized MAD that acts as a proxy for all outbound LLM calls, managing model selection, cost, and orchestration.
+1.  **[CORRECTED]** **MAD (Multipurpose Agentic Duo):** The fundamental unit of agency. A MAD is a composite system composed of two extensible containers: an `ActionEngine` and a `ThoughtEngine`.
+2.  **Rogers (Messaging Bus):** The central nervous system. A specialized, `ActionEngine`-only MAD that manages all conversations, state, and routing.
+3.  **[CORRECTED]** **ThoughtEngine:** The "thinking" half of the duo. An extensible container for cognitive components. In V1, its primary component is the `Imperator` LLM. Future versions will add components like DTR, LPPM, and CET to form a progressive cognitive pipeline.
+4.  **[CORRECTED]** **ActionEngine:** The "doing" half of the duo. An extensible container for execution components. It always contains the `MCP Server`, which acts as the bridge to the `ThoughtEngine` and manages access to databases, files, and other tools.
+5.  **[CORRECTED]** **MCP Server:** A critical component within the `ActionEngine` that acts as the sole interface and bridge for communication between the `ActionEngine` and the `ThoughtEngine`.
+6.  **Imperator:** The primary cognitive component within the `ThoughtEngine` for V1. An LLM responsible for understanding, reasoning, planning, and generating conversational responses.
+7.  **Helper MCPs (Master Control Programs):** Persistent, specialized MADs providing core infrastructure services via conversation (e.g., Code Execution, RAG).
+8.  **eMAD (Ephemeral MAD):** A temporary, role-based MAD instance spawned by a factory (e.g., Hopper) to perform a specific, time-bound task.
+9.  **Fiedler (LLM Gateway):** A specialized MAD that acts as a proxy for all outbound LLM calls, managing model selection, cost, and orchestration.
 
 ---
 
@@ -42,18 +45,18 @@ All communication is mediated by Rogers. A MAD never communicates directly with 
 
 ### Pattern 2: Internal MAD Cognitive Loop
 
-A MAD's internal processing flow for handling a message.
+**[CORRECTED]** A MAD's internal processing flow, where the MCP Server in the ActionEngine mediates all communication with the ThoughtEngine.
 
 ```text
-[Rogers Bus] -> 1. Message In -> [ActionEngine]
-                                      ^      |
-                                      |      | 2. "What should I do?"
-                                      |      v
-                                 4. "Do this"  [Imperator (ThoughtEngine)]
-                                      |      |
-                                      |      | 3. Reasons and plans
-                                      v      |
-               <- 5. Action/Response Out <-
+[Rogers Bus] -> 1. Message In -> [ActionEngine: MCP Server]
+                                          ^          |
+                                          |          | 2. Request for cognitive processing
+                                          |          v
+                                4. Plan/Action -> [ThoughtEngine: Imperator]
+                                          |          |
+                                          |          | 3. Reasons and plans
+                                          v          |
+      <- 5. Executes actions & sends response out <-
 ```
 
 ### Pattern 3: Helper MCP Service Request
@@ -82,6 +85,4 @@ Using an infrastructure service is identical to talking to any other MAD.
        | 5. Receives: "Execution complete. Here is the output..."
        v
 ```
-
----
----
+```

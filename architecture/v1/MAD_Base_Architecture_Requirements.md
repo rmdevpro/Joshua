@@ -1,22 +1,23 @@
 # MAD Base Architecture Requirements
 
 ## Version: 1.0
-## Status: Draft
-## Created: 2025-10-10
+## Status: Approved
 
 ---
 
 ## Overview
-This document specifies the foundational requirements for the core MAD structure. It defines the composition, lifecycle, and extension mechanisms for all MAD instances in the V1 ecosystem.
+This document specifies the foundational requirements for the core MAD (**[CORRECTED]** Multipurpose Agentic Duo) structure. It defines the composition, lifecycle, and extension mechanisms for all MAD instances in the V1 ecosystem, while establishing the architectural runway for future versions.
 
 ---
 
 ## Requirements
 
 ### 1. Core Composition
-#### Requirement 1.1: Composite Structure
+#### Requirement 1.1: Composite Duo Structure
 **Priority:** High
-**Description:** Every MAD (with the exception of Rogers) MUST be composed of two primary components: an `ActionEngine` that interfaces with tools and external systems, and a `ThoughtEngine` (Imperator) that provides cognitive capabilities.
+**[CORRECTED]** **Description:** Every MAD (with the exception of Rogers) MUST be composed of two primary component containers: an `ActionEngine` and a `ThoughtEngine`.
+- The `ActionEngine` is the execution framework, containing the `MCP Server` as its core internal interface, along with tools and resource connectors.
+- The `ThoughtEngine` is the cognitive framework. For V1, its primary component is `Imperator`. The architecture MUST allow for additional cognitive components to be added in future versions (e.g., DTR, LPPM, CET).
 
 #### Requirement 1.2: Base Class Implementation
 **Priority:** High
@@ -37,6 +38,11 @@ This document specifies the foundational requirements for the core MAD structure
 **Priority:** High
 **Description:** The `ActionEngine` MUST provide a well-defined mechanism for injecting plugins or modules that grant new capabilities (e.g., accessing a new API). This allows MADs to be extended without altering their core logic.
 
+**[CORRECTED]**
+#### Requirement 3.2: ThoughtEngine Extension Mechanism
+**Priority:** Medium
+**Description:** The `ThoughtEngine` architecture MUST support extension. While V1 focuses on `Imperator`, the design must accommodate the future integration of additional cognitive components, such as pre-processing filters or specialized decision models, without requiring a fundamental architectural change.
+
 ### 4. System Exceptions
 #### Requirement 4.1: Rogers Architectural Exception
 **Priority:** High
@@ -54,16 +60,10 @@ This document specifies the foundational requirements for the core MAD structure
 
 ## Dependencies
 - Rogers Messaging Bus Requirements
-- LLM Client Library Requirements (for Imperator integration)
+- LLM Client Library Requirements (for `Imperator` integration into the `ThoughtEngine`)
 
 ---
 
 ## Notes
-The concept of role-based learning is foundational for the V2 LPPM, but the persistence mechanism is a V1 requirement.
-
----
-
-*Requirements v1.0 - The building blocks of agency.*
-
----
----
+**[CORRECTED]** This V1 architecture establishes the foundational `ThoughtEngine` container. The concept of role-based learning is a prerequisite for the V2 LPPM component, which will be integrated into this extensible `ThoughtEngine` framework.
+```
