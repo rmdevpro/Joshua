@@ -4,15 +4,14 @@ Based on Gemini-2.5-Pro recommendation (correlation_id: b5afd3b0)
 """
 import asyncio
 import json
-import logging
 import time
 import redis.asyncio as redis
+from joshua_logger import Logger
 
 import config
 from mcp_client import MCPClient
 
-# Godot uses standard logging to stdout (REQ-MAINT-002)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [WORKER] %(message)s')
+logger = Logger()
 
 async def send_batch_to_dewey(mcp_client, batch):
     """Sends a batch of logs to Dewey with exponential backoff retry (REQ-REL-002)"""
@@ -25,21 +24,21 @@ async def send_batch_to_dewey(mcp_client, batch):
     for attempt in range(config.RETRY_MAX_ATTEMPTS):
         try:
             if not mcp_client.is_connected:
-                logging.warning("Dewey client disconnected. Attempting to reconnect...")
+                await logger.log("WARN", "Dewey client disconnected. Attempting to reconnect...", "godot-worker")
                 await mcp_client.connect()
-                logging.info("Reconnected to Dewey.")
+                await logger.log("INFO", "Reconnected to Dewey.", "godot-worker")
 
-            logging.info(f"Sending batch of {len(log_entries)} logs to Dewey.")
+            await logger.log("INFO", f"Sending batch of {len(log_entries)} logs to Dewey.", "godot-worker")
             await mcp_client.call_tool("dewey_store_logs_batch", {"logs": log_entries})
-            logging.info(f"Successfully sent batch of {len(log_entries)} logs.")
+            await logger.log("INFO", f"Successfully sent batch of {len(log_entries)} logs.", "godot-worker")
             return
         except Exception as e:
-            logging.error(f"Attempt {attempt + 1} failed to send batch to Dewey: {e}")
+            await logger.log("ERROR", f"Attempt {attempt + 1} failed to send batch to Dewey: {e}", "godot-worker")
             if attempt + 1 == config.RETRY_MAX_ATTEMPTS:
-                logging.critical("Max retries reached. Discarding batch.")
+                await logger.log("ERROR", "Max retries reached. Discarding batch.", "godot-worker")
                 break
 
-            logging.info(f"Retrying in {delay} seconds...")
+            await logger.log("INFO", f"Retrying in {delay} seconds...", "godot-worker")
             await asyncio.sleep(delay)
             delay = min(delay * 2, config.RETRY_MAX_DELAY)
 
@@ -48,9 +47,9 @@ async def main():
     redis_client = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, decode_responses=True)
     mcp_client = MCPClient(config.DEWEY_MCP_URL, timeout=config.DEWEY_CONNECT_TIMEOUT)
 
-    logging.info("Godot worker starting...")
-    logging.info(f"Connecting to Redis at {config.REDIS_HOST}:{config.REDIS_PORT}")
-    logging.info(f"Connecting to Dewey at {config.DEWEY_MCP_URL}")
+    await logger.log("INFO", "Godot worker starting...", "godot-worker")
+    await logger.log("INFO", f"Connecting to Redis at {config.REDIS_HOST}:{config.REDIS_PORT}", "godot-worker")
+    await logger.log("INFO", f"Connecting to Dewey at {config.DEWEY_MCP_URL}", "godot-worker")
 
     await mcp_client.connect()
 
@@ -70,7 +69,7 @@ async def main():
                     else:
                         break
                 except redis.ConnectionError as e:
-                    logging.error(f"Redis connection error: {e}. Retrying in 5 seconds...")
+                    await logger.log("ERROR", f"Redis connection error: {e}. Retrying in 5 seconds...", "godot-worker")
                     await asyncio.sleep(5)
                     redis_client = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, decode_responses=True)
                     break
@@ -82,7 +81,7 @@ async def main():
             await redis_client.ltrim(config.LOG_QUEUE_NAME, 0, config.MAX_QUEUE_SIZE - 1)
 
         except Exception as e:
-            logging.critical(f"Unhandled exception in main worker loop: {e}", exc_info=True)
+            await logger.log("ERROR", f"Unhandled exception in main worker loop: {e}", "godot-worker")
             await asyncio.sleep(5)
 
 if __name__ == "__main__":

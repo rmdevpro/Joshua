@@ -1,26 +1,25 @@
 #!/usr/bin/env python3
 """
-Godot MCP Server using iccm-network library
+Godot MCP Server using joshua_network library
 Provides logging and conversation storage tools
 """
 import asyncio
 import json
-import logging
 import sys
 from datetime import datetime, timezone
 from uuid import UUID
 
 import redis.asyncio as redis
+from joshua_logger import Logger
 
 sys.path.insert(0, '/app')
 sys.path.insert(0, '/app/src')
-from iccm_network import MCPServer
+from joshua_network import Server as MCPServer
 import config
 from mcp_client import MCPClient
 from database import db_pool
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - [GODOT] %(message)s')
-logger = logging.getLogger(__name__)
+logger = Logger()
 
 # Global instances
 redis_client = None
@@ -90,7 +89,7 @@ async def conversation_begin_impl(session_id: str = None, metadata: dict = None)
             "created_at": result['created_at'].isoformat()
         }
     except Exception as e:
-        logger.error(f"Error in conversation_begin: {e}")
+        await logger.log("ERROR", f"Error in conversation_begin: {e}", "godot-mcp-server")
         raise ValueError("Failed to begin conversation")
 
 
@@ -131,7 +130,7 @@ async def conversation_store_message_impl(conversation_id: str, role: str, conte
             "created_at": result['created_at'].isoformat()
         }
     except Exception as e:
-        logger.error(f"Error in conversation_store_message: {e}")
+        await logger.log("ERROR", f"Error in conversation_store_message: {e}", "godot-mcp-server")
         raise ValueError(f"Failed to store message: {e}")
 
 
@@ -166,14 +165,14 @@ async def conversation_store_messages_bulk_impl(messages: list = None, messages_
         for msg in messages:
             if 'sessionId' in msg and msg['sessionId']:
                 session_id = msg['sessionId']
-                logger.info(f"Extracted session_id from message: {session_id}")
+                await logger.log("INFO", f"Extracted session_id from message: {session_id}", "godot-mcp-server")
                 break
             elif isinstance(msg.get('metadata'), dict) and 'sessionId' in msg['metadata']:
                 session_id = msg['metadata']['sessionId']
-                logger.info(f"Extracted session_id from metadata: {session_id}")
+                await logger.log("INFO", f"Extracted session_id from metadata: {session_id}", "godot-mcp-server")
                 break
         if not session_id:
-            logger.warning("Could not extract session_id from messages")
+            await logger.log("WARN", "Could not extract session_id from messages", "godot-mcp-server")
 
     # Normalize messages
     for i, msg in enumerate(messages):
@@ -231,14 +230,14 @@ async def conversation_store_messages_bulk_impl(messages: list = None, messages_
             await conn.execute("UPDATE conversations SET updated_at = NOW() WHERE id = $1;", conv_id)
             stored_count = len(insert_values)
 
-        logger.info(f"Stored {stored_count} messages in conversation {conv_id}")
+        await logger.log("INFO", f"Stored {stored_count} messages in conversation {conv_id}", "godot-mcp-server")
         return {
             "conversation_id": str(conv_id),
             "messages_stored": stored_count,
             "status": "success"
         }
     except Exception as e:
-        logger.error(f"Error in conversation_store_messages_bulk: {e}")
+        await logger.log("ERROR", f"Error in conversation_store_messages_bulk: {e}", "godot-mcp-server")
         raise ValueError(f"Failed to store messages in bulk: {e}")
 
 
@@ -350,15 +349,15 @@ async def main():
 
     # Initialize database pool
     await db_pool.initialize()
-    logger.info("Database pool initialized")
+    await logger.log("INFO", "Database pool initialized", "godot-mcp-server")
 
     # Initialize Redis client
     redis_client = redis.Redis(host=config.REDIS_HOST, port=config.REDIS_PORT, decode_responses=True)
-    logger.info("Redis client initialized")
+    await logger.log("INFO", "Redis client initialized", "godot-mcp-server")
 
     # Initialize Dewey MCP client
     dewey_client = MCPClient(config.DEWEY_MCP_URL, timeout=config.DEWEY_CONNECT_TIMEOUT)
-    logger.info("Dewey MCP client initialized")
+    await logger.log("INFO", "Dewey MCP client initialized", "godot-mcp-server")
 
     # Create and start MCP server using iccm-network library
     server = MCPServer(
@@ -369,18 +368,18 @@ async def main():
         tool_handlers=TOOL_HANDLERS
     )
 
-    logger.info(f"Godot MCP Server starting on port {config.MCP_PORT}")
-    logger.info(f"Tools available: {list(TOOL_DEFINITIONS.keys())}")
+    await logger.log("INFO", f"Godot MCP Server starting on port {config.MCP_PORT}", "godot-mcp-server")
+    await logger.log("INFO", f"Tools available: {list(TOOL_DEFINITIONS.keys())}", "godot-mcp-server")
 
     try:
         await server.start()
     except KeyboardInterrupt:
-        logger.info("Shutting down...")
+        await logger.log("INFO", "Shutting down...", "godot-mcp-server")
     finally:
         if redis_client:
             await redis_client.close()
         await db_pool.close()
-        logger.info("Godot MCP server stopped")
+        await logger.log("INFO", "Godot MCP server stopped", "godot-mcp-server")
 
 
 if __name__ == "__main__":

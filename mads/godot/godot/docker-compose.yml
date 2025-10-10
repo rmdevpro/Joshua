@@ -1,11 +1,17 @@
 services:
   godot:
-    build: .
+    build:
+      context: ../../..
+      dockerfile: mads/godot/godot/Dockerfile
     container_name: godot-mcp
     restart: unless-stopped
     ports:
       - "9060:9060" # MCP server port
     environment:
+      # Godot Logging Integration (logs to itself)
+      - GODOT_URL=ws://localhost:9060
+      - LOGGING_ENABLED=true
+
       # Dewey connection
       - DEWEY_MCP_URL=ws://dewey-mcp-blue:9020
       - DEWEY_CONNECT_TIMEOUT=30
@@ -35,7 +41,6 @@ services:
 
     volumes:
       - godot_redis_data:/data
-      - ../../iccm-network:/app/iccm-network:ro
       - /home/aristotle9:/host/home/aristotle9:ro
       - /tmp:/host/tmp:ro
     networks:
