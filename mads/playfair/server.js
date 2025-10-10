@@ -114,11 +114,14 @@ async function handleClientRequest(request, clientId) {
             return {
                 jsonrpc: '2.0',
                 result: {
-                    name: 'Playfair',
-                    version: '1.0.0',
-                    description: 'ICCM Diagram Generation Gateway',
-                    capabilities: ['tools'],
-                    protocol_version: '1.0'
+                    protocolVersion: '2024-11-05',
+                    serverInfo: {
+                        name: 'playfair',
+                        version: '1.0.0'
+                    },
+                    capabilities: {
+                        tools: {}
+                    }
                 },
                 id
             };
