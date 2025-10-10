@@ -1,47 +1,49 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 19:45
+## Last Updated: 2025-10-10 19:12
 
 ---
 
-## 🎉 RECENT COMPLETION: MCP Relay Tool Response Bug - FIXED ✅
+## 🎉 RECENT COMPLETION: MCP Relay Tool Exposure Bug - FIXED ✅
 
-### MCP Relay V3.7 - JSON-RPC Protocol Compliance Fix
-**Status:** FIXED - READY FOR TESTING
-**Completed:** 2025-10-10 19:45
+### MCP Relay V3.8 - Tool Discovery Notification Fix
+**Status:** FIXED - REQUIRES RESTART
+**Completed:** 2025-10-10 19:12
 
 **Problem:**
-- Relay management tools (`relay_get_status`, `relay_list_servers`, etc.) returned no output to Claude Code
-- Tool calls were received and handlers executed successfully
-- Responses generated but Claude Code silently ignored them
+- Relay discovered backend tools correctly (67 tools total)
+- Claude Code never received backend tools (only 5 relay management tools available)
+- Backend tools not exposed despite healthy backends
 
 **Root Cause:**
-- Relay management tool handlers returned incomplete JSON-RPC responses
-- Missing required `"jsonrpc": "2.0"` field in response structure
-- Backend tools return proper format: `{"jsonrpc": "2.0", "result": {...}, "id": N}`
-- Relay tools only returned: `{"result": {...}}`
-- MCP protocol requires the jsonrpc field - without it, responses are invalid and ignored
+- Relay wasn't sending `notifications/tools/list_changed` when backends discovered tools
+- Notification condition: `if self.initialized and len(valid_tools) != old_tool_count`
+- When reconnecting: old_tool_count = 8, new tools = 8, condition false → no notification
+- Claude Code cached empty tool list from initial connection (when backends were degraded)
+- Without notification, Claude Code never re-requested updated tool list
 
 **Solution Implemented:**
-- Added `"jsonrpc": "2.0"` to all 5 relay management tool handlers:
-  - `handle_get_status()` - line 627
-  - `handle_list_servers()` - line 582
-  - `handle_reconnect_server()` - line 588, 604, 606
-  - `handle_add_server()` - line 519, 539, 542
-  - `handle_remove_server()` - line 549, 563
+- Track if NEW tools are added to routing table (not just count changes)
+- Added `tools_added_to_routing` flag (line 369)
+- Set flag when tool not already in routing table (lines 400-401)
+- Changed notification condition to `if self.initialized and tools_added_to_routing` (line 421)
+- Now sends notification whenever new tools are registered, not just on count change
 
 **Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - Added JSON-RPC field to all management tool responses
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - Fixed tool discovery notification logic
 
 **Testing:**
-- 🔴 **REQUIRES CLAUDE CODE RESTART** - Relay updated and ready, need to reconnect
+- 🔴 **REQUIRES CLAUDE CODE RESTART** - Fix applied to file, running relay using old code
 
 **Version:**
-- Updated to V3.7 (from V3.6)
+- Updated to V3.8 (from V3.7)
+
+**Issue:**
+- GitHub Issue #14 - BLOCKER: Relay not exposing backend tools to Claude Code
 
 ---
 
-## 🚧 CURRENT WORK: Awaiting Claude Code Restart for Testing
+## 🚧 CURRENT WORK: Ready for Claude Code Restart
 
 ---
 
