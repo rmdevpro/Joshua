@@ -1,8 +1,8 @@
 services:
   dewey-blue:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../..
+      dockerfile: mads/dewey/Dockerfile
     image: dewey-mcp-blue:latest
     container_name: dewey-mcp-blue
     restart: unless-stopped

@@ -15,10 +15,28 @@ v1.0.0
 
 ## Installation
 
+joshua_logger is part of the `joshua-libs` package and is installed automatically with `joshua_network`.
+
+**In MAD Dockerfiles:**
+```dockerfile
+# Install joshua-libs (includes both joshua_network and joshua_logger)
+COPY --chown=root:root lib/joshua_network /tmp/joshua-libs-install/joshua_network
+COPY --chown=root:root lib/joshua_logger /tmp/joshua-libs-install/joshua_logger
+COPY --chown=root:root lib/pyproject.toml /tmp/joshua-libs-install/
+RUN pip install --no-cache-dir /tmp/joshua-libs-install && rm -rf /tmp/joshua-libs-install
+```
+
+**For development:**
+```bash
+cd /mnt/projects/Joshua/lib
+pip install -e .
+```
+
+**Usage:**
 ```python
-# Add to your Python path
-sys.path.insert(0, '/mnt/projects/Joshua/lib')
-from joshua_logger import logger
+from joshua_logger import Logger
+
+logger = Logger()
 ```
 
 ## Usage

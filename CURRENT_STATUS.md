@@ -1,39 +1,72 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 19:37
+## Last Updated: 2025-10-10 20:15
 
 ---
 
-## 🎉 RECENT COMPLETION: MCP Relay Timeout Fix - READY FOR RESTART ✅
+## 🎉 RECENT COMPLETION: Dewey Tool Discovery Fixed + joshua-libs Documentation ✅
 
-### MCP Relay V3.8.1 - Increased Timeout for LLM Tool Calls
-**Status:** FIXED - REQUIRES RESTART
-**Completed:** 2025-10-10 19:37
+### Dewey MCP Migration to joshua_network - COMPLETE
+**Status:** DEPLOYED AND VERIFIED ✅
+**Completed:** 2025-10-10 20:15
 
 **Problem:**
-- Relay timeout was 30 seconds for all tool calls
-- LLM tool calls (Fiedler, etc.) take 1-15 minutes
-- Tool calls timing out despite backends working correctly
+- Dewey showing as degraded: 0 tools available
+- Error: "Method not found: notifications/initialized"
+- Root cause: Custom MCP server implementation missing required MCP protocol handler
 
 **Solution Implemented:**
-- Increased `websocket_timeout` from 30s to 900s (15 minutes)
-- Located in `/home/aristotle9/mcp-relay/mcp_relay.py` line 80
-- Allows LLM backends sufficient time to complete multi-model requests
+- Migrated Dewey from custom WebSocket server to `joshua_network.Server`
+- Added `joshua_logger` integration for centralized logging
+- Used factory function pattern for tool handlers to avoid closure issues
 
 **Files Changed:**
-- `/home/aristotle9/mcp-relay/mcp_relay.py` - Increased timeout for LLM calls
+- `/mnt/projects/Joshua/mads/dewey/dewey/mcp_server.py` - Complete rewrite using joshua_network.Server
+- `/mnt/projects/Joshua/mads/dewey/Dockerfile` - Updated to pip install joshua-libs
+- `/mnt/projects/Joshua/mads/dewey/docker-compose.yml` - Fixed build context to `../..`
+- `/mnt/projects/Joshua/lib/pyproject.toml` - Combined joshua_network + joshua_logger into single package
 
-**Testing:**
-- 🔴 **REQUIRES CLAUDE CODE RESTART** - Fix applied, needs reload
+**Verification:**
+- ✅ Dewey container rebuilt and restarted successfully
+- ✅ All 7 tools discoverable via relay (dewey_get_conversation, dewey_list_conversations, dewey_search, dewey_get_startup_context, dewey_list_startup_contexts, dewey_query_logs, dewey_get_log_stats)
+- ✅ Dewey showing as healthy in relay status
+- ✅ joshua_logger integration working (logs flowing to Godot)
 
-**Version:**
-- Updated to V3.8.1 (timeout fix)
-
-**Note:** V3.8 tool discovery notification fix was determined to be unnecessary - backends were timing out, not failing discovery.
+**Architectural Improvement:**
+- joshua-libs package now installs BOTH joshua_network and joshua_logger together
+- Simplifies MAD deployment - single package for both libraries
+- Ensures version consistency across all components
 
 ---
 
-## 🚧 CURRENT WORK: Ready for Claude Code Restart
+### joshua-libs Documentation - COMPLETE ✅
+**Status:** DEPLOYED
+**Completed:** 2025-10-10 20:15
+
+**Created:**
+- `/mnt/projects/Joshua/lib/README.md` - Comprehensive guide for joshua-libs package
+  - Installation instructions for Docker and development
+  - Quick start examples (server, client, logging)
+  - Common patterns and best practices
+  - Migration guide from custom implementations
+  - Troubleshooting section
+  - Architecture diagram
+
+**Updated:**
+- `/mnt/projects/Joshua/lib/joshua_logger/README.md` - Updated installation section for pip install
+
+**Removed:**
+- `/mnt/projects/Joshua/lib/DEPLOYMENT.md` - Outdated, replaced by comprehensive README.md
+
+**Benefits:**
+- Clear onboarding for new MAD development
+- Standardized installation process documented
+- Common patterns to copy/paste into new MADs
+- Troubleshooting guide for typical issues
+
+---
+
+## 🚧 CURRENT WORK: Documentation Complete, Ready for Next Task
 
 ---
 

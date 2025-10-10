@@ -3,16 +3,16 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "joshua-network"
+name = "joshua-libs"
 version = "1.0.0"
-description = "Standardized WebSocket MCP server/client library for Joshua components"
+description = "Standardized libraries for Joshua components: joshua_network and joshua_logger"
 requires-python = ">=3.11"
 dependencies = [
     "websockets>=12.0",
 ]
 
 [tool.setuptools]
-packages = ["joshua_network"]
+packages = ["joshua_network", "joshua_logger"]
 
 [project.optional-dependencies]
 dev = [
