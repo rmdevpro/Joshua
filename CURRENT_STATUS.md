@@ -1,16 +1,48 @@
 # Joshua Project - Current Status
 
-## Last Updated: 2025-10-10 17:00
+## Last Updated: 2025-10-10 17:45
 
 ---
 
-## 🚧 CURRENT WORK: Logging System Fixed, Relay Diagnosis Ready
+## 🚧 CURRENT WORK: Relay Logger Fixed - Restart Required
+
+### Relay Logger Migration - COMPLETE ✅
+**Status:** FIXED - Awaiting Claude Code restart
+**Completed:** 2025-10-10 17:45
+
+**Problem:**
+- Relay had 0 logs in database (blocking diagnosis)
+- Relay tools unavailable (relay broken)
+
+**Root Cause:**
+- Relay had custom `GodotLogger` class with SAME bug as joshua_logger
+- Used `logger_log` instead of `godot_logger_log`
+- Custom implementation duplicated buggy code
+
+**Solution:**
+- Migrated relay from custom GodotLogger to `/mnt/projects/Joshua/lib/joshua_logger`
+- Removed custom GodotLogger class (lines 42-112 in mcp_relay.py)
+- Replaced all `self.godot_logger.log()` calls with `joshua_logger.log()`
+- Standardized on joshua_logger v1.0.0 (same as other components)
+
+**Files Changed:**
+- `/home/aristotle9/mcp-relay/mcp_relay.py` - migrated to joshua_logger
+
+**Next Step:**
+🔴 **RESTART CLAUDE CODE** to reload relay with joshua_logger
+
+**Expected After Restart:**
+- ✅ Relay logs will appear in database
+- ✅ Relay tools will become available
+- ✅ Can diagnose Fiedler connectivity issue
+
+---
 
 ### Logging System Repair - COMPLETE ✅
 **Status:** FIXED
 **Completed:** 2025-10-10 17:00
 
-**Problem:** Logging system completely non-functional (0 logs in 24 hours), blocking relay diagnosis
+**Problem:** joshua_logger completely non-functional (0 logs in 24 hours)
 
 **Root Cause:**
 - Tool name mismatch: logger called `logger_log`, Godot expects `godot_logger_log`
@@ -27,10 +59,6 @@
 ```
 
 **Commit:** `a6e7262` - "Fix logging system: use correct tool name and joshua_network"
-
-### Next: Resume Relay Diagnosis
-**Status:** Ready to proceed with working logs
-**Objective:** Diagnose why Fiedler tools unavailable through relay (Issue #10)
 
 ---
 
