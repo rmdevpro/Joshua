@@ -5,12 +5,18 @@ MCP Relay V3 - stdio to WebSocket multiplexer for Claude Code.
 Acts as an MCP server on stdio, connects to multiple WebSocket MCP backends,
 aggregates their tools, and routes tool calls to the appropriate backend.
 
+V3.8 Changes:
+- CRITICAL BUG FIX: Fixed zombie/orphaned process issue when parent (Claude Code CLI) exits.
+- Added Linux prctl(PR_SET_PDEATHSIG, SIGTERM) to receive SIGTERM when parent dies.
+- Added SIGTERM/SIGINT signal handlers for graceful shutdown.
+- Process now terminates immediately when parent exits instead of persisting indefinitely.
+- Updated version to 3.8.0.
+
 V3.7 Changes:
 - CRITICAL BUG FIX: Added missing "jsonrpc": "2.0" field to all relay management tool responses.
 - Relay tools (relay_get_status, relay_list_servers, etc) were returning incomplete JSON-RPC responses.
 - Without the jsonrpc field, Claude Code silently ignored all relay tool responses.
 - All 5 management tool handlers now return proper MCP protocol-compliant responses.
-- Updated version to 3.7.0.
 """
 import asyncio
 import json
@@ -19,6 +25,9 @@ import os
 import sys
 import uuid
 import fcntl
+import signal
+import ctypes
+import ctypes.util
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
 
@@ -733,7 +742,7 @@ class MCPRelay:
                 if not self.initialized:
                     await self.connect_all_backends()
                     self.initialized = True
-                return {"jsonrpc": "2.0", "result": {"protocolVersion": "2024-11-05", "capabilities": {"tools": {"listChanged": True}}, "serverInfo": {"name": "mcp-relay", "version": "3.7.0"}}, "id": request_id}
+                return {"jsonrpc": "2.0", "result": {"protocolVersion": "2024-11-05", "capabilities": {"tools": {"listChanged": True}}, "serverInfo": {"name": "mcp-relay", "version": "3.8.0"}}, "id": request_id}
             elif method == "notifications/initialized": return None
             elif method == "tools/list": return {"jsonrpc": "2.0", "result": {"tools": self.get_all_tools()}, "id": request_id}
             elif method == "tools/call":
@@ -765,11 +774,29 @@ class MCPRelay:
         writer_transport, writer_protocol = await asyncio.get_event_loop().connect_write_pipe(asyncio.streams.FlowControlMixin, sys.stdout)
         self.stdout_writer = asyncio.StreamWriter(writer_transport, writer_protocol, None, asyncio.get_event_loop())
 
+        # Set up signal handler for graceful shutdown when parent dies
+        loop = asyncio.get_running_loop()
+        main_task = asyncio.current_task()
+
+        def handle_sigterm():
+            logger.info("Received SIGTERM (parent died), shutting down gracefully")
+            main_task.cancel()
+
+        def handle_sigint():
+            logger.info("Received SIGINT (Ctrl+C), shutting down gracefully")
+            main_task.cancel()
+
+        # Add signal handlers for SIGTERM and SIGINT
+        loop.add_signal_handler(signal.SIGTERM, handle_sigterm)
+        loop.add_signal_handler(signal.SIGINT, handle_sigint)
+
         logger.info("MCP Relay ready")
         try:
             while True:
                 line = await reader.readline()
-                if not line: break
+                if not line:
+                    logger.info("EOF on stdin, exiting")
+                    break
                 try:
                     request = json.loads(line.decode('utf-8'))
                     logger.info(f"Received request: {request.get('method')}")
@@ -779,6 +806,8 @@ class MCPRelay:
                         await self.stdout_writer.drain()
                 except json.JSONDecodeError as e: logger.error(f"Invalid JSON: {e}")
                 except Exception as e: logger.error(f"Request handling error: {e}", exc_info=True)
+        except asyncio.CancelledError:
+            logger.info("Shutdown due to signal")
         finally:
             observer.stop()
             observer.join()
@@ -799,5 +828,24 @@ if __name__ == "__main__":
     default_config = os.path.join(os.path.dirname(os.path.abspath(__file__)), "backends.yaml")
     parser.add_argument("--config", default=default_config, help="Path to backends configuration file")
     args = parser.parse_args()
+
+    # Set parent death signal on Linux to ensure we exit when Claude Code CLI exits
+    if sys.platform == "linux":
+        try:
+            PR_SET_PDEATHSIG = 1
+            libc = ctypes.CDLL(ctypes.util.find_library('c'), use_errno=True)
+            parent_pid = os.getppid()
+
+            # Only set if parent is not init (PID 1)
+            if parent_pid != 1:
+                result = libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+                if result != 0:
+                    errno = ctypes.get_errno()
+                    raise OSError(errno, f"prctl PR_SET_PDEATHSIG failed: {os.strerror(errno)}")
+                else:
+                    logger.info(f"Parent death signal set to SIGTERM (parent PID={parent_pid})")
+        except Exception as e:
+            logger.warning(f"Failed to set parent death signal: {e}")
+
     relay = MCPRelay(config_path=args.config)
     asyncio.run(relay.run())
