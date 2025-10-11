@@ -1,0 +1,120 @@
+{
+  "correlation_id": "1c760353",
+  "timestamp": "20251011_172710",
+  "prompt": "<redacted - 701 chars>",
+  "prompt_length": 701,
+  "files": [
+    "/mnt/irina_storage/files/temp/paradigm_review/round4_package.md",
+    "/mnt/projects/Joshua/mads/MAD Structure.PNG"
+  ],
+  "package_metadata": {
+    "num_files": 2,
+    "total_size": 135800,
+    "total_lines": 2658,
+    "text_files": 1,
+    "binary_files": 1
+  },
+  "models": [
+    "gemini-2.5-pro",
+    "gpt-5",
+    "gpt-4o",
+    "gpt-4o-mini",
+    "gpt-4-turbo",
+    "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+    "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+    "deepseek-ai/DeepSeek-R1",
+    "grok-4-0709"
+  ],
+  "results": [
+    {
+      "model": "gemini-2.5-pro",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/gemini-2.5-pro.md",
+      "duration": 32.7,
+      "tokens": {
+        "prompt": 30917,
+        "completion": 1092
+      }
+    },
+    {
+      "model": "gpt-5",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/gpt-5.md",
+      "duration": 103.75,
+      "tokens": {
+        "prompt": 29164,
+        "completion": 2527
+      }
+    },
+    {
+      "model": "gpt-4o",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/gpt-4o.md",
+      "duration": 55.2,
+      "tokens": {
+        "prompt": 29165,
+        "completion": 924
+      }
+    },
+    {
+      "model": "gpt-4o-mini",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/gpt-4o-mini.md",
+      "duration": 48.4,
+      "tokens": {
+        "prompt": 29165,
+        "completion": 738
+      }
+    },
+    {
+      "model": "gpt-4-turbo",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/gpt-4-turbo.md",
+      "duration": 55.04,
+      "tokens": {
+        "prompt": 29324,
+        "completion": 695
+      }
+    },
+    {
+      "model": "meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/meta-llama_Meta-Llama-3.1-70B-Instruct-Turbo.md",
+      "duration": 38.81,
+      "tokens": {
+        "prompt": 29347,
+        "completion": 506
+      }
+    },
+    {
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/meta-llama_Llama-3.3-70B-Instruct-Turbo.md",
+      "duration": 36.16,
+      "tokens": {
+        "prompt": 29347,
+        "completion": 15
+      }
+    },
+    {
+      "model": "deepseek-ai/DeepSeek-R1",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/deepseek-ai_DeepSeek-R1.md",
+      "duration": 73.45,
+      "tokens": {
+        "prompt": 29400,
+        "completion": 1770
+      }
+    },
+    {
+      "model": "grok-4-0709",
+      "status": "success",
+      "output_file": "/mnt/irina_storage/files/temp/paradigm_review/round4_responses/20251011_172710_1c760353/grok-4-0709.md",
+      "duration": 63.69,
+      "tokens": {
+        "prompt": 29317,
+        "completion": 1887
+      }
+    }
+  ]
+}

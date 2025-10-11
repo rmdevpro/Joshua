@@ -1,0 +1,37 @@
+**ROUND 5 - FINAL SYNTHESIS: CREATE UNIFIED 1-PAGE SUMMARY**
+
+You have reached consensus in Round 4. Now you must create a SINGLE unified summary that ALL models can agree on.
+
+**CRITICAL REQUIREMENTS:**
+- Maximum 1 page (~300-400 words)
+- Must represent the collective consensus, not individual positions
+- Every model must be able to signal "I AGREE WITH THIS SUMMARY"
+
+**Format:**
+
+## LLM Collective Consensus: Paradigm Shift for LLM-Native Architecture
+
+**Core Conclusion:** [2-3 sentences stating the fundamental agreed position]
+
+**Key Consensus Points:**
+1. [First major agreement]
+2. [Second major agreement]  
+3. [Third major agreement]
+[Continue as needed, max 5-6 points]
+
+**Unified Recommendations:**
+- [Actionable recommendation 1]
+- [Actionable recommendation 2]
+- [Actionable recommendation 3]
+
+**When to Apply:**
+- [Conditions for monolithic]
+- [Conditions for distributed]
+
+**STATUS:** 
+- "I AGREE WITH THIS SUMMARY" (if you approve)
+- "I DISAGREE BECAUSE: [specific issue]" (if you cannot approve)
+
+**Goal: ALL models must approve the same summary. Iterate until unanimous.**
+
+This is the final convergence - create a summary the entire LLM collective stands behind.

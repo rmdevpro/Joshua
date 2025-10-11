@@ -1,0 +1,47 @@
+=== Fiedler Run 2025-10-11T17:41:48.448167 (cid=779f4c3d) ===
+
+[17:41:48] [cid:779f4c3d] Starting Fiedler run (correlation_id: 779f4c3d)
+[17:41:48] [cid:779f4c3d] Models: gemini-2.5-pro, gpt-5, gpt-4o, gpt-4o-mini, gpt-4-turbo, meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo, deepseek-ai/DeepSeek-R1, grok-4-0709
+[17:41:48] [cid:779f4c3d] Output: /mnt/irina_storage/files/temp/paradigm_review/round7_responses/20251011_174148_779f4c3d
+[17:41:48] [cid:779f4c3d] Compiling package from 2 file(s)
+[17:41:48] [cid:779f4c3d] Compiling package from 2 files...
+[17:41:48] [cid:779f4c3d] Adding file 1/2: round8_package.md
+[17:41:48] [cid:779f4c3d] Adding file 2/2: MAD Structure.PNG
+[17:41:48] [cid:779f4c3d] Binary file detected, will handle as attachment: MAD Structure.PNG
+[17:41:48] [cid:779f4c3d] Package compiled: 103,932 bytes, 2,218 lines
+[17:41:48] [cid:779f4c3d] 1 binary file(s) for attachment handling
+[17:41:48] [cid:779f4c3d] Package compiled: 103932 bytes, 2218 lines
+[17:41:48] [cid:779f4c3d] Resolving 1 binary file(s) as attachments...
+[17:41:48] [cid:779f4c3d]   Resolving: MAD Structure.PNG
+[17:41:48] [cid:779f4c3d]   MAD Structure.PNG: image/png, 66,976 bytes, sha256=7c2618e0d4115aeb...
+[17:41:48] [cid:779f4c3d] Sending to 8 model(s) in parallel (max_workers=4)
+[17:41:48] [cid:779f4c3d] [gemini-2.5-pro] Sending to gemini-2.5-pro...
+[17:41:48] [cid:779f4c3d] [gpt-5] Sending to gpt-5...
+[17:41:48] [cid:779f4c3d] [gpt-4o] Sending to gpt-4o...
+[17:41:48] [cid:779f4c3d] [gpt-4o-mini] Sending to gpt-4o-mini...
+[17:41:48] [cid:779f4c3d] [gpt-4-turbo] Sending to gpt-4-turbo...
+[17:41:48] [cid:779f4c3d] [meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo] Sending to meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo...
+[17:41:48] [cid:779f4c3d] [deepseek-ai/DeepSeek-R1] Sending to deepseek-ai/DeepSeek-R1...
+[17:41:48] [cid:779f4c3d] [grok-4-0709] Sending to grok-4-0709...
+[17:41:48] [cid:779f4c3d] [gemini-2.5-pro] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [gpt-5] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [gpt-4o] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [gpt-4o-mini] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [gpt-4-turbo] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [deepseek-ai/DeepSeek-R1] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [grok-4-0709] Attempt 1/3
+[17:41:48] [cid:779f4c3d] [gemini-2.5-pro] Sending 1 attachment(s) natively to gemini-2.5-pro
+[17:42:21] [cid:779f4c3d] [gemini-2.5-pro] gemini-2.5-pro completed in 33.1s
+[17:42:21] [cid:779f4c3d] [grok-4-0709] grok-4-0709 completed in 33.2s
+[17:42:25] [cid:779f4c3d] [meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo] meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo completed in 37.1s
+[17:42:33] [cid:779f4c3d] [gpt-4o-mini] Content type: <class 'str'>, length: 1823
+[17:42:33] [cid:779f4c3d] [gpt-4o-mini] gpt-4o-mini completed in 45.3s
+[17:42:36] [cid:779f4c3d] [gpt-4o] Content type: <class 'str'>, length: 2222
+[17:42:36] [cid:779f4c3d] [gpt-4o] gpt-4o completed in 47.6s
+[17:42:39] [cid:779f4c3d] [gpt-4-turbo] Content type: <class 'str'>, length: 2972
+[17:42:39] [cid:779f4c3d] [gpt-4-turbo] gpt-4-turbo completed in 51.3s
+[17:42:51] [cid:779f4c3d] [deepseek-ai/DeepSeek-R1] deepseek-ai/DeepSeek-R1 completed in 63.3s
+[17:43:27] [cid:779f4c3d] [gpt-5] Content type: <class 'str'>, length: 2791
+[17:43:27] [cid:779f4c3d] [gpt-5] gpt-5 completed in 98.7s
+[17:43:27] [cid:779f4c3d] Run complete: 8/8 models succeeded
