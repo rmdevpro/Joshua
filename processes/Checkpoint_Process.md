@@ -163,6 +163,8 @@ sshpass -p "Edgar01760" ssh aristotle9@192.168.1.210 "cd /mnt/projects/Joshua &&
 
 Use this checklist at each checkpoint:
 
+- [ ] Clean up old containers
+- [ ] Clean up files that have no ongoing use
 - [ ] CURRENT_STATUS.md updated (includes all restart information)
 - [ ] Project documentation updated (README, architecture, requirements, KB)
 - [ ] Git status checked

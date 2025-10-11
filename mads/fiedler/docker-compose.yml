@@ -28,7 +28,7 @@ services:
       - FIEDLER_GROK_PYTHON=/usr/local/bin/python
 
       # Security: File access controls
-      - FIEDLER_ALLOWED_FILE_ROOTS=/app/allowed_files,/app/fiedler_output,/mnt/projects
+      - FIEDLER_ALLOWED_FILE_ROOTS=/app/allowed_files,/app/fiedler_output,/mnt/projects,/mnt/irina_storage/files
       - FIEDLER_MAX_PACKAGE_BYTES=20971520  # 20MB
       - FIEDLER_MAX_FILE_COUNT=100
       - FIEDLER_MAX_LINES=100000
@@ -64,6 +64,9 @@ services:
 
       # Direct access to project files (read-only) - Change 1
       - /mnt/projects:/mnt/projects:ro
+
+      # Local backup logs (joshua_logger emergency logs)
+      - /tmp/joshua_logs:/tmp/joshua_logs
 
       # Client scripts (read-only)
       - ../../mads/fiedler/tools/gemini_client.py:/app/clients/gemini_client.py:ro
