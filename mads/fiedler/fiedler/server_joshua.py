@@ -1,20 +1,25 @@
 """Fiedler MCP Server - joshua_network implementation."""
 import asyncio
 import json
+import uuid
 from typing import Any, Dict
 
 from joshua_network import Server
 from joshua_logger import Logger
 
+# Import the actual tool functions to be wrapped or replaced
 from .tools import (
     fiedler_list_models,
     fiedler_set_models,
     fiedler_set_output,
     fiedler_get_config,
     fiedler_send,
-    fiedler_set_key,
-    fiedler_delete_key,
-    fiedler_list_keys,
+)
+# Import the newly async secret management functions
+from .utils.secrets import (
+    set_api_key as set_api_key_async,
+    delete_api_key as delete_api_key_async,
+    list_stored_providers as list_stored_providers_async,
 )
 
 # Initialize joshua_logger for centralized logging
@@ -67,7 +72,7 @@ TOOL_DEFINITIONS = {
         },
     },
     "fiedler_send": {
-        "description": "Send prompt and optional package files to configured LLMs. Returns results from all models in parallel.",
+        "description": "Send prompt and optional package files to configured LLMs. Returns a correlation_id immediately.",
         "inputSchema": {
             "type": "object",
             "properties": {
@@ -156,27 +161,78 @@ async def handle_get_config() -> Dict[str, Any]:
 
 
 async def handle_send(prompt: str, files: list = None, models: list = None) -> Dict[str, Any]:
-    """Handle fiedler_send tool call."""
-    # Run in thread since fiedler_send is blocking
-    result = await asyncio.to_thread(fiedler_send, prompt=prompt, files=files, models=models)
-    return {"content": [{"type": "text", "text": json.dumps(result, indent=2)}]}
+    """
+    Handle fiedler_send tool call.
+    FIXED: Returns immediately and runs the LLM calls in the background.
+    """
+    correlation_id = str(uuid.uuid4())[:8]
+    await logger.log(
+        "INFO",
+        f"Received fiedler_send request, creating background task.",
+        "fiedler-mcp",
+        data={"correlation_id": correlation_id, "prompt_len": len(prompt)}
+    )
+
+    # Run fiedler_send in the background, don't await it here.
+    asyncio.create_task(fiedler_send(
+        prompt=prompt,
+        files=files,
+        models=models,
+        correlation_id=correlation_id  # Pass the generated ID
+    ))
+
+    # Return immediately with the correlation_id
+    response_data = {
+        "status": "pending",
+        "correlation_id": correlation_id,
+        "message": "Fiedler 'send' task started. Results will be saved to the configured output directory."
+    }
+    return {"content": [{"type": "text", "text": json.dumps(response_data, indent=2)}]}
 
 
 async def handle_set_key(provider: str, api_key: str) -> Dict[str, Any]:
-    """Handle fiedler_set_key tool call."""
-    result = fiedler_set_key(provider, api_key)
+    """
+    Handle fiedler_set_key tool call.
+    FIXED: Calls the async version of the function.
+    """
+    try:
+        await set_api_key_async(provider, api_key)
+        result = {"status": "success", "message": f"API key for '{provider}' was stored successfully."}
+    except Exception as e:
+        await logger.log("ERROR", f"Failed to set API key for {provider}: {e}", "fiedler-mcp")
+        result = {"status": "error", "message": str(e)}
     return {"content": [{"type": "text", "text": json.dumps(result, indent=2)}]}
 
 
 async def handle_delete_key(provider: str) -> Dict[str, Any]:
-    """Handle fiedler_delete_key tool call."""
-    result = fiedler_delete_key(provider)
+    """
+    Handle fiedler_delete_key tool call.
+    FIXED: Calls the async version of the function.
+    """
+    try:
+        deleted = await delete_api_key_async(provider)
+        if deleted:
+            message = f"API key for '{provider}' was deleted."
+        else:
+            message = f"No API key found for '{provider}' to delete."
+        result = {"status": "success", "message": message}
+    except Exception as e:
+        await logger.log("ERROR", f"Failed to delete API key for {provider}: {e}", "fiedler-mcp")
+        result = {"status": "error", "message": str(e)}
     return {"content": [{"type": "text", "text": json.dumps(result, indent=2)}]}
 
 
 async def handle_list_keys() -> Dict[str, Any]:
-    """Handle fiedler_list_keys tool call."""
-    result = fiedler_list_keys()
+    """
+    Handle fiedler_list_keys tool call.
+    FIXED: Calls the async version of the function.
+    """
+    try:
+        providers = await list_stored_providers_async()
+        result = {"status": "success", "providers_with_keys": providers}
+    except Exception as e:
+        await logger.log("ERROR", f"Failed to list stored keys: {e}", "fiedler-mcp")
+        result = {"status": "error", "message": str(e)}
     return {"content": [{"type": "text", "text": json.dumps(result, indent=2)}]}
 
 

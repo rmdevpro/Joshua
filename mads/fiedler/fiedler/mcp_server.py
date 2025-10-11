@@ -129,12 +129,15 @@ class FiedlerMCPServer:
 
     def _call_tool(self, tool_name: str, arguments: Dict[str, Any]) -> Any:
         """Execute the requested tool."""
+        import asyncio
+
         if tool_name == "fiedler_send":
-            return fiedler_send(
+            # fiedler_send is async - need to run it in event loop
+            return asyncio.run(fiedler_send(
                 prompt=arguments["prompt"],
                 files=arguments.get("files"),
                 models=arguments.get("models")
-            )
+            ))
 
         elif tool_name == "fiedler_list_models":
             return fiedler_list_models()

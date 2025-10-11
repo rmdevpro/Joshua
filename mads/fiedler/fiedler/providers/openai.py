@@ -2,7 +2,8 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from openai import OpenAI
+# FIXED: Use the async client
+from openai import AsyncOpenAI
 
 from .base import BaseProvider
 from ..utils.secrets import get_api_key
@@ -13,13 +14,8 @@ class OpenAIProvider(BaseProvider):
 
     def __init__(self, model_id: str, config: Dict[str, Any], api_key_env: str):
         super().__init__(model_id, config)
-        # Check keyring first, then env var
-        api_key = get_api_key("openai", api_key_env)
-        if not api_key:
-            raise ValueError(
-                f"No API key found for OpenAI. Set via fiedler_set_key or environment variable {api_key_env}"
-            )
-        self.client = OpenAI(api_key=api_key)
+        self.api_key_env = api_key_env
+        self.client: Optional[AsyncOpenAI] = None
 
     async def _send_impl(
         self,
@@ -29,24 +25,30 @@ class OpenAIProvider(BaseProvider):
         logger,
         attachments: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
-        # Combine prompt and package
+        if not self.client:
+            api_key = await get_api_key("openai", self.api_key_env)
+            if not api_key:
+                raise ValueError(
+                    f"No API key found for OpenAI. Set via fiedler_set_key or environment variable {self.api_key_env}"
+                )
+            # FIXED: Instantiate the async client
+            self.client = AsyncOpenAI(api_key=api_key)
+
         full_input = f"{prompt}\n\n{package}" if package else prompt
 
-        # Call OpenAI API
-        # Note: GPT-5 and o-series models use max_completion_tokens parameter name
-        # Other models still use max_tokens, so we check the model name
+        # FIXED: await the async call
         if "gpt-5" in self.model_id or self.model_id.startswith("o-") or self.model_id.startswith("o1-"):
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model_id,
                 messages=[{"role": "user", "content": full_input}],
-                max_completion_tokens=self.max_completion_tokens,  # GPT-5/o-series parameter name
+                max_completion_tokens=self.max_completion_tokens,
                 timeout=self.timeout,
             )
         else:
-            response = self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(
                 model=self.model_id,
                 messages=[{"role": "user", "content": full_input}],
-                max_tokens=self.max_completion_tokens,  # Legacy parameter name for GPT-4o, etc.
+                max_tokens=self.max_completion_tokens,
                 timeout=self.timeout,
             )
 

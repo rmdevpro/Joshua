@@ -1,5 +1,6 @@
 """Base provider abstraction with retry logic."""
 import time
+import asyncio
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
 from pathlib import Path
@@ -66,7 +67,8 @@ class BaseProvider(ABC):
                 if attempt < self.retry_attempts - 1:
                     wait_time = 2 ** attempt  # Exponential backoff: 1s, 2s, 4s
                     await logger.log("INFO", f"Retrying in {wait_time}s...", "fiedler-providers", data={"model": self.model_id})
-                    time.sleep(wait_time)
+                    # FIXED: Use asyncio.sleep for non-blocking wait
+                    await asyncio.sleep(wait_time)
                 else:
                     # Final attempt failed
                     duration = time.time() - start_time

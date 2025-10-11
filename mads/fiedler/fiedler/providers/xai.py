@@ -1,6 +1,7 @@
 """xAI (Grok) provider implementation via subprocess."""
 import os
 import subprocess
+import asyncio
 import tempfile
 from pathlib import Path
 from typing import Dict, Any, Optional, List
@@ -15,12 +16,9 @@ class XAIProvider(BaseProvider):
 
     def __init__(self, model_id: str, config: Dict[str, Any], api_key_env: str):
         super().__init__(model_id, config)
-        # Check keyring first, then env var
-        self.api_key = get_api_key("xai", api_key_env)
-        if not self.api_key:
-            raise ValueError(
-                f"No API key found for xAI. Set via fiedler_set_key or environment variable {api_key_env}"
-            )
+        # Store api_key_env for lazy loading in async context
+        self.api_key_env = api_key_env
+        self.api_key = None
 
     async def _send_impl(
         self,
@@ -30,6 +28,14 @@ class XAIProvider(BaseProvider):
         logger,
         attachments: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
+        # Lazy-load API key on first use (async context)
+        if not self.api_key:
+            self.api_key = await get_api_key("xai", self.api_key_env)
+            if not self.api_key:
+                raise ValueError(
+                    f"No API key found for xAI. Set via fiedler_set_key or environment variable {self.api_key_env}"
+                )
+
         # Combine prompt and package
         full_input = f"{prompt}\n\n{package}" if package else prompt
 
@@ -86,27 +92,38 @@ class XAIProvider(BaseProvider):
             env = os.environ.copy()
             env["XAI_API_KEY"] = self.api_key
 
-            result = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env,
-                timeout=self.timeout + 50
-            )
+            # FIXED: Use async subprocess for non-blocking execution
+            try:
+                process = await asyncio.create_subprocess_exec(
+                    *cmd,
+                    stdout=asyncio.subprocess.PIPE,
+                    stderr=asyncio.subprocess.PIPE,
+                    env=env
+                )
+                stdout_bytes, stderr_bytes = await asyncio.wait_for(
+                    process.communicate(),
+                    timeout=self.timeout + 50
+                )
+            except asyncio.TimeoutError:
+                process.kill()
+                await process.wait()
+                raise RuntimeError("grok_client.py timed out")
 
-            if result.returncode != 0:
-                raise RuntimeError(f"grok_client.py failed: {result.stderr}")
+            stderr = stderr_bytes.decode()
+            if process.returncode != 0:
+                raise RuntimeError(f"grok_client.py failed: {stderr}")
+
+            result_stdout = stdout_bytes.decode()
 
             # Write output
             output_file.parent.mkdir(parents=True, exist_ok=True)
             with open(output_file, "w", encoding="utf-8") as f:
-                f.write(result.stdout)
+                f.write(result_stdout)
 
             # Estimate tokens (Grok wrapper doesn't return usage)
             tokens = {
                 "prompt": estimate_tokens(full_input, self.model_id),
-                "completion": estimate_tokens(result.stdout, self.model_id),
+                "completion": estimate_tokens(result_stdout, self.model_id),
             }
 
             return {"tokens": tokens}

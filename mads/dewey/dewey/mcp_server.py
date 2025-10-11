@@ -98,6 +98,31 @@ TOOL_DEFINITIONS = {
             "type": "object",
             "properties": {}
         }
+    },
+    "dewey_store_logs_batch": {
+        "description": "Store a batch of log entries (max 1000 per batch)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "logs": {
+                    "type": "array",
+                    "description": "Array of log entries to store",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "level": {"type": "string", "description": "Log level (ERROR, WARN, INFO, DEBUG, TRACE)"},
+                            "message": {"type": "string", "description": "Log message"},
+                            "component": {"type": "string", "description": "Component name"},
+                            "data": {"type": "object", "description": "Optional structured data"},
+                            "trace_id": {"type": "string", "description": "Optional trace ID"},
+                            "created_at": {"type": "string", "description": "Optional timestamp (ISO format)"}
+                        },
+                        "required": ["level", "message", "component"]
+                    }
+                }
+            },
+            "required": ["logs"]
+        }
     }
 }
 

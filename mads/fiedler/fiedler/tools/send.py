@@ -6,6 +6,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 import uuid
 import json
+import asyncio
 
 from ..utils import get_models, get_output_dir
 from ..utils.logger import ProgressLogger
@@ -98,7 +99,8 @@ async def send_to_model(
 async def fiedler_send(
     prompt: str,
     files: Optional[List[str]] = None,
-    models: Optional[List[str]] = None
+    models: Optional[List[str]] = None,
+    correlation_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Send prompt and optional package to configured models.
@@ -107,6 +109,7 @@ async def fiedler_send(
         prompt: User prompt/question
         files: Optional list of file paths to compile into package
         models: Optional override of default models
+        correlation_id: Optional pre-generated correlation ID
 
     Returns:
         Dict with status, correlation_id, output_dir, results per model
@@ -144,16 +147,17 @@ async def fiedler_send(
     output_base = get_output_dir()
 
     # Create correlation ID and timestamped directory
-    correlation_id = str(uuid.uuid4())[:8]
+    # FIXED: Use provided correlation_id or generate a new one
+    cid = correlation_id or str(uuid.uuid4())[:8]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path(output_base) / f"{timestamp}_{correlation_id}"
+    output_dir = Path(output_base) / f"{timestamp}_{cid}"
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Setup logger
     log_file = output_dir / "fiedler.log"
-    logger = ProgressLogger(correlation_id, log_file)
+    logger = ProgressLogger(cid, log_file)
 
-    await logger.log("INFO", f"Starting Fiedler run (correlation_id: {correlation_id})", "fiedler-tools")
+    await logger.log("INFO", f"Starting Fiedler run (correlation_id: {cid})", "fiedler-tools")
     await logger.log("INFO", f"Models: {', '.join(models)}", "fiedler-tools")
     await logger.log("INFO", f"Output: {output_dir}", "fiedler-tools")
 
@@ -203,14 +207,13 @@ async def fiedler_send(
     await logger.log("INFO", f"Sending to {len(models)} model(s) in parallel (max_workers={max_workers})", "fiedler-tools")
 
     # Use asyncio.gather for parallel async execution
-    import asyncio
     tasks = [
         send_to_model(
             model_id,
             package,
             prompt,
             output_dir,
-            correlation_id,
+            cid,
             config,
             logger,
             attachments=attachments if attachments else None
@@ -223,7 +226,7 @@ async def fiedler_send(
     # Create summary (with optional prompt redaction for security)
     save_prompt = os.getenv("FIEDLER_SAVE_PROMPT", "0") == "1"
     summary = {
-        "correlation_id": correlation_id,
+        "correlation_id": cid,
         "timestamp": timestamp,
         "prompt": prompt if save_prompt else f"<redacted - {len(prompt)} chars>",
         "prompt_length": len(prompt),
@@ -250,7 +253,7 @@ async def fiedler_send(
 
     return {
         "status": status,
-        "correlation_id": correlation_id,
+        "correlation_id": cid,
         "output_dir": str(output_dir),
         "summary_file": str(summary_file),
         "results": results,

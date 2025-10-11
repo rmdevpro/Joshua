@@ -2,7 +2,8 @@
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-from openai import OpenAI
+# FIXED: Use the async client
+from openai import AsyncOpenAI
 
 from .base import BaseProvider
 from ..utils.secrets import get_api_key
@@ -13,13 +14,9 @@ class TogetherProvider(BaseProvider):
 
     def __init__(self, model_id: str, config: Dict[str, Any], api_key_env: str, base_url: str):
         super().__init__(model_id, config)
-        # Check keyring first, then env var
-        api_key = get_api_key("together", api_key_env)
-        if not api_key:
-            raise ValueError(
-                f"No API key found for Together.AI. Set via fiedler_set_key or environment variable {api_key_env}"
-            )
-        self.client = OpenAI(api_key=api_key, base_url=base_url)
+        self.api_key_env = api_key_env
+        self.base_url = base_url
+        self.client: Optional[AsyncOpenAI] = None
 
     async def _send_impl(
         self,
@@ -29,14 +26,22 @@ class TogetherProvider(BaseProvider):
         logger,
         attachments: Optional[List[Dict[str, Any]]] = None
     ) -> Dict[str, Any]:
-        # Combine prompt and package
+        if not self.client:
+            api_key = await get_api_key("together", self.api_key_env)
+            if not api_key:
+                raise ValueError(
+                    f"No API key found for Together.AI. Set via fiedler_set_key or environment variable {self.api_key_env}"
+                )
+            # FIXED: Instantiate the async client
+            self.client = AsyncOpenAI(api_key=api_key, base_url=self.base_url)
+
         full_input = f"{prompt}\n\n{package}" if package else prompt
 
-        # Call Together.AI API (OpenAI-compatible)
-        response = self.client.chat.completions.create(
+        # FIXED: await the async call
+        response = await self.client.chat.completions.create(
             model=self.model_id,
             messages=[{"role": "user", "content": full_input}],
-            max_tokens=self.max_completion_tokens,  # Completion budget, not context window
+            max_tokens=self.max_completion_tokens,
             timeout=self.timeout,
         )
 
